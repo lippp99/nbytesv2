@@ -1,0 +1,22 @@
+// Text of this dashboard page (shared/common-copy.ts holds the labels every page uses).
+export const apiKeysCopy = {
+  title: "API Keys",
+  sub: "Key dipakai di header Authorization. Simpan di server, jangan di kode frontend.",
+  create: "Buat key",
+  name: "Nama key",
+  namePlaceholder: "Contoh: Produksi",
+  budget: "Batas bulanan (USD, opsional)",
+  save: "Buat",
+  cancel: "Batal",
+  nameRequired: "Isi nama key.",
+  budgetInvalid: "Tulis angka dolar, misalnya 50 atau 49.99.",
+  newKeyTitle: "Key baru dibuat",
+  newKeyBody: "Salin sekarang. Key lengkap hanya ditampilkan sekali. Mode demo: key ini tidak berlaku.",
+  done: "Selesai",
+  cols: { name: "Nama", key: "Key", created: "Dibuat", lastUsed: "Terakhir dipakai", budget: "Anggaran", actions: "Aksi" },
+  never: "Belum pernah",
+  noLimit: "Tanpa batas",
+  revoke: "Cabut",
+  confirmRevoke: "Cabut key ini?",
+  confirm: "Ya, cabut",
+};

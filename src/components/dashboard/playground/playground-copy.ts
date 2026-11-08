@@ -1,0 +1,47 @@
+// Text of the Playground page.
+export const playground = {
+  title: "Playground",
+  sub: "Uji model dan parameter sebelum menulis kode. Percakapan ini bisa disalin sebagai request API.",
+  you: "Anda",
+  session: "Sesi",
+  clear: "Bersihkan",
+  context: "konteks",
+  empty: {
+    title: (model: string) => `Uji ${model} sebelum menulis kode`,
+    body: "Atur parameter di panel kanan, lalu kirim pesan. Request API untuk percakapan ini ada di tab Kode.",
+    suggestions: [
+      "Ringkas teks berikut menjadi tiga poin singkat:",
+      "Tulis fungsi Python yang memvalidasi alamat email.",
+      "Jelaskan beda REST dan GraphQL untuk tim backend.",
+    ],
+  },
+  composer: {
+    label: "Pesan",
+    placeholder: "Tulis pesan untuk model…",
+    hintSend: "kirim",
+    hintNewline: "baris baru",
+    estimate: "token",
+    send: "Kirim",
+    stop: "Stop",
+  },
+  reply: (prompt: string, model: string) =>
+    `Mode demo: ini balasan contoh untuk "${prompt}". Setelah backend tersambung, jawaban asli dari ${model} muncul di sini.`,
+  usage: { input: "masuk", output: "keluar" },
+  thinking: "menyusun jawaban",
+  settings: {
+    tabs: "Pengaturan",
+    params: "Parameter",
+    code: "Kode",
+    model: "Model",
+    system: "System prompt",
+    systemPlaceholder: "Contoh: Jawab singkat dalam bahasa Indonesia.",
+    temperature: "Temperature",
+    temperatureHint: "Rendah untuk jawaban konsisten, tinggi untuk variasi.",
+    maxTokens: "Max tokens",
+    maxTokensHint: "Batas panjang jawaban. Biaya keluar dihitung dari token yang benar-benar dipakai.",
+    price: "Harga per 1 juta token",
+    input: "Input",
+    output: "Output",
+    codeHint: "Request untuk percakapan dan parameter saat ini. Simpan key di NBYTES_API_KEY.",
+  },
+};
