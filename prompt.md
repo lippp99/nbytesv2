@@ -1,6 +1,6 @@
 Sebelum mengerjakan apa pun, lakukan ini berurutan:
 
-1. Patuhi CLAUDE.md, AGENTS.md, dan semua aturan di `.claude/rules/` (architecture.md, backend-security.md, tooling.md). Buka berkas yang belum termuat sebelum mengedit.
+1. Patuhi CLAUDE.md, AGENTS.md, dan semua aturan di `.claude/rules/` (architecture.md, backend-security.md, tooling.md, git.md). Buka berkas yang belum termuat sebelum mengedit.
 2. Cek branch aktif dengan `git status -sb`. Kerja di `develop` (atau branch fitur dari `develop`), jangan pernah langsung di `master`.
 3. Cari berkas yang tepat lewat grep di PROJECT_MAP.md (jangan dibaca utuh), lalu cocokkan dengan filesystem. Setelah struktur berubah, jalankan `npm run map`.
 4. Gunakan ponytail.

@@ -25,6 +25,8 @@ Fullstack Next.js app (App Router, TypeScript, Tailwind v4, shadcn/ui, next-them
 - File/folder shape, size limits, dependency direction: `.claude/rules/architecture.md`
 - Backend, data, secrets, security: `.claude/rules/backend-security.md`
 - Which skill / plugin / MCP to use for which task: `.claude/rules/tooling.md`
+- Git branches, commit format, push and PR rules: `.claude/rules/git.md`
+- Dashboard look (tokens, type, layout, components; landing stays untouched): `.claude/rules/dashboard-design.md`
 
 ## Hard rules
 

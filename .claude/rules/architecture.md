@@ -27,6 +27,10 @@ src/
   components/
     ui/                shadcn primitives. Domain-free. Add via CLI only.
     <feature>/         Components of one feature (create when >= 3 related files).
+    <area>/            A feature area with several pages (e.g. dashboard). Holds folders only, see "Feature areas".
+      shell/           The area's frame: layout parts, navigation, header, footer.
+      shared/          Pieces used by >= 2 pages of the area (mock data, common copy, cards).
+      <page>/          One folder per route of the area, even with a single file.
   lib/                 Client-safe code: contracts/validation, API clients, formatting.
     server/<domain>/   Server-only (DB, auth, payments, external providers). `import "server-only"`.
       db/              Drizzle client (`client.ts`) and `schema/` (one file per domain).
@@ -46,6 +50,8 @@ tasks/                 (planned) Audits, designs, reports. Not a contract.
 | Validation / types shared by client and server | `src/lib/<name>-contract.ts` |
 | DB access, auth, payments, external providers | `src/lib/server/<domain>/` + `import "server-only"` |
 | Component of one feature | `src/components/<feature>/` |
+| Component of one page in an area | `src/components/<area>/<page>/` |
+| Pages that share a layout but no URL segment | route group `src/app/(<area>)/` |
 | Component used by several features | `src/components/<name>.tsx` (no cross-feature imports) |
 | Client HTTP calls | `src/lib/<name>-client.ts` (components never call raw `fetch`) |
 | Large static data | its own data file |
@@ -61,6 +67,7 @@ app/api  ->  lib/server  ->  lib (contract)
 - `components/*` and `lib/*.ts` never import `lib/server/*`.
 - `lib/server/*` never imports `components/*` or `app/*`.
 - Feature folders do not reach into each other. Shared needs move up to `components/<name>.tsx` or `lib/`.
+- Inside an area: `<page>/` -> `shared/`, `shell/` -> `shared/`; never `<page>/` -> another `<page>/`.
 - Validate input once in a `*-contract.ts`, used by both client and server. Never duplicate schemas.
 
 ## 4. Naming and structure
@@ -69,6 +76,18 @@ app/api  ->  lib/server  ->  lib (contract)
 - Suffix vocabulary: `*-contract.ts`, `*-client.ts`, `use-*.ts`, `*-form.tsx`, `*-view.tsx` (pure display), `*-page.tsx` (loads data, renders view).
 - Colocate: a feature's components, types and data live in one folder.
 - New folder only for >= 3 related files. If >= 3 files in `lib/` share a prefix, move them into a folder.
+  Exception: page folders inside a feature area (below) exist from the first file.
+- A folder holds at most ~10 files, tests included. Past that, group them by what they belong to before adding more.
+
+### Feature areas
+
+A feature with several pages (one route each), such as the dashboard, is an area, not one flat folder.
+
+- The area root holds folders only: `shell/`, `shared/` and one `<page>/` per route. No loose files at the root.
+- `<page>/` holds that page's view, its parts, its copy (`<page>-copy.ts`), its page-only data and its tests.
+- A piece moves to `shared/` only when a second page imports it; until then it stays in its page folder.
+- Pages import from `shared/` and `shell/` of their own area, never from another page folder.
+- Routes mirror the area: `src/app/(<area>)/<page>/page.tsx` renders `components/<area>/<page>/<page>-view.tsx`.
 - Route handlers export only HTTP methods + `runtime`/`dynamic`; logic goes in `lib/server`.
 - CSS: Tailwind v4 CSS-first. One global entry `src/app/globals.css` (tokens, `@theme inline`, base). Style with utilities in TSX. No new per-feature `.css` files.
 
