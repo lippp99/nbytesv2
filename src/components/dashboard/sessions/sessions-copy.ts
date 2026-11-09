@@ -1,0 +1,22 @@
+// Text of the "Active Sessions" page (PRD active-sessions §4, approved by the owner 2026-11-09).
+export const sessionsCopy = {
+  title: "Active Sessions",
+  sub: "Perangkat yang sedang masuk ke akun Anda. Keluarkan perangkat yang tidak Anda kenali.",
+  signOutOthers: "Keluar dari semua perangkat lain",
+  cols: { device: "Perangkat", location: "Lokasi", lastSeen: "Terakhir aktif", actions: "Aksi" },
+  unknownLocation: "Tidak diketahui",
+  thisDevice: "Perangkat ini",
+  signedIn: "Masuk",
+  signOut: "Keluar",
+  signOutLabel: (device: string) => `Keluarkan ${device}`,
+  revokedOne: "Perangkat dikeluarkan.",
+  revokedMany: (count: number) => `${count} perangkat dikeluarkan.`,
+  failed: "Belum bisa mengeluarkan perangkat. Coba lagi.",
+  onlyThis: "Tidak ada perangkat lain yang sedang masuk.",
+  precision: "Waktu terakhir aktif diperbarui paling sering sekali per jam.",
+  pagination: "Halaman daftar sesi",
+  pageOf: (page: number, pages: number) => `Halaman ${page} dari ${pages}`,
+  previous: "Sebelumnya",
+  next: "Berikutnya",
+  loading: "Memuat daftar sesi",
+};

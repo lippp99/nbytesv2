@@ -2,21 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { DEMO_CODE_HINT, requestOtp, verifyOtp } from "@/lib/auth-client";
-import { isValidEmail, isValidOtp, maskEmail, normalizeEmail } from "@/lib/auth-contract";
+import { requestOtp, verifyOtp } from "@/lib/auth/auth-client";
+import { isValidEmail, isValidOtp, maskEmail, normalizeEmail } from "@/lib/auth/auth-contract";
 import { cn } from "@/lib/utils";
-import { type AuthMode, authCopy, authErrorMessage } from "./auth-copy";
+import { authCopy, authErrorMessage } from "./auth-copy";
 import { EmailStep } from "./email-step";
 import { OtpStep } from "./otp-step";
 
 type Step = "email" | "otp";
 const FADE_OUT_MS = 120;
-const demoCode = process.env.NODE_ENV === "development" ? DEMO_CODE_HINT : null;
 
-export function LoginForm() {
+// `nextPath` is the raw ?next= value; the server checks it before using it as the redirect.
+export function LoginForm({ nextPath = null }: { nextPath?: string | null }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("email");
-  const [mode, setMode] = useState<AuthMode>("login");
   const [visible, setVisible] = useState(true);
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -63,7 +62,7 @@ export function LoginForm() {
     setPending(true);
     const result = await requestOtp(email);
     setPending(false);
-    if (!result.ok) return setError(authErrorMessage(result.error));
+    if (!result.ok) return setError(result.error.kind === "invalid_input" ? authCopy.email.invalid : authErrorMessage(result.error));
     setResendIn(result.resendAfter);
     if (step === "email") return goTo("otp");
     setCode("");
@@ -75,14 +74,14 @@ export function LoginForm() {
     if (!isValidOtp(value)) return setError(authCopy.otp.incomplete);
     setError(null);
     setPending(true);
-    const result = await verifyOtp(email, value);
+    const result = await verifyOtp(email, value, nextPath);
     setPending(false);
     if (result.ok) {
       setSuccess(true);
-      setTimeout(() => router.push("/"), 1000);
+      setTimeout(() => router.push(result.redirect), 1000);
       return;
     }
-    setError(authErrorMessage(result.error));
+    setError(result.error.kind === "invalid_input" ? authCopy.otp.incomplete : authErrorMessage(result.error));
     if (result.error.kind === "expired") setResendIn(0);
     setCode("");
   }
@@ -91,15 +90,10 @@ export function LoginForm() {
     <div className={cn("transition-opacity ease-out", visible ? "opacity-100 duration-200" : "opacity-0 duration-120")}>
       {step === "email" ? (
         <EmailStep
-          mode={mode}
           email={email}
           error={error}
           pending={pending}
           headingRef={headingRef}
-          onModeChange={(next) => {
-            setMode(next);
-            setError(null);
-          }}
           onEmailChange={setEmail}
           onSubmit={sendCode}
         />
@@ -111,7 +105,6 @@ export function LoginForm() {
           pending={pending}
           success={success}
           resendIn={resendIn}
-          demoCode={demoCode}
           headingRef={headingRef}
           inputRef={otpRef}
           onCodeChange={setCode}

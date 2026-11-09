@@ -4,7 +4,7 @@
 - Every route handler: authenticate/authorize first, then validate input (shared `*-contract.ts`), then call `lib/server`.
 - Webhooks: verify the provider signature before trusting the payload; make handlers idempotent.
 - Money is stored as integer minor units, never floats. Timestamps stored in UTC.
-- Stack: PostgreSQL + Drizzle ORM (`pg` driver). Local DB runs in Docker (`docker-compose.yml`, `npm run db:up`); config in `.env` (copy from `.env.example`).
+- Stack: PostgreSQL + Drizzle ORM (`pg` driver). Local DB runs in Docker (`docker-compose.yml`, `npm run db:up`); config in `.env.local` (copy from `.env.example`), read by Next.js, `drizzle.config.ts` and the `db:*` scripts (`docker compose --env-file .env.local`).
 - Schema lives in `src/lib/server/db/schema/` (one file per domain, re-exported from `index.ts`); the client is `src/lib/server/db/client.ts`. Import `db` only from `lib/server`.
 - Change schema -> `npm run db:generate` -> review the SQL in `drizzle/` -> `npm run db:migrate`. Never hand-edit `drizzle/`. Applying migrations to any non-local database needs the owner's approval.
 - Never run `docker compose down -v` (deletes the data volume) without asking.

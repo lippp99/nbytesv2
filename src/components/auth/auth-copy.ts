@@ -1,14 +1,11 @@
-import type { AuthError } from "@/lib/auth-client";
-
-export type AuthMode = "login" | "register";
+import type { UserAuthError } from "@/lib/auth/auth-client";
 
 // All login UI text in one place (PRD §5, language still open in §12).
 export const authCopy = {
-  pageTitle: "Masuk",
+  pageTitle: "Login",
   email: {
-    title: "Selamat datang di nbytes",
-    sub: "Masuk atau buat akun untuk memakai semua model AI dengan satu API key.",
-    tabsLabel: "Masuk atau daftar",
+    title: "Masuk atau daftar",
+    sub: "Login atau buat akun untuk memakai semua model AI dengan satu API key.",
     label: "Email",
     placeholder: "nama@perusahaan.com",
     sending: "Mengirim…",
@@ -17,23 +14,9 @@ export const authCopy = {
     and: "dan",
     privacy: "Privasi",
     invalid: "Masukkan alamat email yang valid.",
-    // Both modes run the same email-code flow: an unknown email gets a new account.
-    modes: {
-      login: {
-        tab: "Masuk",
-        hint: "Kami kirim kode 8 digit ke email Anda. Tanpa password.",
-        submit: "Kirim kode masuk",
-        switchPrompt: "Belum punya akun?",
-        switchAction: "Daftar",
-      },
-      register: {
-        tab: "Daftar",
-        hint: "Kami kirim kode 8 digit untuk memverifikasi email Anda, lalu akun langsung aktif.",
-        submit: "Buat akun",
-        switchPrompt: "Sudah punya akun?",
-        switchAction: "Masuk",
-      },
-    },
+    // One flow for everyone: an unknown email gets a new account after the code is confirmed.
+    hint: "Kami kirim kode 8 digit ke email Anda. Tanpa password.",
+    submit: "Lanjut dengan email",
   },
   otp: {
     title: "Cek email Anda",
@@ -45,17 +28,20 @@ export const authCopy = {
     resend: "Kirim ulang kode",
     resendIn: "Kirim ulang dalam",
     incomplete: "Masukkan 8 digit kode.",
-    success: "Berhasil masuk.",
-    demo: "Mode demo: kode",
+    success: "Berhasil login.",
   },
 };
 
-export function authErrorMessage(error: AuthError): string {
+export function authErrorMessage(error: UserAuthError): string {
   switch (error.kind) {
     case "offline":
       return "Tidak ada koneksi internet.";
     case "unavailable":
       return "Kode belum bisa dikirim. Coba lagi sebentar lagi.";
+    case "invalid_input":
+      return authCopy.email.invalid;
+    case "unauthorized":
+      return "Sesi Anda sudah berakhir. Silakan masuk lagi.";
     case "rate_limited":
       return `Terlalu banyak percobaan. Coba lagi dalam ${error.retryAfterMinutes} menit.`;
     case "invalid":

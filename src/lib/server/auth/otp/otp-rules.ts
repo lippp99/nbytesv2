@@ -1,0 +1,54 @@
+import "server-only";
+
+// Pure decisions of the email-code flow (PRD backend-auth-user §4.2, §4.3, §5, §7.1), kept apart from the DB for tests.
+
+export const OTP_PURPOSE = "user-login";
+export const OTP_TTL_MS = 10 * 60 * 1000;
+export const OTP_MAX_ATTEMPTS = 5; // = OTP_MAX_ATTEMPTS in auth-contract
+export const OTP_RESEND_SECONDS = 60;
+export const TERMS_VERSION = "2026-11-09"; // owner decision §16.10 still open
+// shortcut: the admin "allow new sign-ups" switch has no storage yet; read it here once the admin backend exists.
+export const SIGNUP_OPEN = true;
+
+export const LIMITS = {
+  sendPerIp: { limit: 20, windowSeconds: 3600 },
+  sendCooldownPerEmail: { limit: 1, windowSeconds: OTP_RESEND_SECONDS },
+  sendPerEmail: { limit: 5, windowSeconds: 3600 },
+  verifyPerIp: { limit: 30, windowSeconds: 3600 },
+} as const;
+
+export type UserStatus = "active" | "suspended";
+export type EmailKind = "signup" | "login" | "signup_closed" | "suspended";
+
+/** Which email step 1 sends. The HTTP response is the same for all four. */
+export function decideEmail(status: UserStatus | undefined, signupOpen: boolean): EmailKind {
+  if (status === "suspended") return "suspended";
+  if (status === "active") return "login";
+  return signupOpen ? "signup" : "signup_closed";
+}
+
+export const emailGetsCode = (kind: EmailKind) => kind === "signup" || kind === "login";
+
+export type Challenge = { attempts: number; expiresAt: Date; consumedAt: Date | null };
+export type AttemptResult = { kind: "ok" } | { kind: "invalid"; attemptsLeft: number } | { kind: "expired" };
+
+/**
+ * One verify attempt. `expired` = the code was already unusable (nothing to count). A wrong code is always `invalid`
+ * so the caller stores the attempt; `attemptsLeft: 0` is then answered as expired.
+ */
+export function judgeAttempt(challenge: Challenge | undefined, codeMatches: boolean, now: Date): AttemptResult {
+  if (!challenge || challenge.consumedAt || challenge.expiresAt <= now || challenge.attempts >= OTP_MAX_ATTEMPTS) {
+    return { kind: "expired" };
+  }
+  if (codeMatches) return { kind: "ok" };
+  return { kind: "invalid", attemptsLeft: OTP_MAX_ATTEMPTS - (challenge.attempts + 1) };
+}
+
+export type LoginDecision = "login" | "create" | "blocked_suspended" | "blocked_signup_closed";
+
+/** After a correct code: sign in, create the account, or refuse (shown to the client as a generic `expired`). */
+export function decideLogin(status: UserStatus | undefined, signupOpen: boolean): LoginDecision {
+  if (status === "suspended") return "blocked_suspended";
+  if (status === "active") return "login";
+  return signupOpen ? "create" : "blocked_signup_closed";
+}

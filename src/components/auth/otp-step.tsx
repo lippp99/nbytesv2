@@ -2,7 +2,7 @@ import type { FormEvent, Ref } from "react";
 import { primaryButton, textLink } from "@/components/button-styles";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { cn } from "@/lib/utils";
-import { OTP_LENGTH, sanitizeOtp } from "@/lib/auth-contract";
+import { OTP_LENGTH, sanitizeOtp } from "@/lib/auth/auth-contract";
 import { authCopy, formatCountdown } from "./auth-copy";
 import { errorText } from "./field-styles";
 
@@ -15,7 +15,6 @@ type OtpStepProps = {
   pending: boolean;
   success: boolean;
   resendIn: number;
-  demoCode: string | null;
   headingRef: Ref<HTMLHeadingElement>;
   inputRef: Ref<HTMLInputElement>;
   onCodeChange: (value: string) => void;
@@ -44,7 +43,7 @@ function Slots({ start, invalid }: { start: number; invalid: boolean }) {
 }
 
 export function OtpStep(props: OtpStepProps) {
-  const { maskedEmail, code, error, pending, success, resendIn, demoCode, headingRef, inputRef } = props;
+  const { maskedEmail, code, error, pending, success, resendIn, headingRef, inputRef } = props;
   const locked = pending || success;
 
   function submit(event: FormEvent) {
@@ -87,7 +86,6 @@ export function OtpStep(props: OtpStepProps) {
         </InputOTP>
         {error && <p id="otp-error" role="alert" className={errorText}>{error}</p>}
         {success && <p role="status" className="mt-2 text-sm text-success">{copy.success}</p>}
-        {demoCode && <p className="mt-2 font-mono text-code text-muted-foreground">{copy.demo} {demoCode}</p>}
       </div>
       <button type="submit" disabled={locked} aria-busy={pending || undefined} className={primaryButton("mt-6 h-12 w-full rounded-full text-base")}>
         {pending ? copy.verifying : copy.submit}

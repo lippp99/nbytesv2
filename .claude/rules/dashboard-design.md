@@ -1,7 +1,7 @@
 # Dashboard design foundation
 
-Visual contract for everything under `src/app/(dashboard)/` and `src/components/dashboard/`. The landing page and
-login keep their own look; nothing here may change them. Decided with the owner on 2026-11-08.
+Visual contract for everything under `src/app/(dashboard)/`, `src/components/dashboard/`, and the admin console
+(`src/app/admin/`, `src/components/admin/`, PRD `PRD/admin-console.md`). The landing page and user login keep their own look; nothing here may change them. Decided with the owner on 2026-11-08.
 
 ## 1. Fixed decisions
 
@@ -31,6 +31,7 @@ login keep their own look; nothing here may change them. Decided with the owner 
 | `app-surface` | cards, panels, header | `1 0 0` | `0.2 0.004 100` |
 | `app-inset` | code, inputs, wells inside a card | `0.97 0.003 100` | `0.18 0.004 100` |
 | `app-raised` | menus, popovers, sheet (with shadow) | `1 0 0` | `0.24 0.004 100` |
+| `app-hover` | hover and pressed rows, menu items | `0.955 0.003 100` | `0.245 0.004 100` |
 | `app-border` | dividers, card edges | `0.92 0.004 100` | `0.28 0.004 100` |
 | `app-border-strong` | input and control outlines | `0.66 0.006 100` | `0.5 0.006 100` |
 | `app-text` | primary text | `0.2 0.005 100` | `0.95 0.003 100` |
@@ -38,12 +39,19 @@ login keep their own look; nothing here may change them. Decided with the owner 
 | `app-text-3` | hints, placeholders, axis | `0.53 0.012 100` | `0.66 0.01 100` |
 | `app-accent` | primary button fill, selection | `#c2410c` | `#c2410c` |
 | `app-accent-text` | accent links and icons on surfaces | `#c2410c` | `#ff8a4c` |
-| `app-accent-soft` | selected row, active nav plate | `0.96 0.03 45` | `0.27 0.06 40` |
+| `app-accent-soft` | selected row (not the sidebar, which marks with solid `app-accent`) | `0.96 0.03 45` | `0.27 0.06 40` |
+| `app-scrim` | dim behind the mobile drawer (with 10px blur) | `0.2 0.005 100 / 0.18` | `0 0 0 / 0.35` |
 | `app-success` / `app-warning` / `app-danger` | status text and dots | `0.52 0.12 150` / `0.55 0.12 70` / `0.55 0.2 27` | `0.72 0.13 150` / `0.8 0.13 80` / `0.68 0.18 27` |
 
 Measured contrast (script, 2026-11-08): every text token >= 4.5:1 on page, surface and inset in both themes
 (lowest: `app-text-3` on inset, light, 4.83; `app-accent-text` on inset, light, 4.75). White on `app-accent` 5.18.
-Input outlines `app-border-strong` vs surface 3.11 light, 3.02 dark. Status colors >= 4.98. Re-measure after any change.
+Input outlines `app-border-strong` vs surface 3.11 light, 3.02 dark. Status colors >= 4.98. Text on `app-hover` >= 4.54.
+Re-measure after any change.
+
+Utilities: `bg-app-surface`, `text-app-text-2`, `border-app-border`, ... ; type `text-app-title` ... `text-app-code`;
+radius `rounded-app-card` (16px), `rounded-app-control` (10px), `rounded-app-code` (12px), `rounded-app-inner` (6px,
+items inside a 4px-padded control); width `max-w-app` (1200px).
+New dashboard tokens are also listed in `src/lib/utils.ts` (`cn`) so class merging treats them correctly.
 
 Rules:
 - Depth in dark mode goes lighter: page < inset < surface < raised. Never a surface darker than the page.
@@ -70,11 +78,19 @@ Prose measure 65-75ch.
 
 - Spacing on a 4px grid. Spacious defaults: page padding 40px desktop / 20px mobile, 40px between sections,
   24px card padding, 16px between related controls, 48px table rows, 40px control height.
-- Shell: sidebar 256px on `app-page`, header 64px, content max width 1200px. Pages scroll in the window, not in a box,
+- Shell: two-tier sidebar 256px on `app-page`: a 64px rail (home mark, one icon per menu group, theme switch above the avatar; never in the header; sign-out under the avatar only while folded, since the panel that holds it is hidden then) and a 192px
+  panel with the open group's pages. On desktop it folds to the rail alone (header button or Ctrl/Cmd+B; state in
+  localStorage and `<html data-sidebar>`, styled with the `rail:` variant, restored before first paint); picking a
+  group on the folded rail unfolds it. The open group is a solid `app-accent` rail tile with a white icon (5.18:1). The
+  current page is a raised chip in the panel: `app-surface`, 1px `app-border` ring, `app-raised` shadow, semibold ink
+  label, count in `app-accent-text`. Two different marks, never the same color twice; no faded plates. Below lg the same two tiers open as a floating drawer (320px, 12px off
+  the edges, card radius, `app-raised` shadow) over the page dimmed by `app-scrim` and blurred 10px.
+  Header 64px, content max width 1200px. Pages scroll in the window, not in a box,
   except a work area that must stay in view (the playground transcript).
 - Radius: cards 16px, controls and inputs 10px, chips and badges full, code 12px. One scale, no mixing.
 - Elevation: cards are flat with a 1px `app-border`. Shadow only on `app-raised` things that float (menus, popovers,
-  sheet) and on the sticky header once the page scrolls.
+  sheet) and on the current-page chip in the sidebar panel. The sticky header has no shadow, scrolled or not: only its
+  1px bottom border (owner, 2026-11-08: a scroll shadow made the bar look like it opened).
 
 ## 6. Page patterns
 
@@ -85,15 +101,20 @@ Prose measure 65-75ch.
 - Lists and data (Usage, Keys, Models, Billing): tables over card grids. Empty states teach the next step.
 - Forms (Settings, create key): labels above fields, errors under the field that caused them.
 
-## 7. Components (built once in `components/dashboard/shared/`, one style each)
+## 7. Components (built once in `components/app-kit/`, shared by dashboard and admin, one style each)
 
-Button (primary, secondary, ghost), Card, Field (input, select, textarea), Segmented control, Tabs, Table, Badge,
-CodeBlock (theme-following, wraps or uses the wide area), EmptyState, PageHeader. Every interactive one has
+Button (primary, secondary, ghost), Card, Field (input, select, textarea), Segmented control, Table, Badge,
+CodeBlock (theme-following, wraps or uses the wide area), EmptyState, PageHeader. Files: `button.ts` (`primaryAction`,
+`secondaryAction`, `ghostAction`, `dangerAction`, `iconAction`, `appFocus`), `card.tsx`, `field.tsx` (`Field`, `TextInput`,
+`TextArea`, `Select`, `controlStyles`), `segmented.tsx`, `table.tsx`, `badge.tsx`, `code-block.tsx`,
+`empty-state.tsx`, `page-header.tsx`, `stat-summary.tsx`, `theme-switch.tsx`. Pages use these, not raw classes for the same job. Add a
+Tabs wrapper over `ui/tabs` only when a page needs real tabbed sections (Segmented covers in-place switches). Every interactive one has
 default, hover, focus, active, disabled and, where it applies, loading and error states.
 
 ## 8. Motion
 
-150-200ms ease-out on state changes only (hover, open, select). No entrance animations on dashboard pages, no
+150-200ms ease-out on state changes only (hover, open, select). The theme switch is instant: `applyThemeNow`
+(`src/lib/apply-theme.ts`) flips the class with transitions paused, so nothing fades. No entrance animations on dashboard pages, no
 decorative loops. Loading uses skeletons, not spinners. `prefers-reduced-motion` removes movement.
 
 ## 9. Done means
