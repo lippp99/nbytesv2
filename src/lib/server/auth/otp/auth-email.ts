@@ -20,6 +20,11 @@ const COPY: Record<EmailKind, Copy> = {
     heading: "Kode untuk membuat akun",
     intro: "Masukkan kode ini di halaman daftar nbytes. Akun Anda langsung aktif setelah kode diterima.",
   },
+  delete_account: {
+    subject: "Kode untuk menghapus akun nbytes",
+    heading: "Kode hapus akun",
+    intro: "Masukkan kode ini di Account Settings untuk menghapus akun nbytes Anda secara permanen.",
+  },
   // The PRD does not fix the subject of the two no-code mails; "nbytes" is a placeholder.
   signup_closed: {
     subject: "nbytes",

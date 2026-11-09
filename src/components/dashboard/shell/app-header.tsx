@@ -5,7 +5,7 @@ import { PlusIcon } from "@/components/icons/ui/plus";
 import { HeaderBreadcrumb } from "./header-breadcrumb";
 import { MobileNav } from "./mobile-nav";
 import { shellCopy } from "./shell-copy";
-import { SidebarContent } from "./sidebar/sidebar-content";
+import { Sidebar } from "./sidebar/sidebar";
 import { SidebarToggle } from "./sidebar/sidebar-toggle";
 import { WalletMenu } from "./wallet-menu";
 
@@ -16,7 +16,7 @@ export function AppHeader() {
       <div className="flex h-16 items-center gap-3 px-5 lg:px-10">
         <SidebarToggle />
         <MobileNav>
-          <SidebarContent />
+          <Sidebar />
         </MobileNav>
         <span aria-hidden className="h-5 w-px bg-app-border" />
         <HeaderBreadcrumb />

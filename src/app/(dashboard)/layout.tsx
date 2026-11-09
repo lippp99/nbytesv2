@@ -1,7 +1,7 @@
 import { type ReactNode, Suspense } from "react";
 import { AppFooter } from "@/components/dashboard/shell/app-footer";
 import { AppHeader } from "@/components/dashboard/shell/app-header";
-import { SidebarContent } from "@/components/dashboard/shell/sidebar/sidebar-content";
+import { Sidebar } from "@/components/dashboard/shell/sidebar/sidebar";
 import { sidebarBootScript } from "@/lib/sidebar-state";
 import { getCurrentUser } from "@/lib/server/auth/current-user";
 
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <SessionGate />
       </Suspense>
       <aside id="app-sidebar" className={sidebar}>
-        <SidebarContent />
+        <Sidebar />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader />

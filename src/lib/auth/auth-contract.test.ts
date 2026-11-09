@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   isValidEmail, isValidName, isValidOtp, maskEmail, parseModeParam, parseOtpRequestBody, parseOtpVerifyBody,
-  parsePageParam, parseRevokeBody, safeNextPath, sanitizeOtp,
+  parseDeleteAccountBody, parseDeleteRequestBody, parsePageParam, parseProfileBody, parseRevokeBody, safeNextPath,
+  sanitizeOtp,
 } from "./auth-contract.ts";
 
 test("isValidEmail accepts basic addresses and trims", () => {
@@ -100,5 +101,29 @@ test("parsePageParam falls back to page 1 for anything that is not a positive wh
   assert.equal(parsePageParam("3"), 3);
   for (const bad of [undefined, "", "0", "-1", "2.5", "abc", "1e3", ["2"], "9999999"]) {
     assert.equal(parsePageParam(bad), 1, String(bad));
+  }
+});
+
+test("parseProfileBody reads only the two names, last name optional", () => {
+  assert.deepEqual(parseProfileBody({ firstName: " Siti ", lastName: "Aisyah  Putri" }), { firstName: "Siti", lastName: "Aisyah Putri" });
+  for (const blank of [undefined, null, "", "  "]) {
+    assert.deepEqual(parseProfileBody({ firstName: "Budi", lastName: blank }), { firstName: "Budi", lastName: null });
+  }
+  // Fields other than the names never reach the update (no mass assignment).
+  assert.deepEqual(parseProfileBody({ firstName: "Budi", email: "x@y.co", status: "active", id: "1" }), { firstName: "Budi", lastName: null });
+  for (const bad of [{}, { firstName: "" }, { firstName: "B1" }, { firstName: "Budi", lastName: "D0e" }, null, ["Budi"]]) {
+    assert.equal(parseProfileBody(bad), null, JSON.stringify(bad));
+  }
+});
+
+test("account deletion needs the typed phrase, then the phrase and an 8-digit code", () => {
+  for (const ok of ["hapus akun", "  Hapus Akun ", "HAPUS AKUN"]) assert.equal(parseDeleteRequestBody({ confirm: ok }), true, ok);
+  for (const bad of [{}, { confirm: "hapus" }, { confirm: "hapusakun" }, { confirm: "delete" }, { confirm: 1 }, null, ["hapus akun"]]) {
+    assert.equal(parseDeleteRequestBody(bad), false, JSON.stringify(bad));
+  }
+  assert.deepEqual(parseDeleteAccountBody({ confirm: "hapus akun", code: "01234567" }), { code: "01234567" });
+  for (const bad of [{ code: "01234567" }, { confirm: "hapus akun" }, { confirm: "hapus akun", code: "1234" },
+    { confirm: "hapus akun", code: 12345678 }, { confirm: "salah", code: "01234567" }]) {
+    assert.equal(parseDeleteAccountBody(bad), null, JSON.stringify(bad));
   }
 });

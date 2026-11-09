@@ -4,6 +4,7 @@ import type { AuthMode } from "@/lib/auth/auth-contract";
 // Pure decisions of the email-code flow (PRD backend-auth-user §4.2, §4.3, §5, §7.1), kept apart from the DB for tests.
 
 export const OTP_PURPOSE = "user-login";
+export const DELETE_PURPOSE = "account-delete"; // PRD account-settings §12
 export const OTP_TTL_MS = 10 * 60 * 1000;
 export const OTP_MAX_ATTEMPTS = 5; // = OTP_MAX_ATTEMPTS in auth-contract
 export const OTP_RESEND_SECONDS = 60;
@@ -16,10 +17,11 @@ export const LIMITS = {
   sendCooldownPerEmail: { limit: 1, windowSeconds: OTP_RESEND_SECONDS },
   sendPerEmail: { limit: 5, windowSeconds: 3600 },
   verifyPerIp: { limit: 30, windowSeconds: 3600 },
+  deleteSendPerUser: { limit: 5, windowSeconds: 3600 },
 } as const;
 
 export type UserStatus = "active" | "suspended";
-export type EmailKind = "signup" | "login" | "signup_closed" | "suspended" | "no_account";
+export type EmailKind = "signup" | "login" | "signup_closed" | "suspended" | "no_account" | "delete_account";
 
 /**
  * Which email step 1 sends. The HTTP response is the same for all, so neither tab reveals whether an email has an

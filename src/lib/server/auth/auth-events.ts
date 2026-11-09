@@ -15,7 +15,10 @@ export type AuthEventType =
   | "blocked_no_account"
   | "rate_limited"
   | "session_revoked"
-  | "sessions_revoked_others";
+  | "sessions_revoked_others"
+  | "profile_updated"
+  | "delete_code_requested"
+  | "account_deleted";
 
 /** Audit trail with hashed email and IP only (`emailHash` / `ipHash` come from request-guard). */
 export async function logAuthEvent(

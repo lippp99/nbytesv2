@@ -1,15 +1,14 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { AuthMode } from "@/lib/auth/auth-contract";
 import { db } from "../../db/client";
-import { otpChallenges, users } from "../../db/schema";
+import { users } from "../../db/schema";
 import { AppError } from "../../errors";
-import { authEnv } from "../auth-env";
 import { type AuthEventType, logAuthEvent } from "../auth-events";
-import { hmac, randomOtp } from "../crypto";
 import { enforceLimit, undoHit } from "../rate-limit";
+import { dropChallenge, issueChallenge } from "./challenge";
 import { sendAuthEmail } from "./mailer";
-import { type EmailKind, LIMITS, OTP_PURPOSE, OTP_TTL_MS, SIGNUP_OPEN, decideEmail, emailGetsCode } from "./otp-rules";
+import { type EmailKind, LIMITS, SIGNUP_OPEN, decideEmail, emailGetsCode } from "./otp-rules";
 
 const EVENT: Record<EmailKind, AuthEventType> = {
   signup: "otp_requested",
@@ -17,27 +16,8 @@ const EVENT: Record<EmailKind, AuthEventType> = {
   suspended: "blocked_suspended",
   signup_closed: "blocked_signup_closed",
   no_account: "blocked_no_account",
+  delete_account: "delete_code_requested", // sent by account/delete-account.ts, never by this flow
 };
-
-/** Stored form of a code: keyed by the pepper, bound to the purpose and the email. */
-export const otpHash = (email: string, code: string) => hmac(authEnv().otpPepper, `${OTP_PURPOSE}:${email}:${code}`);
-
-const sameEmail = (email: string) => and(eq(otpChallenges.email, email), eq(otpChallenges.purpose, OTP_PURPOSE));
-
-/** New code for this email; any older code of the email stops working. */
-async function issueChallenge(email: string): Promise<string> {
-  const code = randomOtp();
-  await db.transaction(async (tx) => {
-    await tx.delete(otpChallenges).where(sameEmail(email));
-    await tx.insert(otpChallenges).values({
-      email,
-      purpose: OTP_PURPOSE,
-      codeHash: otpHash(email, code),
-      expiresAt: new Date(Date.now() + OTP_TTL_MS),
-    });
-  });
-  return code;
-}
 
 /**
  * Step 1 (PRD §4.1): rate limits, then the email that fits the account. Whatever the account state, the caller
@@ -57,7 +37,7 @@ export async function requestCode(email: string, mode: AuthMode, emailHash: stri
     await sendAuthEmail(email, kind, code);
   } catch (error) {
     // The code never reached the user: drop it and do not count the cooldown.
-    if (code) await db.delete(otpChallenges).where(sameEmail(email));
+    if (code) await dropChallenge(email);
     await undoHit(cooldownKey, LIMITS.sendCooldownPerEmail.windowSeconds);
     await logAuthEvent("otp_send_failed", { ...who, userId: user?.id });
     throw new AppError("unavailable", 503, {}, undefined, { cause: error });

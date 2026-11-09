@@ -1,7 +1,6 @@
 // Mock data for the dashboard frontend until the backend exists. Every number is an example.
 // Money is integer micro-dollars (backend-security.md); dates are UTC ISO strings.
 export const account = {
-  name: "Tim Anda",
   userName: "Rina Wulandari",
   email: "anda@perusahaan.example",
   plan: "Paket Pro",

@@ -11,7 +11,7 @@ test("formatCode groups 8 digits 4-4 with a hyphen, and pasting it back gives th
 });
 
 test("code mails show the code in text and html, never in the subject or the preview", () => {
-  for (const kind of ["login", "signup"] as const) {
+  for (const kind of ["login", "signup", "delete_account"] as const) {
     const mail = authEmailContent(kind, "44348940");
     assert.match(mail.text, /4434-8940/);
     assert.match(mail.html, /4434-8940/);

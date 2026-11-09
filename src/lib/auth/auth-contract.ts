@@ -48,10 +48,12 @@ export function maskEmail(email: string): string {
 // --- API contract (PRD backend-auth-user §8): parsed once here, used by the route handlers and the client.
 
 export type AuthErrorCode = "invalid_input" | "rate_limited" | "invalid" | "expired" | "unavailable" | "unauthorized";
+/** The user's own name (register tab, Account Settings). Last name is optional. */
+export type Profile = { firstName: string; lastName: string | null };
 // Login and register are separate tabs; both prove the email with a code. Register also sends the names, which are
 // stored only when the code creates the account.
 export type AuthMode = "login" | "register";
-export type AuthAccount = { mode: "login" } | { mode: "register"; firstName: string; lastName: string | null };
+export type AuthAccount = { mode: "login" } | ({ mode: "register" } & Profile);
 export type OtpRequestBody = { mode: AuthMode; email: string };
 export type OtpVerifyBody = AuthAccount & { email: string; code: string; next: string | null };
 
@@ -87,11 +89,22 @@ export function parseOtpRequestBody(json: unknown): OtpRequestBody | null {
   return { mode: json.mode, email: normalizeEmail(json.email) };
 }
 
+/** firstName + optional lastName, normalized; null if either is invalid. Other fields are ignored. */
+function parseProfile(json: Record<string, unknown>): Profile | null {
+  const lastName = optionalName(json.lastName);
+  if (!validName(json.firstName) || lastName === undefined) return null;
+  return { firstName: normalizeName(json.firstName), lastName };
+}
+
 function parseAccount(json: Record<string, unknown>): AuthAccount | null {
   if (json.mode === "login") return { mode: "login" };
-  const lastName = optionalName(json.lastName);
-  if (json.mode !== "register" || !validName(json.firstName) || lastName === undefined) return null;
-  return { mode: "register", firstName: normalizeName(json.firstName), lastName };
+  const profile = json.mode === "register" ? parseProfile(json) : null;
+  return profile && { mode: "register", ...profile };
+}
+
+/** Body of POST /api/account/profile (Account Settings). Only the two name fields are read (no mass assignment). */
+export function parseProfileBody(json: unknown): Profile | null {
+  return isRecord(json) ? parseProfile(json) : null;
 }
 
 export function parseOtpVerifyBody(json: unknown): OtpVerifyBody | null {
@@ -110,6 +123,23 @@ const SAFE_PATH = /^\/[A-Za-z0-9/_-]*$/;
 export function safeNextPath(value: unknown): string | null {
   if (typeof value !== "string" || !SAFE_PATH.test(value) || value.includes("//")) return null;
   return DASHBOARD_PATHS.some((p) => value === p || value.startsWith(`${p}/`)) ? value : null;
+}
+
+// --- Account deletion (PRD account-settings §12): the user types this phrase, then confirms with an email code.
+
+export const DELETE_CONFIRM_PHRASE = "hapus akun";
+
+/** Case and outer spaces do not matter ("Hapus akun" from a phone keyboard counts). */
+export const isDeleteConfirmed = (value: unknown): boolean =>
+  typeof value === "string" && value.trim().toLowerCase() === DELETE_CONFIRM_PHRASE;
+
+/** Body of POST /api/account/delete/request: only the typed phrase. */
+export const parseDeleteRequestBody = (json: unknown): boolean => isRecord(json) && isDeleteConfirmed(json.confirm);
+
+/** Body of POST /api/account/delete: the phrase again and the 8-digit code. */
+export function parseDeleteAccountBody(json: unknown): { code: string } | null {
+  if (!isRecord(json) || !isDeleteConfirmed(json.confirm)) return null;
+  return typeof json.code === "string" && isValidOtp(json.code) ? { code: json.code } : null;
 }
 
 // --- Signed-in devices (PRD active-sessions): list DTO, revoke body, pagination.

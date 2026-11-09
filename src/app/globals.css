@@ -652,8 +652,10 @@ html.dark:has([data-app]) {
   --app-scrim: oklch(0 0 0 / 0.35);
 }
 
-/* The mobile menu drawer floats over a dimmed, blurred page (ui/sheet's own backdrop is a faint 10% black). */
-html:has([data-app]) [data-slot="sheet-overlay"] {
+/* The mobile menu drawer and the confirm dialog float over a dimmed, blurred page (ui/'s own backdrop is a faint
+   10% black). */
+html:has([data-app]) [data-slot="sheet-overlay"],
+html:has([data-app]) [data-slot="alert-dialog-overlay"] {
   background: var(--app-scrim);
   backdrop-filter: blur(10px);
 }

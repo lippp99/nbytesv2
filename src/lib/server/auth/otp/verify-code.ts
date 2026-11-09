@@ -1,18 +1,15 @@
 import "server-only";
-import { and, desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { AuthAccount } from "@/lib/auth/auth-contract";
 import { db } from "../../db/client";
-import { otpChallenges, users } from "../../db/schema";
+import { users } from "../../db/schema";
 import { AppError } from "../../errors";
 import { type AuthEventType, logAuthEvent } from "../auth-events";
 import type { ClientInfo } from "../client-info";
-import { equalHex } from "../crypto";
 import { enforceLimit } from "../rate-limit";
 import { createSession } from "../session";
-import { LIMITS, OTP_PURPOSE, SIGNUP_OPEN, TERMS_VERSION, decideLogin, judgeAttempt } from "./otp-rules";
-import { otpHash } from "./request-code";
-
-type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+import { type Tx, consumeChallenge } from "./challenge";
+import { LIMITS, OTP_PURPOSE, SIGNUP_OPEN, TERMS_VERSION, decideLogin } from "./otp-rules";
 type Outcome =
   | { kind: "ok"; userId: string; created: boolean }
   | { kind: "invalid"; attemptsLeft: number }
@@ -41,24 +38,12 @@ async function signIn(tx: Tx, email: string, account: AuthAccount, now: Date): P
   return { kind: "ok", userId, created: false };
 }
 
-/** Locks the email's code row so parallel guesses cannot pass the 5-attempt limit or use one code twice. */
+/** Checks the login code (row locked, attempt stored), then signs in, all in one transaction. */
 function checkCode(email: string, code: string, account: AuthAccount): Promise<Outcome> {
   return db.transaction(async (tx) => {
     const now = new Date();
-    const [challenge] = await tx
-      .select()
-      .from(otpChallenges)
-      .where(and(eq(otpChallenges.email, email), eq(otpChallenges.purpose, OTP_PURPOSE)))
-      .orderBy(desc(otpChallenges.createdAt))
-      .limit(1)
-      .for("update");
-    const matches = challenge ? equalHex(challenge.codeHash, otpHash(email, code)) : false;
-    const result = judgeAttempt(challenge, matches, now);
+    const result = await consumeChallenge(tx, email, code, OTP_PURPOSE, now);
     if (result.kind === "expired") return { kind: "refused", event: "otp_expired" };
-    await tx
-      .update(otpChallenges)
-      .set({ attempts: challenge.attempts + 1, consumedAt: result.kind === "ok" ? now : null })
-      .where(eq(otpChallenges.id, challenge.id));
     // Returned, not thrown: a throw would roll back the attempt count.
     if (result.kind === "invalid") return { kind: "invalid", attemptsLeft: result.attemptsLeft };
     return signIn(tx, email, account, now);

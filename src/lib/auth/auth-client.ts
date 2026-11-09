@@ -1,4 +1,4 @@
-import type { AuthAccount, AuthErrorCode, AuthMode } from "@/lib/auth/auth-contract";
+import type { AuthAccount, AuthErrorCode, AuthMode, Profile } from "@/lib/auth/auth-contract";
 
 export type AuthError =
   | { kind: "offline" }
@@ -63,6 +63,21 @@ export function verifyOtp(
 /** Signs out one other device (PRD active-sessions §5.1). */
 export function revokeSession(sessionId: string): Promise<AuthResult<object, UserAuthError>> {
   return post("/api/auth/sessions/revoke", { sessionId });
+}
+
+/** Saves the signed-in user's name from Account Settings (PRD account-settings §4.1). */
+export function updateProfile(profile: Profile): Promise<AuthResult<{ profile: Profile }, UserAuthError>> {
+  return post("/api/account/profile", profile);
+}
+
+/** Step 1 of account deletion: emails a code to the account's own address (PRD account-settings §12). */
+export function requestDeleteCode(confirm: string): Promise<AuthResult<{ resendAfter: number }, UserAuthError>> {
+  return post("/api/account/delete/request", { confirm });
+}
+
+/** Step 2: deletes the account; the server clears the session cookie. */
+export function deleteAccount(confirm: string, code: string): Promise<AuthResult<object, UserAuthError>> {
+  return post("/api/account/delete", { confirm, code });
 }
 
 /** Signs out every other device; resolves with how many went (PRD active-sessions §5.2). */
