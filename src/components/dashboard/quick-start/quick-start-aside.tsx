@@ -1,84 +1,68 @@
 import Link from "next/link";
-import { Analytics01Icon, ArrowRight01Icon, ArrowUpRight01Icon, BookOpen01Icon, CommandLineIcon } from "@hugeicons/core-free-icons";
+import { Analytics01Icon, ArrowRight01Icon, BookOpen01Icon, CommandLineIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { focusRing } from "@/components/button-styles";
+import { appFocus, ghostAction } from "@/components/app-kit/button";
+import { Card } from "@/components/app-kit/card";
 import { ProviderLogo } from "@/components/provider-logo";
 import { modelById, providerById } from "@/lib/model-catalog";
 import { formatMicros } from "@/lib/price-format";
+import { ConnectionCard } from "./connection-card";
 import { quickStartCopy } from "./quick-start-copy";
 
 const copy = quickStartCopy.aside;
 const popularIds = ["claude-sonnet-4.5", "gpt-5", "gemini-2.5-pro", "deepseek-v3.2", "kimi-k2"];
 const linkIcons = [CommandLineIcon, BookOpen01Icon, Analytics01Icon];
-const card = "rounded-card border border-border bg-card";
-const rowLink = `group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted ${focusRing}`;
+const row = `group flex items-center gap-3 px-6 py-3 transition-colors hover:bg-app-hover ${appFocus}`;
 
 function PopularModels() {
   return (
-    <section className={card}>
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h2 className="text-sm font-medium">{copy.popular}</h2>
-        <span className="text-xs text-muted-foreground">{copy.perInput}</span>
-      </div>
-      <ul className="pb-2">
+    <Card title={copy.popular} description={copy.perInput}
+      action={<Link href="/models" className={ghostAction("-mr-2", "sm")}>{copy.allModels}</Link>}>
+      <ul className="py-2">
         {popularIds.map((id) => {
           const m = modelById(id);
           if (!m) return null;
           return (
-            <li key={id} className="flex items-center gap-3 px-4 py-2">
-              <span className="grid size-8 shrink-0 place-items-center rounded-chip bg-muted">
+            <li key={id} className="flex items-center gap-3 px-6 py-2">
+              <span className="grid size-8 shrink-0 place-items-center rounded-app-inner border border-app-border bg-app-inset">
                 <ProviderLogo icon={m.icon} className="size-4" />
               </span>
               <span className="min-w-0 flex-1 leading-tight">
-                <span className="block truncate text-sm">{m.name}</span>
-                <span className="block truncate text-xs text-muted-foreground">{providerById(m.providerId)?.name}</span>
+                <span className="block truncate text-app-ui text-app-text">{m.name}</span>
+                <span className="block truncate text-app-small text-app-text-3">{providerById(m.providerId)?.name}</span>
               </span>
-              <span className="font-mono text-code">{formatMicros(m.inputPerMTokMicros)}</span>
+              <span className="font-mono text-app-code text-app-text tabular-nums">{formatMicros(m.inputPerMTokMicros)}</span>
             </li>
           );
         })}
       </ul>
-      <Link href="/models" className={`${rowLink} rounded-b-card border-t border-border text-sm font-medium text-accent-ink`}>
-        {copy.allModels}
-        <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden className="ml-auto size-4 transition-transform group-hover:translate-x-0.5" />
-      </Link>
-    </section>
+    </Card>
   );
 }
 
-/** Right column: popular models with prices, the next places to go, and one tip worth doing before launch. */
+/** Right column: connection facts, popular models with prices, and the next places to go. */
 export function QuickStartAside() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <ConnectionCard />
       <PopularModels />
-      <section className={card}>
-        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">{copy.explore}</h2>
-        <ul className="pb-2">
+      <Card title={copy.explore}>
+        <ul className="py-2">
           {quickStartCopy.links.map((link, i) => (
             <li key={link.href}>
-              <Link href={link.href} className={rowLink}>
-                <span className="grid size-8 shrink-0 place-items-center rounded-chip bg-accent-soft text-accent-ink">
-                  <HugeiconsIcon icon={linkIcons[i]} aria-hidden className="size-4" />
-                </span>
+              <Link href={link.href} className={row}>
+                <HugeiconsIcon icon={linkIcons[i]} aria-hidden className="size-4.5 shrink-0 text-app-text-3 group-hover:text-app-accent-text" />
                 <span className="min-w-0 flex-1 leading-tight">
-                  <span className="block text-sm font-medium">{link.title}</span>
-                  <span className="block text-xs text-muted-foreground">{link.body}</span>
+                  <span className="block text-app-ui font-medium text-app-text">{link.title}</span>
+                  <span className="block text-app-small text-app-text-2">{link.body}</span>
                 </span>
-                <HugeiconsIcon icon={ArrowUpRight01Icon} aria-hidden
-                  className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden
+                  className="size-4 shrink-0 text-app-text-3 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </li>
           ))}
         </ul>
-      </section>
-      <section className="dark rounded-card bg-ink-panel p-5 text-foreground">
-        <h2 className="font-medium">{copy.tipTitle}</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{copy.tipBody}</p>
-        <Link href="/api-keys" className={`group mt-4 inline-flex items-center gap-1 rounded-sm text-sm font-medium text-accent-ink ${focusRing}`}>
-          {copy.tipAction}
-          <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </section>
+      </Card>
     </div>
   );
 }

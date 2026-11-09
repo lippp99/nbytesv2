@@ -1,8 +1,11 @@
-import { Database, KeyRound, Lock, Route } from "lucide-react";
-import { privacy } from "./landing-copy";
-import { Hl, Section, stagger } from "./section";
+import { DatabaseIcon } from "@/components/landing/shared/icons/database";
+import { KeyIcon } from "@/components/landing/shared/icons/key";
+import { LockIcon } from "@/components/landing/shared/icons/lock";
+import { RouteIcon } from "@/components/landing/shared/icons/route";
+import { privacy } from "./shared/landing-copy";
+import { Hl, Section, stagger } from "./shared/section";
 
-const icons = { lock: Lock, database: Database, key: KeyRound, route: Route };
+const icons = { lock: LockIcon, database: DatabaseIcon, key: KeyIcon, route: RouteIcon };
 
 export function PrivacySection() {
   return (
@@ -21,7 +24,8 @@ export function PrivacySection() {
               style={stagger(i)}
               className="lg:px-6 lg:first:pl-0 lg:last:pr-0"
             >
-              <Icon aria-hidden className="size-6" strokeWidth={1.5} />
+              {/* 32px: the two-tone set draws ~16-19px of its 24px box with a 40% fill, so at lucide's 24px it read small */}
+              <Icon className="size-8" />
               <h3 className="mt-6 font-sans text-body font-medium">{point.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{point.body}</p>
             </li>

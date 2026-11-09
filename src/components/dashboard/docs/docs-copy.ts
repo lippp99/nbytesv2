@@ -31,7 +31,6 @@ export const docs = {
     errors: {
       title: "Kode error",
       body: "Error dikirim dengan status HTTP yang sesuai dan body JSON berisi pesan yang bisa dibaca manusia.",
-      cols: { code: "Status", meaning: "Arti", action: "Yang perlu dilakukan" },
     },
   },
 };

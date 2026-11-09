@@ -28,10 +28,10 @@ export const playground = {
     `Mode demo: ini balasan contoh untuk "${prompt}". Setelah backend tersambung, jawaban asli dari ${model} muncul di sini.`,
   usage: { input: "masuk", output: "keluar" },
   thinking: "menyusun jawaban",
+  views: { label: "Tampilan area kerja", chat: "Chat", code: "Kode" },
   settings: {
-    tabs: "Pengaturan",
-    params: "Parameter",
-    code: "Kode",
+    title: "Parameter",
+    description: "Berlaku untuk pesan berikutnya.",
     model: "Model",
     system: "System prompt",
     systemPlaceholder: "Contoh: Jawab singkat dalam bahasa Indonesia.",

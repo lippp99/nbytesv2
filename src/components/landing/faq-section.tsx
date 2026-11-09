@@ -1,10 +1,10 @@
-import { PlusIcon } from "lucide-react";
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
+import { PlusIcon } from "@/components/icons/ui/plus";
 import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { focusRing, textLink } from "@/components/button-styles";
-import { faq, footer } from "./landing-copy";
-import { mockFaq } from "./landing-mock-data";
-import { Hl, Section, stagger } from "./section";
+import { faq, footer } from "./shared/landing-copy";
+import { mockFaq } from "./shared/landing-mock-data";
+import { Hl, Section, stagger } from "./shared/section";
 
 // The shadcn trigger ships chevrons; a plus that turns into a cross matches the references, so the trigger is composed here.
 const trigger =
@@ -31,8 +31,6 @@ export function FaqSection() {
               <AccordionPrimitive.Trigger className={trigger}>
                 {item.q}
                 <PlusIcon
-                  aria-hidden
-                  strokeWidth={1.5}
                   className="size-5 shrink-0 transition-transform duration-300 ease-out-expo group-aria-expanded/faq:rotate-45"
                 />
               </AccordionPrimitive.Trigger>

@@ -3,7 +3,7 @@ import { SentIcon, StopIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { playground as copy } from "./playground-copy";
 import { estimateTokens } from "./playground-cost";
-import { primaryAction, secondaryAction } from "@/components/dashboard/shared/dashboard-buttons";
+import { primaryAction, secondaryAction } from "@/components/app-kit/button";
 
 type ChatComposerProps = {
   draft: string;
@@ -15,9 +15,9 @@ type ChatComposerProps = {
 };
 
 const frame =
-  "rounded-panel border border-input bg-background transition-colors focus-within:border-foreground " +
-  "focus-within:ring-2 focus-within:ring-accent-mark";
-const kbd = "rounded-sm border border-border bg-background px-1 font-mono text-xs text-foreground";
+  "rounded-app-control border border-app-border-strong bg-app-surface transition-[border-color,box-shadow] duration-150 " +
+  "focus-within:border-app-accent focus-within:ring-3 focus-within:ring-app-accent/20";
+const kbd = "rounded-sm border border-app-border bg-app-inset px-1 font-mono text-app-small text-app-text-2";
 
 /** One framed box: the message field, keyboard hints and the token estimate, with Send (or Stop while waiting). */
 export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, onStop }: ChatComposerProps) {
@@ -27,7 +27,7 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
   }
 
   return (
-    <form onSubmit={submit} className="border-t border-border p-3 sm:p-4">
+    <form onSubmit={submit} className="border-t border-app-border p-4">
       <div className={frame}>
         <label htmlFor="pg-message" className="sr-only">{copy.composer.label}</label>
         <textarea
@@ -42,24 +42,24 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
             e.currentTarget.form?.requestSubmit();
           }}
           placeholder={copy.composer.placeholder}
-          className="block max-h-60 w-full resize-none bg-transparent px-4 pt-3 text-sm outline-none placeholder:text-muted-foreground"
+          className="block max-h-60 w-full resize-none bg-transparent px-4 pt-3 text-app-body text-app-text outline-none placeholder:text-app-text-3"
         />
         <div className="flex items-center gap-3 px-3 pt-1 pb-3">
-          <p className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+          <p className="hidden items-center gap-1.5 text-app-small text-app-text-3 sm:flex">
             <kbd className={kbd}>Enter</kbd> {copy.composer.hintSend}
-            <span aria-hidden className="mx-1 text-faint">·</span>
+            <span aria-hidden className="mx-1">·</span>
             <kbd className={kbd}>Shift</kbd>+<kbd className={kbd}>Enter</kbd> {copy.composer.hintNewline}
           </p>
-          <span className="ml-auto font-mono text-xs text-muted-foreground tabular-nums">
+          <span className="ml-auto font-mono text-app-small text-app-text-3 tabular-nums">
             ~{estimateTokens(draft)} {copy.composer.estimate}
           </span>
           {pending ? (
-            <button type="button" onClick={onStop} className={secondaryAction("h-9 rounded-full px-4")}>
+            <button type="button" onClick={onStop} className={secondaryAction("h-9 px-4")}>
               <HugeiconsIcon icon={StopIcon} aria-hidden />
               {copy.composer.stop}
             </button>
           ) : (
-            <button type="submit" disabled={!draft.trim()} className={primaryAction("h-9 rounded-full px-4")}>
+            <button type="submit" disabled={!draft.trim()} className={primaryAction("h-9 px-4")}>
               {copy.composer.send}
               <HugeiconsIcon icon={SentIcon} aria-hidden />
             </button>

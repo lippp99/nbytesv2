@@ -100,6 +100,10 @@
   --sidebar-ring: oklch(0.708 0 0);
   --accent-mark: var(--brand);
   --accent-mark-foreground: oklch(1 0 0);
+  /* .hl highlighter: dark ink on a light orange, so letters past the offset blocks stay readable on white */
+  --hl-mark: oklch(0.76 0.15 52);
+  --hl-mark-2: oklch(0.71 0.16 48);
+  --hl-ink: var(--foreground);
   --success: oklch(0.52 0.12 150);
   --guide: oklch(0.9 0.006 106);
   --faint: oklch(0.67 0.014 105);
@@ -150,6 +154,9 @@
   --sidebar-ring: oklch(0.556 0 0);
   --accent-mark: #c2410c; /* nb-orange; the lighter dark --brand fails white-text contrast */
   --accent-mark-foreground: oklch(1 0 0);
+  --hl-mark: var(--accent-mark);
+  --hl-mark-2: color-mix(in oklch, var(--accent-mark) 80%, black);
+  --hl-ink: var(--accent-mark-foreground);
   --success: oklch(0.72 0.13 150);
   --guide: oklch(0.28 0.004 100);
   --faint: oklch(0.55 0.01 100);
@@ -343,7 +350,7 @@
   padding: 0 0.1em;
   margin: 0 0.02em;
   white-space: nowrap;
-  color: var(--accent-mark-foreground);
+  color: var(--hl-ink);
 }
 .hl::before,
 .hl::after {
@@ -357,7 +364,7 @@
   right: 14%;
   top: 36%;
   bottom: -0.04em;
-  background: var(--accent-mark);
+  background: var(--hl-mark);
   animation:
     hl-in 0.6s var(--ease-out-expo) var(--delay, 0.35s) both,
     hl-snap-a 10s cubic-bezier(0.4, 0, 0.2, 1) calc(var(--delay, 0.35s) + 2s) infinite;
@@ -368,7 +375,7 @@
   top: 0.06em;
   bottom: 30%;
   /* a deeper orange, so where the blocks overlap reads as a second layer (in light and dark) */
-  background: color-mix(in oklch, var(--accent-mark) 80%, black);
+  background: var(--hl-mark-2);
   animation:
     hl-in 0.6s var(--ease-out-expo) calc(var(--delay, 0.35s) + 0.12s) both,
     hl-snap-b 10s cubic-bezier(0.4, 0, 0.2, 1) calc(var(--delay, 0.35s) + 2s) infinite;
@@ -430,11 +437,15 @@
   }
 }
 
-/* Section highlights draw when their header scrolls in, not on page load. */
-.is-pending .hl::before,
-.is-pending .hl::after,
-.is-pending .animate-type-line {
-  animation-play-state: paused;
+/* Animations tied to a reveal wait from first paint, not from when JS runs (they had played ~300ms before hydration
+   paused them): section highlights until their header is shown, the setup lines until half of the code box is.
+   RevealObserver sets [data-revealed]. Only with JS on and motion allowed, so nothing can stay stuck hidden. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal]:not([data-revealed]) .hl::before,
+  [data-reveal]:not([data-revealed]) .hl::after,
+  [data-play-on-view]:not([data-revealed]) .animate-type-line {
+    animation-play-state: paused;
+  }
 }
 
 /* Grid templates measured from jatevo.ai (model library row, its figures, the connect layout). */
@@ -524,28 +535,135 @@
   }
 }
 
-/* Theme switch: the sun sets (rotates down and out) while the moon rises in, and back. Driven by the .dark class. */
-.theme-icon {
-  grid-area: 1 / 1;
-  transition:
-    transform 0.5s var(--ease-out-expo),
-    opacity 0.3s ease;
+/* ---------- Dashboard tokens (.claude/rules/dashboard-design.md) ----------
+   Only active while a dashboard page is mounted: the (dashboard) layout root carries `data-app`, and every value
+   below hangs off `html:has([data-app])`, so portals in <body> follow too and the landing page never sees them.
+   The :root / .dark blocks above stay the landing page's. Contrast measured 2026-11-08: text >= 4.5:1 on page,
+   surface and inset in both themes; white on accent 5.18:1; control outlines >= 3:1. Re-measure after any change. */
+@theme inline {
+  --color-app-page: var(--app-page);
+  --color-app-surface: var(--app-surface);
+  --color-app-inset: var(--app-inset);
+  --color-app-raised: var(--app-raised);
+  --color-app-hover: var(--app-hover);
+  --color-app-border: var(--app-border);
+  --color-app-border-strong: var(--app-border-strong);
+  --color-app-text: var(--app-text);
+  --color-app-text-2: var(--app-text-2);
+  --color-app-text-3: var(--app-text-3);
+  --color-app-accent: var(--app-accent);
+  --color-app-on-accent: var(--app-on-accent);
+  --color-app-accent-text: var(--app-accent-text);
+  --color-app-accent-soft: var(--app-accent-soft);
+  --color-app-success: var(--app-success);
+  --color-app-warning: var(--app-warning);
+  --color-app-danger: var(--app-danger);
+  --shadow-app-raised: var(--app-shadow-raised);
 }
-.theme-icon-moon {
-  opacity: 0;
-  transform: translateY(120%) rotate(-90deg);
+
+@theme {
+  --text-app-title: 1.75rem;
+  --text-app-title--line-height: 1.2;
+  --text-app-title--letter-spacing: -0.02em;
+  --text-app-title--font-weight: 600;
+  --text-app-section: 1.25rem;
+  --text-app-section--line-height: 1.3;
+  --text-app-section--letter-spacing: -0.01em;
+  --text-app-section--font-weight: 600;
+  --text-app-card: 1rem;
+  --text-app-card--line-height: 1.4;
+  --text-app-card--font-weight: 600;
+  --text-app-body: 0.9375rem;
+  --text-app-body--line-height: 1.6;
+  --text-app-ui: 0.875rem;
+  --text-app-ui--line-height: 1.45;
+  --text-app-small: 0.8125rem;
+  --text-app-small--line-height: 1.4;
+  --text-app-code: 0.8125rem;
+  --text-app-code--line-height: 1.65;
+  --radius-app-card: 1rem;
+  --radius-app-control: 0.625rem;
+  --radius-app-code: 0.75rem;
+  --radius-app-inner: 0.375rem;
+  --container-app: 75rem;
 }
-.dark .theme-icon-sun {
-  opacity: 0;
-  transform: translateY(-120%) rotate(90deg);
+
+html:has([data-app]) {
+  --app-page: oklch(0.985 0.002 100);
+  --app-surface: oklch(1 0 0);
+  --app-inset: oklch(0.97 0.003 100);
+  --app-raised: oklch(1 0 0);
+  --app-hover: oklch(0.955 0.003 100);
+  --app-border: oklch(0.92 0.004 100);
+  --app-border-strong: oklch(0.66 0.006 100);
+  --app-text: oklch(0.2 0.005 100);
+  --app-text-2: oklch(0.45 0.01 100);
+  --app-text-3: oklch(0.53 0.012 100);
+  --app-accent: #c2410c;
+  --app-on-accent: oklch(1 0 0);
+  --app-accent-text: #c2410c;
+  --app-accent-soft: oklch(0.96 0.03 45);
+  --app-success: oklch(0.52 0.12 150);
+  --app-warning: oklch(0.55 0.12 70);
+  --app-danger: oklch(0.55 0.2 27);
+  --app-shadow-raised: 0 1px 2px oklch(0.2 0.005 100 / 0.04), 0 6px 16px oklch(0.2 0.005 100 / 0.06);
+  --app-scrim: oklch(0.2 0.005 100 / 0.18);
+
+  /* shadcn tokens, so ui/ primitives (input, tabs, sheet) take the dashboard look without hand edits */
+  --background: var(--app-page);
+  --foreground: var(--app-text);
+  --card: var(--app-surface);
+  --card-foreground: var(--app-text);
+  --popover: var(--app-raised);
+  --popover-foreground: var(--app-text);
+  --primary: var(--app-accent);
+  --primary-foreground: var(--app-on-accent);
+  --secondary: var(--app-hover);
+  --secondary-foreground: var(--app-text);
+  --muted: var(--app-hover);
+  --muted-foreground: var(--app-text-2);
+  --accent: var(--app-hover);
+  --accent-foreground: var(--app-text);
+  --destructive: var(--app-danger);
+  --border: var(--app-border);
+  --input: var(--app-border-strong);
+  --ring: var(--app-accent);
 }
-.dark .theme-icon-moon {
-  opacity: 1;
-  transform: none;
+
+html.dark:has([data-app]) {
+  --app-page: oklch(0.16 0.004 100);
+  --app-surface: oklch(0.2 0.004 100);
+  --app-inset: oklch(0.18 0.004 100);
+  --app-raised: oklch(0.24 0.004 100);
+  --app-hover: oklch(0.245 0.004 100);
+  --app-border: oklch(0.28 0.004 100);
+  --app-border-strong: oklch(0.5 0.006 100);
+  --app-text: oklch(0.95 0.003 100);
+  --app-text-2: oklch(0.76 0.008 100);
+  --app-text-3: oklch(0.66 0.01 100);
+  --app-accent: #c2410c;
+  --app-on-accent: oklch(1 0 0);
+  --app-accent-text: #ff8a4c;
+  --app-accent-soft: oklch(0.27 0.06 40);
+  --app-success: oklch(0.72 0.13 150);
+  --app-warning: oklch(0.8 0.13 80);
+  --app-danger: oklch(0.68 0.18 27);
+  --app-shadow-raised: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 20px oklch(0 0 0 / 0.35);
+  --app-scrim: oklch(0 0 0 / 0.35);
 }
-/* The circular reveal is drawn by ThemeToggle; turn off the default cross-fade so only the circle shows. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+
+/* The mobile menu drawer floats over a dimmed, blurred page (ui/sheet's own backdrop is a faint 10% black). */
+html:has([data-app]) [data-slot="sheet-overlay"] {
+  background: var(--app-scrim);
+  backdrop-filter: blur(10px);
+}
+
+/* Desktop sidebar folded to an icon rail: <html data-sidebar="collapsed"> is set by the sidebar toggle (and before
+   first paint by the layout's boot script). Only from lg up, so the mobile sheet always shows the full menu. */
+@custom-variant rail {
+  @media (width >= 64rem) {
+    &:where([data-sidebar="collapsed"] *) {
+      @slot;
+    }
+  }
 }

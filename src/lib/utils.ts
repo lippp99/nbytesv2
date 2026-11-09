@@ -5,9 +5,13 @@ import { createCn } from "cn/config";
 export const cn = createCn({
   extend: {
     classGroups: {
-      "font-size": [{ text: ["display", "h2", "h3", "lead", "body", "ui", "nav", "code", "label"] }],
-      rounded: [{ rounded: ["card", "panel", "chip", "bar"] }],
-      shadow: [{ shadow: ["press", "press-hover", "coin"] }],
+      "font-size": [
+        { text: ["display", "h2", "h3", "lead", "body", "ui", "nav", "code", "label"] },
+        // dashboard type scale (.claude/rules/dashboard-design.md)
+        { text: ["app-title", "app-section", "app-card", "app-body", "app-ui", "app-small", "app-code"] },
+      ],
+      rounded: [{ rounded: ["card", "panel", "chip", "bar", "app-card", "app-control", "app-code", "app-inner"] }],
+      shadow: [{ shadow: ["press", "press-hover", "coin", "app-raised"] }],
     },
   },
 });

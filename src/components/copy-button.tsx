@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Copy01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { CheckIcon } from "@/components/icons/ui/check";
+import { CopyIcon } from "@/components/icons/ui/copy";
 import { cn } from "@/lib/utils";
 
 type CopyButtonProps = {
@@ -45,9 +45,9 @@ export function CopyButton({ text, label, copiedLabel, iconOnly, className }: Co
       )}
     >
       {copied ? (
-        <HugeiconsIcon icon={Tick02Icon} aria-hidden className="size-3.5 animate-dot-pop text-success" />
+        <CheckIcon className="size-3.5 animate-dot-pop text-success" />
       ) : (
-        <HugeiconsIcon icon={Copy01Icon} aria-hidden className="size-3.5" />
+        <CopyIcon className="size-3.5" />
       )}
       <span className={cn("grid", iconOnly && "sr-only")}>
         <span className={cn("col-start-1 row-start-1 transition-opacity duration-150", copied && "opacity-0")}>{label}</span>

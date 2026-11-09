@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRightIcon } from "lucide-react";
+import { ArrowRightIcon } from "@/components/icons/ui/arrow-right";
 import { primaryButton, secondaryButton, textLink } from "@/components/button-styles";
 import { ProviderLogo } from "@/components/provider-logo";
 import { cn } from "@/lib/utils";
 import nbMark from "../../../public/brand/nb-orange.png";
-import { actions, closing, footer } from "./landing-copy";
-import { Hl, frame, sectionPad } from "./section";
+import { actions, closing, footer } from "./shared/landing-copy";
+import { Hl, frame, sectionPad } from "./shared/section";
 
 // Two stairs of marks on a 36px grid, as on jatevo.ai's closing call (measured via Pencil: left stair from the top,
 // right stair to the bottom, one brand tile in each). Ours are overlapping coins instead of square tiles.
@@ -61,11 +61,11 @@ export function ClosingCta() {
           <div className="mt-7 flex flex-wrap justify-center gap-x-4.5 gap-y-3.5">
             <Link href="/login" className={primaryButton()}>
               {actions.getKey}
-              <ChevronRightIcon aria-hidden />
+              <ArrowRightIcon />
             </Link>
             <a href="#model" className={secondaryButton()}>
               {actions.seeModels}
-              <ChevronRightIcon aria-hidden />
+              <ArrowRightIcon />
             </a>
           </div>
           <p className="mt-5 text-ui text-muted-foreground">

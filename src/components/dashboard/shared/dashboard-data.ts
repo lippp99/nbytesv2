@@ -8,6 +8,9 @@ export const account = {
   billingPeriod: "November 2026",
 };
 
+/** Prepaid balance shown in the header wallet. */
+export const wallet = { creditMicros: 42_500_000 };
+
 export type ModelUsage = { modelId: string; requests: number; tokens: number; costMicros: number };
 
 export const usageByModel: ModelUsage[] = [

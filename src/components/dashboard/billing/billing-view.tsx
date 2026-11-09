@@ -1,72 +1,93 @@
-import { CreditCardIcon } from "@hugeicons/core-free-icons";
+import Link from "next/link";
+import { ArrowRight01Icon, CreditCardIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { formatMicros } from "@/lib/price-format";
-import { cn } from "@/lib/utils";
-import { billing as copy } from "./billing-copy";
 import { account, monthlyBudgetMicros, usageTotals } from "@/components/dashboard/shared/dashboard-data";
+import { Badge } from "@/components/app-kit/badge";
+import { ghostAction, secondaryAction } from "@/components/app-kit/button";
+import { Card } from "@/components/app-kit/card";
+import { PageHeader } from "@/components/app-kit/page-header";
+import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
+import { formatMicros } from "@/lib/price-format";
+import { billing as copy } from "./billing-copy";
 import { invoices } from "./billing-data";
-import { PageHeader } from "@/components/dashboard/shared/page-header";
-import { Panel } from "@/components/dashboard/shared/panel";
-import { secondaryAction } from "@/components/dashboard/shared/dashboard-buttons";
 
-const statusTone = { paid: "bg-success/10 text-success", open: "bg-accent-soft text-accent-ink" } as const;
+const statusTone = { paid: "success", open: "accent" } as const;
+
+/** This period's bill and limit on the left; plan and payment method beside it, in one card. */
+function CurrentBill() {
+  const used = Math.min(100, Math.round((usageTotals.costMicros / monthlyBudgetMicros) * 100));
+  return (
+    <Card>
+      <div className="grid lg:grid-cols-3">
+        <div className="p-6 lg:col-span-2">
+          <p className="text-app-ui text-app-text-2">{copy.current}</p>
+          <p className="mt-2 font-mono text-app-title text-app-text tabular-nums">{formatMicros(usageTotals.costMicros)}</p>
+          <p className="mt-1 text-app-small text-app-text-3">{copy.periodEnds(account.billingPeriod)}</p>
+          <div className="mt-6 max-w-md">
+            <div className="flex items-baseline justify-between gap-3 text-app-small">
+              <span className="text-app-text-2">{copy.budget} · <span className="font-mono tabular-nums">{formatMicros(monthlyBudgetMicros)}</span></span>
+              <span className="font-mono text-app-text-2 tabular-nums">{copy.used(used)}</span>
+            </div>
+            <div role="meter" aria-label={copy.budget} aria-valuenow={used} aria-valuemin={0} aria-valuemax={100}
+              className="mt-2 h-2 overflow-hidden rounded-full bg-app-hover">
+              <div className="h-full rounded-full bg-app-accent" style={{ width: `${used}%` }} />
+            </div>
+          </div>
+          <Link href="/usage" className={ghostAction("mt-4 -ml-3", "sm")}>
+            {copy.seeUsage}
+            <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden />
+          </Link>
+        </div>
+        <dl className="space-y-5 border-t border-app-border bg-app-inset p-6 lg:border-t-0 lg:border-l">
+          <div>
+            <dt className="text-app-small text-app-text-3">{copy.plan}</dt>
+            <dd className="mt-1 text-app-ui font-medium text-app-text">{account.plan}</dd>
+          </div>
+          <div>
+            <dt className="text-app-small text-app-text-3">{copy.payment}</dt>
+            <dd className="mt-1 text-app-ui text-app-text">{copy.noPayment}</dd>
+          </div>
+          <div>
+            <button type="button" disabled aria-describedby="payment-later" className={secondaryAction("w-full")}>
+              <HugeiconsIcon icon={CreditCardIcon} aria-hidden />
+              {copy.addPayment}
+            </button>
+            <p id="payment-later" className="mt-2 text-app-small text-app-text-3">{copy.paymentLater}</p>
+          </div>
+        </dl>
+      </div>
+    </Card>
+  );
+}
 
 export function BillingView() {
-  const used = Math.min(100, (usageTotals.costMicros / monthlyBudgetMicros) * 100);
   const cols = copy.cols;
   return (
     <>
       <PageHeader title={copy.title} sub={copy.sub} />
-      <div className="mt-8 grid gap-3 lg:grid-cols-3">
-        <Panel className="p-5 lg:col-span-2">
-          <p className="text-sm text-muted-foreground">{copy.current} · {account.billingPeriod}</p>
-          <p className="mt-2 font-mono text-4xl tabular-nums">{formatMicros(usageTotals.costMicros)}</p>
-          <div className="mt-6 flex items-baseline justify-between text-sm">
-            <span className="text-muted-foreground">{copy.budget}</span>
-            <span className="font-mono">{Math.round(used)}% {copy.used} · {formatMicros(monthlyBudgetMicros)}</span>
-          </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-accent-mark" style={{ width: `${used}%` }} />
-          </div>
-        </Panel>
-        <Panel className="flex flex-col p-5">
-          <p className="text-sm text-muted-foreground">{copy.plan}</p>
-          <p className="mt-1 font-medium">{account.plan}</p>
-          <p className="mt-6 text-sm text-muted-foreground">{copy.payment}</p>
-          <p className="mt-1 text-sm">{copy.noPayment}</p>
-          <button type="button" disabled className={secondaryAction("mt-6 self-start rounded-full")}>
-            <HugeiconsIcon icon={CreditCardIcon} aria-hidden />
-            {copy.addPayment}
-          </button>
-          <p className="mt-2 text-xs text-muted-foreground">{copy.paymentLater}</p>
-        </Panel>
-      </div>
-      <Panel title={copy.history} className="mt-3">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-lg text-sm">
-            <thead className="text-muted-foreground">
-              <tr className="text-left">
-                <th scope="col" className="py-3 pl-4 font-normal sm:pl-5">{cols.id}</th>
-                <th scope="col" className="py-3 font-normal">{cols.period}</th>
-                <th scope="col" className="py-3 text-right font-normal">{cols.amount}</th>
-                <th scope="col" className="py-3 pr-4 text-right font-normal sm:pr-5">{cols.status}</th>
-              </tr>
-            </thead>
+      <div className="space-y-6">
+        <CurrentBill />
+        <Card title={copy.history} description={copy.historySub}>
+          <Table minWidth="min-w-lg">
+            <THead>
+              <Th>{cols.id}</Th>
+              <Th>{cols.period}</Th>
+              <Th align="right">{cols.amount}</Th>
+              <Th align="right">{cols.status}</Th>
+            </THead>
             <tbody>
               {invoices.map((inv) => (
-                <tr key={inv.id} className="border-t border-border">
-                  <td className="py-3 pl-4 font-mono text-code sm:pl-5">{inv.id}</td>
-                  <td className="py-3">{inv.period}</td>
-                  <td className="py-3 text-right font-mono text-code">{formatMicros(inv.amountMicros)}</td>
-                  <td className="py-3 pr-4 text-right sm:pr-5">
-                    <span className={cn("rounded-full px-2.5 py-1 text-xs", statusTone[inv.status])}>{copy.status[inv.status]}</span>
-                  </td>
-                </tr>
+                <Tr key={inv.id}>
+                  <Td className="font-mono text-app-code text-app-text-2">{inv.id}</Td>
+                  <Td>{inv.period}</Td>
+                  <Td align="right">{formatMicros(inv.amountMicros)}</Td>
+                  <Td className="text-right"><Badge tone={statusTone[inv.status]}>{copy.status[inv.status]}</Badge></Td>
+                </Tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </Panel>
+          </Table>
+        </Card>
+      </div>
     </>
   );
 }

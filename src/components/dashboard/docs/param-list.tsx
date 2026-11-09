@@ -5,18 +5,18 @@ import type { Param } from "./docs-reference";
 export function ParamList({ title, params }: { title: string; params: Param[] }) {
   return (
     <div className="pt-2">
-      <h3 className="text-sm font-medium text-foreground">{title}</h3>
-      <dl className="mt-3 divide-y divide-border border-y border-border">
+      <h3 className="text-app-ui font-medium text-app-text">{title}</h3>
+      <dl className="mt-3 divide-y divide-app-border border-y border-app-border">
         {params.map((p) => (
           <div key={p.name} className="py-3">
             <dt className="flex flex-wrap items-baseline gap-x-2">
-              <code className="font-mono text-code font-medium text-foreground">{p.name}</code>
-              <span className="font-mono text-xs text-muted-foreground">{p.type}</span>
-              <span className={p.required ? "text-xs font-medium text-accent-ink" : "text-xs text-faint"}>
+              <code className="font-mono text-app-code font-medium text-app-text">{p.name}</code>
+              <span className="font-mono text-app-small text-app-text-3">{p.type}</span>
+              <span className={p.required ? "text-app-small font-medium text-app-accent-text" : "text-app-small text-app-text-3"}>
                 {p.required ? docs.required : docs.optional}
               </span>
             </dt>
-            <dd className="mt-1 text-sm text-muted-foreground">{p.body}</dd>
+            <dd className="mt-1 text-app-ui text-app-text-2">{p.body}</dd>
           </div>
         ))}
       </dl>

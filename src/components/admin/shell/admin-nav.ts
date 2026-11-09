@@ -1,0 +1,53 @@
+import type { ComponentType } from "react";
+import type { IconProps } from "@/components/icons/two-tone-icon";
+import { AppsIcon } from "@/components/icons/content/apps";
+import { CardCheckIcon } from "@/components/icons/content/card-check";
+import { CubeIcon } from "@/components/icons/content/cube";
+import { DocumentFoldedIcon } from "@/components/admin/shared/icons/document-folded";
+import { LineChartIcon } from "@/components/icons/content/line-chart";
+import { ServerIcon } from "@/components/admin/shared/icons/server";
+import { SettingsIcon } from "@/components/icons/content/settings";
+import { ShieldFilledIcon } from "@/components/icons/content/shield-filled";
+import { UserGroupIcon } from "@/components/admin/shared/icons/user-group";
+
+export type AdminNavItem = { href: string; label: string; icon: ComponentType<IconProps> };
+export type AdminNavGroup = { label: string; items: AdminNavItem[] };
+
+// Menus from PRD admin-console §3, grouped by what the admin does: watch, manage, secure.
+// Icons: the owner's two-tone set (admin/shared/icons/, shared ones in components/icons/).
+export const adminNav: AdminNavGroup[] = [
+  {
+    label: "Pantau",
+    items: [
+      { href: "/admin", label: "Ringkasan", icon: AppsIcon },
+      { href: "/admin/requests", label: "Request log", icon: LineChartIcon },
+      { href: "/admin/providers", label: "Provider", icon: ServerIcon },
+    ],
+  },
+  {
+    label: "Kelola",
+    items: [
+      { href: "/admin/users", label: "Pengguna", icon: UserGroupIcon },
+      { href: "/admin/models", label: "Model & harga", icon: CubeIcon },
+      { href: "/admin/billing", label: "Keuangan", icon: CardCheckIcon },
+    ],
+  },
+  {
+    label: "Keamanan",
+    items: [
+      { href: "/admin/team", label: "Admin & akses", icon: ShieldFilledIcon },
+      { href: "/admin/audit", label: "Audit log", icon: DocumentFoldedIcon },
+      { href: "/admin/settings", label: "Pengaturan", icon: SettingsIcon },
+    ],
+  },
+];
+
+/** `/admin` (overview) matches only itself; other items also match their sub-pages, never a look-alike prefix. */
+export function isAdminActive(pathname: string, href: string): boolean {
+  if (href === "/admin") return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function activeAdminItem(pathname: string): AdminNavItem | undefined {
+  return adminNav.flatMap((g) => g.items).find((item) => isAdminActive(pathname, item.href));
+}
