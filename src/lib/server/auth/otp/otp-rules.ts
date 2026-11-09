@@ -1,4 +1,5 @@
 import "server-only";
+import type { AuthMode } from "@/lib/auth/auth-contract";
 
 // Pure decisions of the email-code flow (PRD backend-auth-user §4.2, §4.3, §5, §7.1), kept apart from the DB for tests.
 
@@ -18,12 +19,16 @@ export const LIMITS = {
 } as const;
 
 export type UserStatus = "active" | "suspended";
-export type EmailKind = "signup" | "login" | "signup_closed" | "suspended";
+export type EmailKind = "signup" | "login" | "signup_closed" | "suspended" | "no_account";
 
-/** Which email step 1 sends. The HTTP response is the same for all four. */
-export function decideEmail(status: UserStatus | undefined, signupOpen: boolean): EmailKind {
+/**
+ * Which email step 1 sends. The HTTP response is the same for all, so neither tab reveals whether an email has an
+ * account. Register with a known email gets a login code; login with an unknown email gets no code.
+ */
+export function decideEmail(status: UserStatus | undefined, signupOpen: boolean, mode: AuthMode): EmailKind {
   if (status === "suspended") return "suspended";
   if (status === "active") return "login";
+  if (mode === "login") return "no_account";
   return signupOpen ? "signup" : "signup_closed";
 }
 
@@ -44,11 +49,15 @@ export function judgeAttempt(challenge: Challenge | undefined, codeMatches: bool
   return { kind: "invalid", attemptsLeft: OTP_MAX_ATTEMPTS - (challenge.attempts + 1) };
 }
 
-export type LoginDecision = "login" | "create" | "blocked_suspended" | "blocked_signup_closed";
+export type LoginDecision = "login" | "create" | "blocked_suspended" | "blocked_signup_closed" | "blocked_no_account";
 
-/** After a correct code: sign in, create the account, or refuse (shown to the client as a generic `expired`). */
-export function decideLogin(status: UserStatus | undefined, signupOpen: boolean): LoginDecision {
+/**
+ * After a correct code: sign in, create the account, or refuse (shown to the client as a generic `expired`).
+ * Only the register tab creates accounts, since only it carries the names.
+ */
+export function decideLogin(status: UserStatus | undefined, signupOpen: boolean, mode: AuthMode): LoginDecision {
   if (status === "suspended") return "blocked_suspended";
   if (status === "active") return "login";
+  if (mode === "login") return "blocked_no_account";
   return signupOpen ? "create" : "blocked_signup_closed";
 }

@@ -12,6 +12,7 @@ export type AuthEventType =
   | "logout"
   | "blocked_suspended"
   | "blocked_signup_closed"
+  | "blocked_no_account"
   | "rate_limited"
   | "session_revoked"
   | "sessions_revoked_others";

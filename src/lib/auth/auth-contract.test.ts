@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  isValidEmail, isValidOtp, maskEmail, parseOtpRequestBody, parseOtpVerifyBody, parsePageParam, parseRevokeBody,
-  safeNextPath, sanitizeOtp,
+  isValidEmail, isValidName, isValidOtp, maskEmail, parseModeParam, parseOtpRequestBody, parseOtpVerifyBody,
+  parsePageParam, parseRevokeBody, safeNextPath, sanitizeOtp,
 } from "./auth-contract.ts";
 
 test("isValidEmail accepts basic addresses and trims", () => {
@@ -32,21 +32,50 @@ test("maskEmail keeps first letter and domain", () => {
   assert.equal(maskEmail("invalid"), "invalid");
 });
 
-test("parseOtpRequestBody normalizes email and keeps only it", () => {
-  assert.deepEqual(parseOtpRequestBody({ email: "  Andi@X.com " }), { email: "andi@x.com" });
-  // Old clients may still send a mode; it is ignored, not an error.
-  assert.deepEqual(parseOtpRequestBody({ email: "a@x.co", mode: "register" }), { email: "a@x.co" });
-  assert.equal(parseOtpRequestBody({ email: "broken" }), null);
-  assert.equal(parseOtpRequestBody(null), null);
-  assert.equal(parseOtpRequestBody(["a@x.co"]), null);
+test("isValidName allows letters of any script with inner spaces, apostrophes, hyphens, dots", () => {
+  for (const ok of ["Siti", " Siti  Aisyah ", "O'Brien", "Jean-Luc", "Muh. Rizki", "Zoë", "李", "a".repeat(50)]) {
+    assert.equal(isValidName(ok), true, ok);
+  }
+  for (const bad of ["", "   ", "-Andi", "Andi1", "<b>", "a\u0000b", "😀", "a".repeat(51)]) {
+    assert.equal(isValidName(bad), false, bad);
+  }
 });
 
-test("parseOtpVerifyBody requires an 8-digit code", () => {
-  assert.deepEqual(parseOtpVerifyBody({ email: "A@x.co", code: "01234567" }), { email: "a@x.co", code: "01234567", next: null });
-  assert.deepEqual(parseOtpVerifyBody({ email: "a@x.co", code: "01234567", next: "/usage" })?.next, "/usage");
-  assert.equal(parseOtpVerifyBody({ email: "a@x.co", code: "1234 5678" }), null);
-  assert.equal(parseOtpVerifyBody({ email: "a@x.co", code: 12345678 }), null);
-  assert.equal(parseOtpVerifyBody({ email: "a@x.co", code: "12345678", next: 5 }), null);
+test("parseModeParam opens register only for ?mode=register", () => {
+  assert.equal(parseModeParam("register"), "register");
+  for (const other of ["login", "REGISTER", undefined, ["register"]]) assert.equal(parseModeParam(other), "login");
+});
+
+test("parseOtpRequestBody requires a tab and a valid email", () => {
+  assert.deepEqual(parseOtpRequestBody({ mode: "login", email: "  Andi@X.com " }), { mode: "login", email: "andi@x.com" });
+  assert.deepEqual(parseOtpRequestBody({ mode: "register", email: "a@x.co", firstName: "x" }), { mode: "register", email: "a@x.co" });
+  for (const bad of [{ email: "a@x.co" }, { mode: "signup", email: "a@x.co" }, { mode: "login", email: "broken" }, null, ["a@x.co"]]) {
+    assert.equal(parseOtpRequestBody(bad), null, JSON.stringify(bad));
+  }
+});
+
+test("parseOtpVerifyBody requires an 8-digit code, and names on the register tab", () => {
+  const login = { mode: "login", email: "A@x.co", code: "01234567" };
+  assert.deepEqual(parseOtpVerifyBody(login), { mode: "login", email: "a@x.co", code: "01234567", next: null });
+  assert.deepEqual(parseOtpVerifyBody({ ...login, firstName: "x" }), { mode: "login", email: "a@x.co", code: "01234567", next: null });
+  assert.equal(parseOtpVerifyBody({ ...login, next: "/usage" })?.next, "/usage");
+  assert.equal(parseOtpVerifyBody({ ...login, code: "1234 5678" }), null);
+  assert.equal(parseOtpVerifyBody({ ...login, code: 12345678 }), null);
+  assert.equal(parseOtpVerifyBody({ ...login, next: 5 }), null);
+  assert.equal(parseOtpVerifyBody({ email: "a@x.co", code: "01234567" }), null, "tab is required");
+
+  const register = { ...login, mode: "register", firstName: "  Siti ", lastName: "Aisyah  Putri" };
+  assert.deepEqual(parseOtpVerifyBody(register), {
+    mode: "register", firstName: "Siti", lastName: "Aisyah Putri", email: "a@x.co", code: "01234567", next: null,
+  });
+  for (const blank of [undefined, null, "", "   "]) {
+    const parsed = parseOtpVerifyBody({ ...register, lastName: blank });
+    assert.equal(parsed?.mode === "register" && parsed.lastName, null, `optional: ${String(blank)}`);
+  }
+  assert.equal(parseOtpVerifyBody({ ...register, lastName: "Doe1" }), null, "filled last name must be valid");
+  assert.equal(parseOtpVerifyBody({ ...register, lastName: 5 }), null);
+  assert.equal(parseOtpVerifyBody({ ...register, firstName: "" }), null);
+  assert.equal(parseOtpVerifyBody({ ...register, firstName: 5 }), null);
 });
 
 test("safeNextPath only allows dashboard paths on this site", () => {

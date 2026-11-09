@@ -5,19 +5,21 @@ import {
   authErrorResponse, authJson, clientInfo, clientIpKey, emailKey, readGuardedJson,
 } from "@/lib/server/auth/request-guard";
 
-// Step 2: check the code, create the account if new, set the session cookie.
+// Step 2: check the code, create the account (register tab only), set the session cookie.
 export async function POST(request: Request) {
   try {
     const body = parseOtpVerifyBody(await readGuardedJson(request));
     if (!body) throw new AppError("invalid_input", 400);
+    const { email, code, next, ...account } = body;
     await verifyCode({
-      email: body.email,
-      code: body.code,
-      emailHash: emailKey(body.email),
+      email,
+      code,
+      account,
+      emailHash: emailKey(email),
       ipHash: clientIpKey(request),
       client: clientInfo(request),
     });
-    return authJson({ ok: true, redirect: safeNextPath(body.next) ?? DEFAULT_AFTER_LOGIN }, 200);
+    return authJson({ ok: true, redirect: safeNextPath(next) ?? DEFAULT_AFTER_LOGIN }, 200);
   } catch (error) {
     return authErrorResponse(error);
   }

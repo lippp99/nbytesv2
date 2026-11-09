@@ -3,9 +3,22 @@ import type { UserAuthError } from "@/lib/auth/auth-client";
 // All login UI text in one place (PRD §5, language still open in §12).
 export const authCopy = {
   pageTitle: "Login",
+  tabs: { login: "Masuk", register: "Daftar" },
+  title: { login: "Masuk ke nbytes", register: "Buat akun nbytes" },
+  sub: {
+    login: "Masuk untuk memakai semua model AI dengan satu API key.",
+    register: "Buat akun untuk memakai semua model AI dengan satu API key.",
+  },
+  names: {
+    firstLabel: "Nama depan",
+    firstPlaceholder: "John",
+    lastLabel: "Nama belakang",
+    lastOptional: "(opsional)",
+    lastPlaceholder: "Doe",
+    firstInvalid: "Masukkan nama depan (huruf saja).",
+    lastInvalid: "Nama belakang hanya boleh berisi huruf.",
+  },
   email: {
-    title: "Masuk atau daftar",
-    sub: "Login atau buat akun untuk memakai semua model AI dengan satu API key.",
     label: "Email",
     placeholder: "nama@perusahaan.com",
     sending: "Mengirim…",
@@ -14,7 +27,6 @@ export const authCopy = {
     and: "dan",
     privacy: "Privasi",
     invalid: "Masukkan alamat email yang valid.",
-    // One flow for everyone: an unknown email gets a new account after the code is confirmed.
     hint: "Kami kirim kode 8 digit ke email Anda. Tanpa password.",
     submit: "Lanjut dengan email",
   },

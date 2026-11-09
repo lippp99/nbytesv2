@@ -22,6 +22,20 @@
       "when": 1794216925313,
       "tag": "0002_slippery_prima",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794230297390,
+      "tag": "0003_square_amphibian",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794230769809,
+      "tag": "0004_uneven_zaladane",
+      "breakpoints": true
     }
   ]
 }

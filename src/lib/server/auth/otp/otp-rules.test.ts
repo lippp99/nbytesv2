@@ -11,14 +11,17 @@ test("attempt limit matches the shared contract", () => {
   assert.equal(OTP_MAX_ATTEMPTS, CONTRACT_MAX);
 });
 
-test("decideEmail: table §4.2", () => {
-  assert.equal(decideEmail(undefined, true), "signup");
-  assert.equal(decideEmail("active", true), "login");
-  assert.equal(decideEmail("active", false), "login");
-  assert.equal(decideEmail(undefined, false), "signup_closed");
-  assert.equal(decideEmail("suspended", true), "suspended");
+test("decideEmail: per tab, known email always gets a login code, login tab never creates", () => {
+  assert.equal(decideEmail(undefined, true, "register"), "signup");
+  assert.equal(decideEmail(undefined, false, "register"), "signup_closed");
+  assert.equal(decideEmail(undefined, true, "login"), "no_account");
+  for (const mode of ["login", "register"] as const) {
+    assert.equal(decideEmail("active", true, mode), "login");
+    assert.equal(decideEmail("active", false, mode), "login");
+    assert.equal(decideEmail("suspended", true, mode), "suspended");
+  }
   assert.deepEqual(
-    (["signup", "login", "signup_closed", "suspended"] as const).filter(emailGetsCode),
+    (["signup", "login", "signup_closed", "suspended", "no_account"] as const).filter(emailGetsCode),
     ["signup", "login"],
   );
 });
@@ -34,9 +37,11 @@ test("judgeAttempt: correct, wrong, last try, expired, used, missing", () => {
   assert.deepEqual(judgeAttempt(undefined, true, now), { kind: "expired" });
 });
 
-test("decideLogin: table §4.3", () => {
-  assert.equal(decideLogin("active", false), "login");
-  assert.equal(decideLogin(undefined, true), "create");
-  assert.equal(decideLogin(undefined, false), "blocked_signup_closed");
-  assert.equal(decideLogin("suspended", true), "blocked_suspended");
+test("decideLogin: only the register tab creates accounts", () => {
+  assert.equal(decideLogin("active", false, "login"), "login");
+  assert.equal(decideLogin("active", true, "register"), "login");
+  assert.equal(decideLogin(undefined, true, "register"), "create");
+  assert.equal(decideLogin(undefined, false, "register"), "blocked_signup_closed");
+  assert.equal(decideLogin(undefined, true, "login"), "blocked_no_account");
+  assert.equal(decideLogin("suspended", true, "register"), "blocked_suspended");
 });

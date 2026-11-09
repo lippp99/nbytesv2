@@ -1,5 +1,6 @@
 import "server-only";
 import { and, desc, eq } from "drizzle-orm";
+import type { AuthAccount } from "@/lib/auth/auth-contract";
 import { db } from "../../db/client";
 import { otpChallenges, users } from "../../db/schema";
 import { AppError } from "../../errors";
@@ -18,29 +19,30 @@ type Outcome =
   | { kind: "refused"; event: AuthEventType; userId?: string };
 
 /** Finds the user or creates one (only after a correct code). Both run inside the locked transaction. */
-async function signIn(tx: Tx, email: string, now: Date): Promise<Outcome> {
+async function signIn(tx: Tx, email: string, account: AuthAccount, now: Date): Promise<Outcome> {
   const [user] = await tx.select({ id: users.id, status: users.status }).from(users).where(eq(users.email, email));
-  const decision = decideLogin(user?.status, SIGNUP_OPEN);
-  if (decision === "blocked_suspended" || decision === "blocked_signup_closed") {
-    return { kind: "refused", event: decision, userId: user?.id };
-  }
+  const decision = decideLogin(user?.status, SIGNUP_OPEN, account.mode);
+  if (decision !== "login" && decision !== "create") return { kind: "refused", event: decision, userId: user?.id };
   let userId = user?.id;
-  if (!userId) {
+  if (!userId && account.mode === "register") {
+    const { firstName, lastName } = account;
+    const verified = { emailVerifiedAt: now, termsAcceptedAt: now, termsVersion: TERMS_VERSION, lastLoginAt: now };
     const [created] = await tx
       .insert(users)
-      .values({ email, emailVerifiedAt: now, termsAcceptedAt: now, termsVersion: TERMS_VERSION, lastLoginAt: now })
+      .values({ email, firstName, lastName, ...verified })
       .onConflictDoNothing({ target: users.email })
       .returning({ id: users.id });
     if (created) return { kind: "ok", userId: created.id, created: true };
     // Another request created it first: use that row.
     [{ id: userId }] = await tx.select({ id: users.id }).from(users).where(eq(users.email, email));
   }
+  if (!userId) return { kind: "refused", event: "blocked_no_account" }; // unreachable: decideLogin refused it
   await tx.update(users).set({ lastLoginAt: now }).where(eq(users.id, userId));
   return { kind: "ok", userId, created: false };
 }
 
 /** Locks the email's code row so parallel guesses cannot pass the 5-attempt limit or use one code twice. */
-function checkCode(email: string, code: string): Promise<Outcome> {
+function checkCode(email: string, code: string, account: AuthAccount): Promise<Outcome> {
   return db.transaction(async (tx) => {
     const now = new Date();
     const [challenge] = await tx
@@ -59,7 +61,7 @@ function checkCode(email: string, code: string): Promise<Outcome> {
       .where(eq(otpChallenges.id, challenge.id));
     // Returned, not thrown: a throw would roll back the attempt count.
     if (result.kind === "invalid") return { kind: "invalid", attemptsLeft: result.attemptsLeft };
-    return signIn(tx, email, now);
+    return signIn(tx, email, account, now);
   });
 }
 
@@ -67,13 +69,14 @@ function checkCode(email: string, code: string): Promise<Outcome> {
 export async function verifyCode(input: {
   email: string;
   code: string;
+  account: AuthAccount;
   emailHash: string;
   ipHash: string;
   client: ClientInfo;
 }): Promise<{ created: boolean }> {
   const who = { emailHash: input.emailHash, ipHash: input.ipHash };
   await enforceLimit(`otp-verify:ip:${input.ipHash}`, LIMITS.verifyPerIp.limit, LIMITS.verifyPerIp.windowSeconds, who);
-  const outcome = await checkCode(input.email, input.code);
+  const outcome = await checkCode(input.email, input.code, input.account);
   if (outcome.kind === "invalid") {
     await logAuthEvent("otp_failed", who);
     if (outcome.attemptsLeft === 0) throw new AppError("expired", 410);

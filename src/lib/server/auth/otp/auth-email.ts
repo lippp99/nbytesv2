@@ -18,13 +18,18 @@ const COPY: Record<EmailKind, Copy> = {
   signup: {
     subject: "Kode untuk membuat akun nbytes",
     heading: "Kode untuk membuat akun",
-    intro: "Masukkan kode ini di halaman login nbytes. Akun Anda langsung aktif setelah kode diterima.",
+    intro: "Masukkan kode ini di halaman daftar nbytes. Akun Anda langsung aktif setelah kode diterima.",
   },
   // The PRD does not fix the subject of the two no-code mails; "nbytes" is a placeholder.
   signup_closed: {
     subject: "nbytes",
     heading: "Pendaftaran sedang ditutup",
     intro: "Pendaftaran akun baru sedang ditutup, jadi tidak ada kode yang dibuat untuk email ini.",
+  },
+  no_account: {
+    subject: "nbytes",
+    heading: "Belum ada akun untuk email ini",
+    intro: "Tidak ada akun nbytes dengan email ini, jadi tidak ada kode yang dibuat. Buat akun lewat tab Daftar di halaman login.",
   },
   suspended: {
     subject: "nbytes",

@@ -1,14 +1,23 @@
 import "server-only";
 import { and, eq } from "drizzle-orm";
+import type { AuthMode } from "@/lib/auth/auth-contract";
 import { db } from "../../db/client";
 import { otpChallenges, users } from "../../db/schema";
 import { AppError } from "../../errors";
 import { authEnv } from "../auth-env";
-import { logAuthEvent } from "../auth-events";
+import { type AuthEventType, logAuthEvent } from "../auth-events";
 import { hmac, randomOtp } from "../crypto";
 import { enforceLimit, undoHit } from "../rate-limit";
 import { sendAuthEmail } from "./mailer";
-import { LIMITS, OTP_PURPOSE, OTP_TTL_MS, SIGNUP_OPEN, decideEmail, emailGetsCode } from "./otp-rules";
+import { type EmailKind, LIMITS, OTP_PURPOSE, OTP_TTL_MS, SIGNUP_OPEN, decideEmail, emailGetsCode } from "./otp-rules";
+
+const EVENT: Record<EmailKind, AuthEventType> = {
+  signup: "otp_requested",
+  login: "otp_requested",
+  suspended: "blocked_suspended",
+  signup_closed: "blocked_signup_closed",
+  no_account: "blocked_no_account",
+};
 
 /** Stored form of a code: keyed by the pepper, bound to the purpose and the email. */
 export const otpHash = (email: string, code: string) => hmac(authEnv().otpPepper, `${OTP_PURPOSE}:${email}:${code}`);
@@ -34,7 +43,7 @@ async function issueChallenge(email: string): Promise<string> {
  * Step 1 (PRD §4.1): rate limits, then the email that fits the account. Whatever the account state, the caller
  * answers the same 202, so nothing here may change the response except limits and provider failure.
  */
-export async function requestCode(email: string, emailHash: string, ipHash: string): Promise<void> {
+export async function requestCode(email: string, mode: AuthMode, emailHash: string, ipHash: string): Promise<void> {
   const who = { emailHash, ipHash };
   const cooldownKey = `otp-send:cooldown:${emailHash}`;
   await enforceLimit(`otp-send:ip:${ipHash}`, LIMITS.sendPerIp.limit, LIMITS.sendPerIp.windowSeconds, who);
@@ -42,7 +51,7 @@ export async function requestCode(email: string, emailHash: string, ipHash: stri
   await enforceLimit(`otp-send:email:${emailHash}`, LIMITS.sendPerEmail.limit, LIMITS.sendPerEmail.windowSeconds, who);
 
   const [user] = await db.select({ id: users.id, status: users.status }).from(users).where(eq(users.email, email));
-  const kind = decideEmail(user?.status, SIGNUP_OPEN);
+  const kind = decideEmail(user?.status, SIGNUP_OPEN, mode);
   const code = emailGetsCode(kind) ? await issueChallenge(email) : undefined;
   try {
     await sendAuthEmail(email, kind, code);
@@ -53,6 +62,5 @@ export async function requestCode(email: string, emailHash: string, ipHash: stri
     await logAuthEvent("otp_send_failed", { ...who, userId: user?.id });
     throw new AppError("unavailable", 503, {}, undefined, { cause: error });
   }
-  const type = kind === "suspended" ? "blocked_suspended" : kind === "signup_closed" ? "blocked_signup_closed" : "otp_requested";
-  await logAuthEvent(type, { ...who, userId: user?.id });
+  await logAuthEvent(EVENT[kind], { ...who, userId: user?.id });
 }

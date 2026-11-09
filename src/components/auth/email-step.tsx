@@ -2,36 +2,64 @@ import type { FormEvent, Ref } from "react";
 import { primaryButton, textLink } from "@/components/button-styles";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { EMAIL_MAX_LENGTH } from "@/lib/auth/auth-contract";
+import { type AuthMode, EMAIL_MAX_LENGTH } from "@/lib/auth/auth-contract";
 import { authCopy } from "./auth-copy";
 import { errorText, fieldFocus } from "./field-styles";
+import { type NameField, NameFields } from "./name-fields";
 
 const copy = authCopy.email;
+const MODES = ["login", "register"] as const;
+export type AuthField = NameField | "email";
 
 type EmailStepProps = {
+  mode: AuthMode;
+  firstName: string;
+  lastName: string;
   email: string;
   error: string | null;
+  errorField: AuthField;
   pending: boolean;
   headingRef: Ref<HTMLHeadingElement>;
-  onEmailChange: (value: string) => void;
+  onModeChange: (mode: AuthMode) => void;
+  onFieldChange: (field: AuthField, value: string) => void;
   onSubmit: () => void;
 };
 
-/** One form for sign-in and sign-up: the server sends a code either way and creates the account on first login. */
-export function EmailStep({ email, error, pending, headingRef, onEmailChange, onSubmit }: EmailStepProps) {
+// Pill tabs over the ui/tabs primitive (bare `cn`, so overrides need `!`).
+const listClass = "h-12! w-full rounded-full! bg-muted p-1";
+const triggerClass = "rounded-full! text-base disabled:opacity-100";
+
+/** Login and register tabs; both send an 8-digit code to the email, register also asks for the names. */
+export function EmailStep(props: EmailStepProps) {
+  const { mode, email, error, errorField, pending, headingRef } = props;
+  const emailError = errorField === "email" ? error : null;
+  const nameError = errorField !== "email" && error ? { field: errorField, message: error } : null;
+
   function submit(event: FormEvent) {
     event.preventDefault();
-    onSubmit();
+    props.onSubmit();
   }
 
-  return (
-    <div>
+  const body = (
+    <>
       <h1 ref={headingRef} tabIndex={-1} className="text-center text-2xl font-semibold tracking-tight text-balance outline-none">
-        {copy.title}
+        {authCopy.title[mode]}
       </h1>
-      <p className="mt-2 text-center text-muted-foreground text-balance">{copy.sub}</p>
+      <p className="mt-2 text-center text-muted-foreground text-balance">{authCopy.sub[mode]}</p>
       <form noValidate onSubmit={submit} className="mt-7 text-base">
+        {mode === "register" && (
+          <div className="mb-5">
+            <NameFields
+              firstName={props.firstName}
+              lastName={props.lastName}
+              disabled={pending}
+              error={nameError}
+              onChange={props.onFieldChange}
+            />
+          </div>
+        )}
         <Label htmlFor="email" className="text-sm">{copy.label}</Label>
         <Input
           id="email"
@@ -41,17 +69,17 @@ export function EmailStep({ email, error, pending, headingRef, onEmailChange, on
           inputMode="email"
           placeholder={copy.placeholder}
           maxLength={EMAIL_MAX_LENGTH}
-          autoFocus
+          autoFocus={mode === "login"}
           required
           value={email}
           disabled={pending}
-          onChange={(e) => onEmailChange(e.target.value)}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "email-error" : "email-hint"}
+          onChange={(e) => props.onFieldChange("email", e.target.value)}
+          aria-invalid={emailError ? true : undefined}
+          aria-describedby={emailError ? "email-error" : "email-hint"}
           className={cn("mt-2 h-12 px-4 text-base", fieldFocus)}
         />
-        {error ? (
-          <p id="email-error" role="alert" className={errorText}>{error}</p>
+        {emailError ? (
+          <p id="email-error" role="alert" className={errorText}>{emailError}</p>
         ) : (
           <p id="email-hint" className="mt-2 text-sm text-muted-foreground">{copy.hint}</p>
         )}
@@ -68,6 +96,19 @@ export function EmailStep({ email, error, pending, headingRef, onEmailChange, on
           <a href="#" className={textLink}>{copy.privacy}</a>.
         </p>
       </form>
-    </div>
+    </>
+  );
+
+  return (
+    <Tabs value={mode} onValueChange={(value: AuthMode) => props.onModeChange(value)} className="gap-7">
+      <TabsList className={listClass}>
+        {MODES.map((m) => (
+          <TabsTrigger key={m} value={m} disabled={pending} className={triggerClass}>{authCopy.tabs[m]}</TabsTrigger>
+        ))}
+      </TabsList>
+      {MODES.map((m) => (
+        <TabsContent key={m} value={m} className="text-base">{body}</TabsContent>
+      ))}
+    </Tabs>
   );
 }

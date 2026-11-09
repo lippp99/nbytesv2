@@ -9,7 +9,9 @@ export const users = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     email: text("email").notNull(), // normalized by normalizeEmail
-    name: text("name"),
+    // Set by the register tab (normalized by normalizeName); null for accounts made before it. Last name is optional.
+    firstName: text("first_name"),
+    lastName: text("last_name"),
     status: text("status", { enum: ["active", "suspended"] }).notNull().default("active"),
     emailVerifiedAt: at("email_verified_at").notNull(),
     termsAcceptedAt: at("terms_accepted_at").notNull(),

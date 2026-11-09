@@ -1,4 +1,4 @@
-import type { AuthErrorCode } from "@/lib/auth/auth-contract";
+import type { AuthAccount, AuthErrorCode, AuthMode } from "@/lib/auth/auth-contract";
 
 export type AuthError =
   | { kind: "offline" }
@@ -47,16 +47,17 @@ async function post<T>(path: string, body: object): Promise<AuthResult<T, UserAu
   return { ok: false, error: toAuthError(data?.error) };
 }
 
-export function requestOtp(email: string): Promise<AuthResult<{ resendAfter: number }, UserAuthError>> {
-  return post("/api/auth/otp/request", { email });
+export function requestOtp(mode: AuthMode, email: string): Promise<AuthResult<{ resendAfter: number }, UserAuthError>> {
+  return post("/api/auth/otp/request", { mode, email });
 }
 
 export function verifyOtp(
+  account: AuthAccount,
   email: string,
   code: string,
   next: string | null,
 ): Promise<AuthResult<{ redirect: string }, UserAuthError>> {
-  return post("/api/auth/otp/verify", { email, code, next });
+  return post("/api/auth/otp/verify", { ...account, email, code, next });
 }
 
 /** Signs out one other device (PRD active-sessions §5.1). */

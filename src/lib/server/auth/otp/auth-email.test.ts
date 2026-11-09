@@ -23,7 +23,7 @@ test("code mails show the code in text and html, never in the subject or the pre
 });
 
 test("no links, buttons, images or scripts (PRD §12.1)", () => {
-  for (const kind of ["login", "signup", "signup_closed", "suspended"] as const) {
+  for (const kind of ["login", "signup", "signup_closed", "suspended", "no_account"] as const) {
     const { html, text } = authEmailContent(kind, kind === "login" || kind === "signup" ? "12345678" : undefined);
     assert.doesNotMatch(html, /<a\s|<img|<button|<script|<form/i);
     assert.doesNotMatch(text, /https?:\/\//);
@@ -35,4 +35,5 @@ test("no-code mails explain, without a code block", () => {
   assert.match(mail.text, /ditangguhkan/);
   assert.doesNotMatch(mail.html, /class="nb-well"/);
   assert.match(authEmailContent("signup_closed").text, /ditutup/);
+  assert.match(authEmailContent("no_account").text, /Daftar/);
 });

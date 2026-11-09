@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { authCopy } from "@/components/auth/auth-copy";
 import { LoginForm } from "@/components/auth/login-form";
 import { Wordmark } from "@/components/wordmark";
-import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/auth-contract";
+import { DEFAULT_AFTER_LOGIN, parseModeParam, safeNextPath } from "@/lib/auth/auth-contract";
 import { readSession } from "@/lib/server/auth/session";
 
 export const metadata: Metadata = { title: authCopy.pageTitle };
@@ -19,8 +19,8 @@ async function RedirectIfSignedIn({ next }: { next: string | null }) {
 
 // One centred rounded card on a muted page, after jatevo.ai/app/login (480px card, 20px radius, 34/40px padding).
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  // One form for login and sign-up, so ?mode=register from old links is simply ignored.
-  const { next } = await searchParams;
+  // ?mode=register (landing "Register" link) opens the register tab.
+  const { next, mode } = await searchParams;
   const nextPath = typeof next === "string" ? next : null;
   return (
     <main className="flex min-h-dvh items-center justify-center bg-muted px-4 py-12 pt-safe">
@@ -31,7 +31,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <div className="mb-6 flex justify-center">
           <Wordmark />
         </div>
-        <LoginForm nextPath={nextPath} />
+        <LoginForm nextPath={nextPath} initialMode={parseModeParam(mode)} />
       </div>
     </main>
   );

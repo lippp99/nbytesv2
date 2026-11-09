@@ -14,7 +14,7 @@ const IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 const TOUCH_EVERY_MS = 60 * 60 * 1000;
 const USER_AGENT_MAX = 256;
 
-export type SessionUser = { id: string; email: string; name: string | null };
+export type SessionUser = { id: string; email: string };
 export type CurrentSession = { sessionId: string; user: SessionUser };
 
 function cookieOptions(expires: Date) {
@@ -59,7 +59,7 @@ export const readSession = cache(async (): Promise<CurrentSession | null> => {
       sessionId: sessions.id,
       expiresAt: sessions.expiresAt,
       lastSeenAt: sessions.lastSeenAt,
-      user: { id: users.id, email: users.email, name: users.name, status: users.status },
+      user: { id: users.id, email: users.email, status: users.status },
     })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
@@ -70,8 +70,8 @@ export const readSession = cache(async (): Promise<CurrentSession | null> => {
   if (now - row.lastSeenAt.getTime() > TOUCH_EVERY_MS) {
     await db.update(sessions).set({ lastSeenAt: new Date(now) }).where(eq(sessions.id, row.sessionId));
   }
-  const { id, email, name } = row.user;
-  return { sessionId: row.sessionId, user: { id, email, name } };
+  const { id, email } = row.user;
+  return { sessionId: row.sessionId, user: { id, email } };
 });
 
 /**
