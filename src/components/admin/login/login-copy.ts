@@ -95,8 +95,3 @@ export function loginErrorMessage(error: AdminError): string {
       return "Permintaan belum bisa diproses. Coba lagi sebentar lagi.";
   }
 }
-
-/** 42 -> "0:42" */
-export function formatCountdown(seconds: number): string {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-}

@@ -9,7 +9,8 @@ import { isValidEmail, maskEmail, normalizeEmail } from "@/lib/auth/auth-contrac
 import { CodeStep } from "./code-step";
 import { EmailStep } from "./email-step";
 import { LoginCard } from "./login-card";
-import { formatCountdown, loginCopy as copy, loginErrorMessage } from "./login-copy";
+import { formatCountdown } from "@/lib/date-format";
+import { loginCopy as copy, loginErrorMessage } from "./login-copy";
 import { SecondFactorStep } from "./second-factor/second-factor-step";
 
 type Step = "email" | "code" | "totp" | "enroll";

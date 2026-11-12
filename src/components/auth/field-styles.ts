@@ -3,5 +3,3 @@
 export const fieldFocus =
   "rounded-panel! border-input focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-accent-mark " +
   "aria-invalid:border-destructive aria-invalid:ring-0 dark:bg-transparent";
-
-export const errorText = "mt-2 text-sm text-destructive";

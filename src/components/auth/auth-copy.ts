@@ -40,7 +40,19 @@ export const authCopy = {
     resend: "Kirim ulang kode",
     resendIn: "Kirim ulang dalam",
     incomplete: "Masukkan 8 digit kode.",
-    success: "Berhasil login.",
+    success: "Berhasil masuk.",
+    opening: "Membuka dashboard…",
+    openNow: "Membuka dashboard",
+    invalid: (left: number) => `Kode salah. Sisa ${left} percobaan.`,
+    expired: "Kode ini tidak berlaku lagi. Minta kode baru, kami kirim ke email yang sama.",
+    newCode: "Kirim kode baru",
+    lockedNote: "Kotak kode terkunci sampai kode baru dikirim.",
+    locked: (minutes: number) => `Terlalu banyak percobaan. Untuk keamanan, coba lagi dalam ${minutes} menit.`,
+    retryIn: "Coba lagi dalam",
+    otherEmail: "Masuk dengan email lain",
+    offline: "Tidak ada koneksi internet. Kode Anda masih di sini, periksa lagi setelah tersambung.",
+    checkFailed: "Kode belum bisa diperiksa. Kode Anda masih di sini, coba lagi sebentar lagi.",
+    retry: "Periksa lagi",
   },
 };
 
@@ -49,7 +61,7 @@ export function authErrorMessage(error: UserAuthError): string {
     case "offline":
       return "Tidak ada koneksi internet.";
     case "unavailable":
-      return "Kode belum bisa dikirim. Coba lagi sebentar lagi.";
+      return "Kode belum bisa dikirim. Ini masalah di pihak kami, bukan email Anda. Coba lagi sebentar lagi.";
     case "invalid_input":
       return authCopy.email.invalid;
     case "unauthorized":
@@ -61,9 +73,4 @@ export function authErrorMessage(error: UserAuthError): string {
     case "expired":
       return "Kode tidak berlaku lagi. Minta kode baru.";
   }
-}
-
-/** 60 -> "1:00", 59 -> "0:59" */
-export function formatCountdown(seconds: number): string {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }

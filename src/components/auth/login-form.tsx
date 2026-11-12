@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { requestOtp, verifyOtp } from "@/lib/auth/auth-client";
+import { type UserAuthError, requestOtp, verifyOtp } from "@/lib/auth/auth-client";
 import {
   type AuthAccount, type AuthMode, isValidEmail, isValidName, isValidOtp, maskEmail, normalizeEmail,
 } from "@/lib/auth/auth-contract";
 import { cn } from "@/lib/utils";
 import { authCopy, authErrorMessage } from "./auth-copy";
 import { type AuthField, EmailStep } from "./email-step";
+import { type OtpIssue, otpIssueOf } from "./otp-issue";
 import { OtpStep } from "./otp-step";
 
 type Step = "email" | "otp";
@@ -26,9 +27,11 @@ export function LoginForm({ nextPath = null, initialMode = "login" }: LoginFormP
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [errorField, setErrorField] = useState<AuthField>("email");
+  const [issue, setIssue] = useState<OtpIssue | null>(null); // code step only; the email step keeps `error`
   const [pending, setPending] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [redirect, setRedirect] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
+  const [lockedFor, setLockedFor] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const otpRef = useRef<HTMLInputElement>(null);
   const stepChanged = useRef(false);
@@ -42,8 +45,8 @@ export function LoginForm({ nextPath = null, initialMode = "login" }: LoginFormP
 
   // After a failed code the input is enabled again (it was locked while verifying): back to slot 1.
   useEffect(() => {
-    if (step === "otp" && error && !pending) otpRef.current?.focus();
-  }, [step, error, pending]);
+    if (step === "otp" && issue && !pending) otpRef.current?.focus();
+  }, [step, issue, pending]);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -51,11 +54,23 @@ export function LoginForm({ nextPath = null, initialMode = "login" }: LoginFormP
     return () => clearTimeout(id);
   }, [resendIn]);
 
+  // Rate-limit lock: count down, and lift the lock message when it ends.
+  useEffect(() => {
+    if (lockedFor <= 0) return;
+    const id = setTimeout(() => {
+      if (lockedFor === 1) setIssue(null);
+      setLockedFor(lockedFor - 1);
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [lockedFor]);
+
   function goTo(next: Step) {
     setVisible(false);
     setTimeout(() => {
       stepChanged.current = true;
       setError(null);
+      setIssue(null);
+      setLockedFor(0);
       setCode("");
       setStep(next);
       setVisible(true);
@@ -86,28 +101,38 @@ export function LoginForm({ nextPath = null, initialMode = "login" }: LoginFormP
     setPending(true);
     const result = await requestOtp(mode, email);
     setPending(false);
-    if (!result.ok) return fail(result.error.kind === "invalid_input" ? authCopy.email.invalid : authErrorMessage(result.error));
+    if (!result.ok) {
+      if (step === "otp") return showIssue(otpIssueOf(result.error, true), result.error);
+      return fail(result.error.kind === "invalid_input" ? authCopy.email.invalid : authErrorMessage(result.error));
+    }
     setResendIn(result.resendAfter);
     if (step === "email") return goTo("otp");
+    setIssue(null);
     setCode("");
     otpRef.current?.focus();
   }
 
+  function showIssue(next: OtpIssue, error: UserAuthError) {
+    setIssue(next);
+    if (error.kind === "rate_limited") setLockedFor(error.retryAfterMinutes * 60);
+    if (next.kind === "expired") setResendIn(0);
+    // A wrong or dead code is cleared; after a connection or server fault the typed code stays for the retry.
+    if (next.kind === "invalid" || next.kind === "expired" || next.kind === "locked") setCode("");
+  }
+
   async function verify(value: string) {
-    if (pending || success) return;
-    if (!isValidOtp(value)) return setError(authCopy.otp.incomplete);
-    setError(null);
+    if (pending || redirect || lockedFor > 0 || issue?.kind === "expired") return;
+    if (!isValidOtp(value)) return setIssue({ kind: "incomplete" });
+    setIssue(null);
     setPending(true);
     const result = await verifyOtp(account, email, value, nextPath);
     setPending(false);
     if (result.ok) {
-      setSuccess(true);
+      setRedirect(result.redirect);
       setTimeout(() => router.push(result.redirect), 1000);
       return;
     }
-    fail(result.error.kind === "invalid_input" ? authCopy.otp.incomplete : authErrorMessage(result.error));
-    if (result.error.kind === "expired") setResendIn(0);
-    setCode("");
+    showIssue(otpIssueOf(result.error), result.error);
   }
 
   return (
@@ -130,10 +155,11 @@ export function LoginForm({ nextPath = null, initialMode = "login" }: LoginFormP
         <OtpStep
           maskedEmail={maskEmail(normalizeEmail(email))}
           code={code}
-          error={error}
+          issue={issue}
           pending={pending}
-          success={success}
+          redirect={redirect}
           resendIn={resendIn}
+          lockedFor={lockedFor}
           headingRef={headingRef}
           inputRef={otpRef}
           onCodeChange={setCode}

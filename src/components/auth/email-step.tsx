@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { type AuthMode, EMAIL_MAX_LENGTH } from "@/lib/auth/auth-contract";
 import { authCopy } from "./auth-copy";
-import { errorText, fieldFocus } from "./field-styles";
+import { FieldError } from "./field-error";
+import { fieldFocus } from "./field-styles";
 import { type NameField, NameFields } from "./name-fields";
 
 const copy = authCopy.email;
@@ -83,7 +84,7 @@ export function EmailStep(props: EmailStepProps) {
           className={cn("mt-2 h-12 px-4 text-base", fieldFocus)}
         />
         {emailError ? (
-          <p id="email-error" role="alert" className={errorText}>{emailError}</p>
+          <FieldError id="email-error">{emailError}</FieldError>
         ) : (
           <p id="email-hint" className="mt-2 text-sm text-muted-foreground">{copy.hint}</p>
         )}

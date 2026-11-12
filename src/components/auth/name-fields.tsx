@@ -3,7 +3,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { NAME_MAX_LENGTH } from "@/lib/auth/auth-contract";
 import { authCopy } from "./auth-copy";
-import { errorText, fieldFocus } from "./field-styles";
+import { FieldError } from "./field-error";
+import { fieldFocus } from "./field-styles";
 
 const copy = authCopy.names;
 export type NameField = "firstName" | "lastName";
@@ -48,7 +49,7 @@ export function NameFields({ firstName, lastName, disabled, autoFocus, error, on
               aria-describedby={message ? `${field}-error` : undefined}
               className={cn("mt-2 h-12 px-4 text-base", fieldFocus)}
             />
-            {message && <p id={`${field}-error`} role="alert" className={errorText}>{message}</p>}
+            {message && <FieldError id={`${field}-error`}>{message}</FieldError>}
           </div>
         );
       })}
