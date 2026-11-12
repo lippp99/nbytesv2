@@ -41,7 +41,7 @@ export function WalletMenu({ availableMicros, heldMicros, rate }: { availableMic
   return (
     <Popover.Root>
       <Popover.Trigger aria-label={`${copy.open}: ${credit}${empty ? `, ${copy.empty}` : ""}`} className={trigger}>
-        <WalletIcon className="size-4 text-app-text-2" />
+        <WalletIcon className="size-5 text-app-text-2" />
         {/* mono numbers so the bar does not jump when the balance changes */}
         <span className="font-mono text-app-code font-medium text-app-text tabular-nums">{credit}</span>
         <HugeiconsIcon icon={ArrowDown01Icon} aria-hidden

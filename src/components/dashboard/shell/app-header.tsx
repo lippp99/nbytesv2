@@ -25,7 +25,8 @@ export function AppHeader({ wallet, counts }: { wallet: ReactNode; counts: Recor
         <HeaderBreadcrumb />
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <Link href="/docs" className={ghostAction("hidden sm:inline-flex", "sm")}>
-            <BookIcon />
+            {/* 20px like the sidebar toggle on the left of the bar */}
+            <BookIcon className="size-5!" />
             {shellCopy.docs}
           </Link>
           {wallet}
