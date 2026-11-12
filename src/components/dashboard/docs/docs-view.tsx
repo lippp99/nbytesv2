@@ -1,10 +1,10 @@
 import { InformationCircleIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Badge } from "@/components/app-kit/badge";
 import { CodeBlock } from "@/components/app-kit/code-block";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { DocSection } from "./doc-section";
 import { docs } from "./docs-copy";
+import { ConnectionRows, EndpointIndex } from "./docs-overview";
 import {
   altAuthHeader, authHeader, chatParams, chatResponse, errorResponse, modelFields, modelsRequest, modelsResponse,
   streamRequest, streamResponse,
@@ -17,14 +17,14 @@ import { RequestExample } from "./request-example";
 const s = docs.sections;
 const toc = (["auth", "chat", "streaming", "models", "errors", "limits"] as const).map((id) => ({ id, label: s[id].title }));
 const paragraphs = (lines: string[]) => lines.map((p) => <p key={p}>{p}</p>);
+// Code on the inset example column sits on the surface tone, so the well still reads as a well.
+const onInset = "bg-app-surface";
 
 function StatusNote() {
   return (
-    <div className="space-y-4">
-      <ul className="flex flex-wrap gap-2">
-        {docs.facts.map((f) => <li key={f}><Badge>{f}</Badge></li>)}
-      </ul>
-      <p className="flex max-w-prose gap-2 rounded-app-control border border-app-border bg-app-inset px-4 py-3 text-app-ui text-app-text-2">
+    <div className="flex flex-col gap-2 text-app-ui text-app-text-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6">
+      <p className="text-app-text">{docs.facts.join(" · ")}</p>
+      <p className="flex gap-2">
         <HugeiconsIcon icon={InformationCircleIcon} aria-hidden className="mt-0.5 size-4 shrink-0 text-app-text-3" />
         {docs.status}
       </p>
@@ -32,53 +32,58 @@ function StatusNote() {
   );
 }
 
-/** API reference: two-column topics with sticky, theme-following examples, and an on-page index on wide screens. */
+/** API reference: endpoint summary, a sticky section bar, then one frame of topics with sticky, theme-following examples. */
 export function DocsView({ baseUrl }: { baseUrl: string }) {
+  const base = { label: docs.connection.baseUrl, value: baseUrl };
+  const header = { label: s.auth.header, value: authHeader };
   return (
-    <div className="grid gap-10 xl:grid-cols-12">
-      <div className="min-w-0 space-y-10 xl:col-span-9">
-        <div>
+    <div className="space-y-8">
+      <div>
+        {/* own grid, not PageHeader's action slot: that slot is content-sized and would overflow a phone with the long URL */}
+        <div className="grid gap-x-10 lg:grid-cols-[minmax(0,1fr)_28rem] lg:items-end">
           <PageHeader title={docs.title} sub={docs.lead} />
-          <StatusNote />
+          <ConnectionRows rows={[base, header]} className="mb-8" />
         </div>
-        <DocSection id="auth" title={s.auth.title} examples={<>
-          <CodeBlock title="Base URL" code={baseUrl} wrap />
-          <CodeBlock title={s.auth.header} code={authHeader} wrap />
-          <CodeBlock title={s.auth.altHeader} code={altAuthHeader} wrap />
-        </>}>
-          {paragraphs(s.auth.body)}
-        </DocSection>
-        <DocSection id="chat" title={s.chat.title} endpoint={{ method: "POST", path: "/chat/completions" }} examples={<>
-          <RequestExample label={docs.request} baseUrl={baseUrl} />
-          <CodeBlock title={docs.response} code={chatResponse} wrap />
-        </>}>
-          {paragraphs(s.chat.body)}
-          <ParamList title={docs.params} params={chatParams} />
-          <p className="text-app-ui">{s.chat.routing}</p>
-        </DocSection>
-        <DocSection id="streaming" title={s.streaming.title} examples={<>
-          <CodeBlock title={docs.request} code={streamRequest(baseUrl)} wrap />
-          <CodeBlock title={docs.response} code={streamResponse} wrap />
-        </>}>
-          {paragraphs(s.streaming.body)}
-        </DocSection>
-        <DocSection id="models" title={s.models.title} endpoint={{ method: "GET", path: "/models" }} examples={<>
-          <CodeBlock title={docs.request} code={modelsRequest(baseUrl)} wrap />
-          <CodeBlock title={docs.response} code={modelsResponse} wrap />
-        </>}>
-          {paragraphs(s.models.body)}
-          <ParamList title={docs.fields} params={modelFields} />
-        </DocSection>
-        <DocSection id="errors" title={s.errors.title} examples={<CodeBlock title={docs.response} code={errorResponse} wrap />}
-          wide={<ErrorTable />}>
-          <p>{s.errors.body}</p>
-        </DocSection>
-        <DocSection id="limits" title={s.limits.title} examples={null}>
-          {paragraphs(s.limits.body)}
-        </DocSection>
+        <StatusNote />
       </div>
-      <div className="hidden xl:col-span-3 xl:block">
+      <EndpointIndex />
+      <div>
         <DocsToc label={docs.toc} items={toc} />
+        {/* overflow-clip, not hidden: hidden would make a scroll box and stop the sticky example columns */}
+        <div className="mt-8 overflow-clip rounded-app-card border border-app-border bg-app-surface">
+          <DocSection id="auth" title={s.auth.title}
+            examples={<ConnectionRows rows={[base, header, { label: s.auth.altHeader, value: altAuthHeader }]} />}>
+            {paragraphs(s.auth.body)}
+          </DocSection>
+          <DocSection id="chat" title={s.chat.title} endpoint={{ method: "POST", path: "/chat/completions" }} examples={<>
+            <RequestExample label={docs.request} baseUrl={baseUrl} codeClassName={onInset} />
+            <CodeBlock title={docs.response} code={chatResponse} wrap className={onInset} />
+          </>}>
+            {paragraphs(s.chat.body)}
+            <ParamList title={docs.params} params={chatParams} />
+            <p className="text-app-ui">{s.chat.routing}</p>
+          </DocSection>
+          <DocSection id="streaming" title={s.streaming.title} examples={<>
+            <CodeBlock title={docs.request} code={streamRequest(baseUrl)} wrap className={onInset} />
+            <CodeBlock title={docs.response} code={streamResponse} wrap className={onInset} />
+          </>}>
+            {paragraphs(s.streaming.body)}
+          </DocSection>
+          <DocSection id="models" title={s.models.title} endpoint={{ method: "GET", path: "/models" }} examples={<>
+            <CodeBlock title={docs.request} code={modelsRequest(baseUrl)} wrap className={onInset} />
+            <CodeBlock title={docs.response} code={modelsResponse} wrap className={onInset} />
+          </>}>
+            {paragraphs(s.models.body)}
+            <ParamList title={docs.fields} params={modelFields} />
+          </DocSection>
+          <DocSection id="errors" title={s.errors.title}
+            examples={<CodeBlock title={docs.response} code={errorResponse} wrap className={onInset} />} wide={<ErrorTable />}>
+            <p>{s.errors.body}</p>
+          </DocSection>
+          <DocSection id="limits" title={s.limits.title} examples={null}>
+            {paragraphs(s.limits.body)}
+          </DocSection>
+        </div>
       </div>
     </div>
   );

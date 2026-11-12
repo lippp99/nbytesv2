@@ -12,6 +12,17 @@ export const docs = {
   facts: ["Versi v1", "Format OpenAI", "JSON lewat HTTPS"],
   status: "Endpoint yang tersedia: chat completions dan models. Endpoint lain menyusul.",
   toc: "Di halaman ini",
+  connection: { label: "Koneksi", baseUrl: "Base URL" },
+  overview: {
+    label: "Ringkasan endpoint",
+    endpoint: "Endpoint",
+    use: "Kegunaan",
+    items: [
+      { method: "POST", path: "/chat/completions", href: "#chat", use: "Kirim percakapan dan terima jawaban model." },
+      { method: "GET", path: "/models", href: "#models", use: "Model yang bisa dipanggil dengan key Anda, dengan harga jual nbytes." },
+      { method: "GET", path: "/models/{id}", href: "#models", use: "Satu model, atau 404 untuk id di luar katalog aktif." },
+    ],
+  },
   request: "Request",
   response: "Contoh respons",
   params: "Parameter body",
