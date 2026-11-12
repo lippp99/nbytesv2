@@ -1,9 +1,12 @@
+import type { CodeLang } from "@/lib/code-highlight";
+
 export type SnippetLang = "curl" | "python" | "ts";
 
-export const snippetLangs: { lang: SnippetLang; label: string; file: string }[] = [
-  { lang: "curl", label: "cURL", file: "request.sh" },
-  { lang: "python", label: "Python", file: "main.py" },
-  { lang: "ts", label: "TypeScript", file: "index.ts" },
+/** `code` is the colouring grammar of the snippet (a cURL command is a shell script). */
+export const snippetLangs: { lang: SnippetLang; label: string; file: string; code: CodeLang }[] = [
+  { lang: "curl", label: "cURL", file: "request.sh", code: "bash" },
+  { lang: "python", label: "Python", file: "main.py", code: "python" },
+  { lang: "ts", label: "TypeScript", file: "index.ts", code: "ts" },
 ];
 
 /** First chat request for the chosen model, in the chosen language; the key always comes from NBYTES_API_KEY. */

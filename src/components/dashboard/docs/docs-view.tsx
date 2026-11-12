@@ -57,27 +57,27 @@ export function DocsView({ baseUrl }: { baseUrl: string }) {
           </DocSection>
           <DocSection id="chat" title={s.chat.title} endpoint={{ method: "POST", path: "/chat/completions" }} examples={<>
             <RequestExample label={docs.request} baseUrl={baseUrl} codeClassName={onInset} />
-            <CodeBlock title={docs.response} code={chatResponse} wrap className={onInset} />
+            <CodeBlock title={docs.response} lang="json" code={chatResponse} wrap className={onInset} />
           </>}>
             {paragraphs(s.chat.body)}
             <ParamList title={docs.params} params={chatParams} />
             <p className="text-app-ui">{s.chat.routing}</p>
           </DocSection>
           <DocSection id="streaming" title={s.streaming.title} examples={<>
-            <CodeBlock title={docs.request} code={streamRequest(baseUrl)} wrap className={onInset} />
+            <CodeBlock title={docs.request} lang="bash" code={streamRequest(baseUrl)} wrap className={onInset} />
             <CodeBlock title={docs.response} code={streamResponse} wrap className={onInset} />
           </>}>
             {paragraphs(s.streaming.body)}
           </DocSection>
           <DocSection id="models" title={s.models.title} endpoint={{ method: "GET", path: "/models" }} examples={<>
-            <CodeBlock title={docs.request} code={modelsRequest(baseUrl)} wrap className={onInset} />
-            <CodeBlock title={docs.response} code={modelsResponse} wrap className={onInset} />
+            <CodeBlock title={docs.request} lang="bash" code={modelsRequest(baseUrl)} wrap className={onInset} />
+            <CodeBlock title={docs.response} lang="json" code={modelsResponse} wrap className={onInset} />
           </>}>
             {paragraphs(s.models.body)}
             <ParamList title={docs.fields} params={modelFields} />
           </DocSection>
           <DocSection id="errors" title={s.errors.title}
-            examples={<CodeBlock title={docs.response} code={errorResponse} wrap className={onInset} />} wide={<ErrorTable />}>
+            examples={<CodeBlock title={docs.response} lang="json" code={errorResponse} wrap className={onInset} />} wide={<ErrorTable />}>
             <p>{s.errors.body}</p>
           </DocSection>
           <DocSection id="limits" title={s.limits.title} examples={null}>

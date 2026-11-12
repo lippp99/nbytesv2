@@ -57,6 +57,9 @@ New dashboard tokens are also listed in `src/lib/utils.ts` (`cn`) so class mergi
 Rules:
 - Depth in dark mode goes lighter: page < inset < surface < raised. Never a surface darker than the page.
 - Code blocks follow the theme (`app-inset` + `app-border`), never a dark island in light mode.
+- Code colours: VS Code Light+ / Dark+ through Shiki (`src/lib/code-highlight.ts`, `CodeBlock` prop `lang`); only token
+  colours change, the well stays `app-inset`. Three Light+ colours are darkened to pass 4.5:1 on inset (measured
+  2026-11-12, lowest 4.71); Dark+ lowest 5.43. Re-measure after adding a language or theme.
 - Accent only for the primary action, the current selection and links. Never for decoration or large fills.
 - Status colors always come with a word or icon, never color alone.
 

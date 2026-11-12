@@ -10,14 +10,14 @@ const langOptions = snippetLangs.map((l) => ({ value: l.lang, label: l.label }))
 /** The chat request in the reader's language; the choice only swaps the code below. Lines wrap in the narrow column. */
 export function RequestExample({ label, baseUrl, codeClassName }: { label: string; baseUrl: string; codeClassName?: string }) {
   const [lang, setLang] = useState<SnippetLang>("curl");
-  const file = snippetLangs.find((l) => l.lang === lang)?.file;
+  const snippet = snippetLangs.find((l) => l.lang === lang);
   return (
     <div>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <p className="text-app-ui font-medium text-app-text">{label}</p>
         <Segmented label={label} options={langOptions} value={lang} onChange={setLang} />
       </div>
-      <CodeBlock title={file} code={buildSnippet(lang, "claude-sonnet-4.5", baseUrl)} wrap className={codeClassName} />
+      <CodeBlock title={snippet?.file} lang={snippet?.code} code={buildSnippet(lang, "claude-sonnet-4.5", baseUrl)} wrap className={codeClassName} />
     </div>
   );
 }

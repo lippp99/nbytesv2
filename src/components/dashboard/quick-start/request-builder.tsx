@@ -35,7 +35,7 @@ export function RequestBuilder({ models, baseUrl }: { models: CatalogModel[]; ba
   const [modelId, setModelId] = useState(models[0]?.id ?? "");
   const [lang, setLang] = useState<SnippetLang>("curl");
   const model = models.find((m) => m.id === modelId);
-  const file = snippetLangs.find((l) => l.lang === lang)?.file;
+  const snippet = snippetLangs.find((l) => l.lang === lang);
 
   if (!model) {
     return <p className="rounded-app-control border border-app-border bg-app-inset px-4 py-3 text-app-ui text-app-text-2">{copy.noModels}</p>;
@@ -46,7 +46,7 @@ export function RequestBuilder({ models, baseUrl }: { models: CatalogModel[]; ba
         <ModelPicker models={models} value={modelId} onChange={setModelId} />
         <Segmented label={copy.language} options={langOptions} value={lang} onChange={setLang} />
       </div>
-      <CodeBlock title={file} code={buildSnippet(lang, model.id, baseUrl)} lineNumbers className="rounded-none border-0" />
+      <CodeBlock title={snippet?.file} lang={snippet?.code} code={buildSnippet(lang, model.id, baseUrl)} lineNumbers className="rounded-none border-0" />
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-app-border px-4 py-3">
         <p className="text-app-small text-app-text-2">
           <span className="font-medium text-app-text">{model.name}</span> ·{" "}

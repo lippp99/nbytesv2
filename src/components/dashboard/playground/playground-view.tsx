@@ -106,7 +106,7 @@ export function PlaygroundView({ models, baseUrl }: PlaygroundViewProps) {
         ) : (
           <div className="flex-1 overflow-y-auto p-6">
             <p className="mb-4 max-w-prose text-app-ui text-app-text-2">{copy.settings.codeHint}</p>
-            <CodeBlock title="request.sh" code={code} lineNumbers />
+            <CodeBlock title="request.sh" lang="bash" code={code} lineNumbers />
           </div>
         )}
       </section>

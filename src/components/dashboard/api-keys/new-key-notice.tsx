@@ -28,7 +28,7 @@ export function NewKeyNotice({ secret, onDone }: { secret: string; onDone: () =>
           </div>
         </div>
         <CodeBlock title={copy.keyBlock} code={secret} wrap onCopy={markCopied} />
-        <CodeBlock title={copy.envBlock} code={`export NBYTES_API_KEY=${secret}`} wrap onCopy={markCopied} />
+        <CodeBlock title={copy.envBlock} lang="bash" code={`export NBYTES_API_KEY=${secret}`} wrap onCopy={markCopied} />
         {asking ? (
           <div role="alert" className="flex flex-wrap items-center justify-end gap-2">
             <span className="mr-auto text-app-ui text-app-text-2">{copy.notCopied}</span>
