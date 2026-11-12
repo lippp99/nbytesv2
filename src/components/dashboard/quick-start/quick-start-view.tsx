@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight01Icon, BookOpen01Icon, PlusSignIcon, Tick02Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon, BookOpen01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ghostAction, primaryAction, secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
@@ -20,8 +20,8 @@ export type QuickStartData = {
 function buildSteps(data: QuickStartData, states: Record<StepId, StepState>): SetupStep[] {
   const s = copy.steps;
   const steps: Record<StepId, Omit<SetupStep, "state">> = {
-    account: { title: s.account.title, body: s.account.body(data.email) },
-    key: { ...s.key, action: { href: "/api-keys", label: s.key.action } },
+    account: { title: s.account.title, body: s.account.body(data.email), note: data.email },
+    key: { ...s.key, note: copy.keyNote(data.keyCount), action: { href: "/api-keys", label: s.key.action } },
     balance: { ...s.balance, action: { href: "/billing", label: s.balance.action } },
     // The builder stays visible until the first request is done, so a new user sees what the code will look like.
     request: { ...s.request, content: <RequestBuilder models={data.cheapest} baseUrl={data.baseUrl} /> },
@@ -30,16 +30,17 @@ function buildSteps(data: QuickStartData, states: Record<StepId, StepState>): Se
   return STEP_ORDER.map((id) => ({ ...steps[id], state: states[id], content: states[id] === "done" ? undefined : steps[id].content }));
 }
 
-/** "N dari 5 selesai" with one segment per step; finished segments in the success tone (D3), always next to the words. */
+const segment: Record<StepState, string> = { done: "bg-app-success", current: "bg-app-accent", todo: "bg-app-border" };
+
+/** "N dari 5 selesai" with one segment per step: finished in the success tone (D3), the current one in accent (selection). */
 function Progress({ steps }: { steps: SetupStep[] }) {
   const done = steps.filter((s) => s.state === "done").length;
   return (
     <div className="flex items-center gap-3">
       <span className="text-app-small text-app-text-2">{copy.progress(done, steps.length)}</span>
-      <span aria-hidden className="flex w-24 gap-1">
-        {steps.map((s) => (
-          <span key={s.title} className={cn("h-1 flex-1 rounded-full", s.state === "done" ? "bg-app-success" : "bg-app-border")} />
-        ))}
+      <span role="progressbar" aria-label={copy.setup} aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={done}
+        className="flex w-30 gap-1">
+        {steps.map((s) => <span key={s.title} className={cn("h-1 flex-1 rounded-full", segment[s.state])} />)}
       </span>
     </div>
   );
@@ -73,9 +74,9 @@ export function QuickStartView({ data }: { data: QuickStartData }) {
         <HugeiconsIcon icon={BookOpen01Icon} aria-hidden />
         {copy.openDocs}
       </Link>
-      <Link href="/api-keys" className={primaryAction()}>
-        <HugeiconsIcon icon={PlusSignIcon} aria-hidden />
-        {copy.createKey}
+      <Link href="/playground" className={primaryAction()}>
+        {copy.tryPlayground}
+        <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden />
       </Link>
     </>
   );
@@ -85,9 +86,9 @@ export function QuickStartView({ data }: { data: QuickStartData }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 lg:self-start">
           {allDone ? <AllDone /> : (
-            <Card title={copy.setup} action={<Progress steps={steps} />}>
+            <Card title={copy.setup} headerClassName="bg-app-inset" action={<Progress steps={steps} />}>
               <div className="p-6">
-                <SetupSteps steps={steps} doneLabel={copy.done} />
+                <SetupSteps steps={steps} labels={copy} />
               </div>
             </Card>
           )}

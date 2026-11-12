@@ -4,10 +4,12 @@ export const quickStartCopy = {
   sub: (name: string) => `Halo ${name}. Endpoint nbytes mengikuti format OpenAI, jadi SDK yang sudah Anda pakai cukup diarahkan ke base URL baru.`,
   loading: "Memuat Quick start",
   openDocs: "API Docs",
-  createKey: "Buat API key",
+  tryPlayground: "Coba di Playground",
   setup: "Langkah setup",
   progress: (done: number, total: number) => `${done} dari ${total} selesai`,
   done: "Selesai",
+  current: "Langkah sekarang",
+  keyNote: (n: number) => `${n} key aktif`,
   allDone: {
     title: "Setup selesai",
     body: "Key, saldo, request pertama, dan batas bulanan sudah siap. Pantau biaya di Usage.",
@@ -21,7 +23,11 @@ export const quickStartCopy = {
       body: "Request ditagih dari saldo. Tanpa saldo, request pertama ditolak dengan status 402.",
       action: "Buka Billing",
     },
-    request: { title: "Kirim request pertama", body: "Pilih model dan bahasa, salin kodenya, lalu jalankan di terminal atau aplikasi Anda." },
+    request: {
+      title: "Kirim request pertama",
+      body: "Pilih model dan bahasa, salin kodenya, lalu jalankan. Langkah ini tercentang sendiri setelah request lewat API key " +
+        "berhasil; request dari Playground tidak dihitung.",
+    },
     budget: {
       title: "Pantau biaya dan pasang batas",
       body: "Setiap request tercatat dengan token dan biayanya. Pasang batas bulanan per key sebelum rilis.",
@@ -34,12 +40,14 @@ export const quickStartCopy = {
     pricing: "per 1 juta token",
     input: "input",
     output: "output",
-    tryIt: "Coba di Playground",
+    waiting: "Menunggu request pertama",
     noModels: "Belum ada model yang tersedia. Hubungi admin.",
   },
   connection: {
     title: "Koneksi",
     baseUrl: "Base URL",
+    copyBaseUrl: "Salin base URL",
+    copiedBaseUrl: "Base URL tersalin",
     activeKeys: "API key aktif",
     models: "Model tersedia",
     manage: "Kelola",

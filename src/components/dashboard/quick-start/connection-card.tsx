@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ghostAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
-import { CodeBlock } from "@/components/app-kit/code-block";
+import { CopyButton } from "@/components/copy-button";
 import { quickStartCopy } from "./quick-start-copy";
 
 const copy = quickStartCopy.connection;
@@ -23,9 +23,13 @@ type ConnectionCardProps = { baseUrl: string; keyCount: number; modelCount: numb
 /** What a client needs to connect: the base URL to copy, and how many keys and models it can use. */
 export function ConnectionCard({ baseUrl, keyCount, modelCount }: ConnectionCardProps) {
   return (
-    <Card title={copy.title}>
+    <Card title={copy.title} headerClassName="bg-app-inset">
       <div className="p-6">
-        <CodeBlock title={copy.baseUrl} code={baseUrl} wrap />
+        <p className="text-app-small text-app-text-2">{copy.baseUrl}</p>
+        <div className="mt-2 flex items-center gap-2 rounded-app-control border border-app-border bg-app-inset py-1 pr-1 pl-3.5">
+          <span className="min-w-0 flex-1 font-mono text-app-code break-all text-app-text">{baseUrl}</span>
+          <CopyButton text={baseUrl} label={copy.copyBaseUrl} copiedLabel={copy.copiedBaseUrl} iconOnly className="rounded-app-inner" />
+        </div>
         <dl className="mt-3 divide-y divide-app-border">
           <Fact label={copy.activeKeys} value={keyCount} href="/api-keys" action={copy.manage} />
           <Fact label={copy.models} value={modelCount} href="/models" action={copy.browse} />

@@ -10,7 +10,7 @@ export function QuickStartSkeleton() {
     <>
       <PageHeader title={copy.title} />
       <div role="status" aria-label={copy.loading} className="grid gap-6 lg:grid-cols-3">
-        <Card title={copy.setup} className="lg:col-span-2 lg:self-start">
+        <Card title={copy.setup} headerClassName="bg-app-inset" className="lg:col-span-2 lg:self-start">
           <div className="space-y-6 p-6">
             {[0, 1, 2, 3, 4].map((i) => (
               <span key={i} className="flex items-center gap-4">
