@@ -5,7 +5,7 @@ import { ghostAction, secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
-import { formatUtc } from "@/lib/date-format";
+import { formatWib } from "@/lib/date-format";
 import type { UserDeposit } from "@/lib/payments/deposit-contract";
 import { formatIdr, formatMicros } from "@/lib/price-format";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,7 @@ export function DepositHistory({ deposits, page, pages }: HistoryProps) {
               const badge = depositBadge[d.state];
               return (
                 <Tr key={d.id}>
-                  <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(d.createdAt)}</Td>
+                  <Td className="whitespace-nowrap text-app-text-2 tabular-nums">{formatWib(d.createdAt, true)}</Td>
                   <Td align="right">{formatIdr(d.amountIdr)}</Td>
                   <Td align="right">{formatIdr(d.totalIdr)}</Td>
                   <Td align="right">{formatIdr(d.idrPerUsd)}</Td>

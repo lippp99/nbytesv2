@@ -27,7 +27,27 @@ export const exchangeRates = pgTable(
   ],
 );
 
-export const DEPOSIT_STATUSES = ["pending", "paid", "failed", "expired"] as const;
+/** B2, B3: deposit limits and fee; a new row per change, never updated; the newest row is in force. */
+export const depositRules = pgTable(
+  "deposit_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    minIdr: money("min_idr").notNull(),
+    maxIdr: money("max_idr").notNull(),
+    feeBp: integer("fee_bp").notNull(),
+    // Quick picks on the user's Billing page, ascending; empty = none shown.
+    presetsIdr: money("presets_idr").array().notNull().default(sql`'{}'::bigint[]`),
+    setBy: uuid("set_by").references(() => admins.id, { onDelete: "set null" }),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("deposit_rules_created_at_idx").on(t.createdAt),
+    index("deposit_rules_set_by_idx").on(t.setBy),
+    check("deposit_rules_values_check", sql`${t.minIdr} > 0 and ${t.maxIdr} >= ${t.minIdr} and ${t.feeBp} >= 0`),
+  ],
+);
+
+export const DEPOSIT_STATUSES =["pending", "paid", "failed", "expired"] as const;
 
 /** §6: one row per deposit request; the id is the Sumopod order_id. Rate and credit are locked at creation. */
 export const deposits = pgTable(

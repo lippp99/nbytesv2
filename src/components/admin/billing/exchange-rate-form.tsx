@@ -4,19 +4,19 @@ import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { primaryAction } from "@/components/app-kit/button";
 import { Field, TextInput, describedBy } from "@/components/app-kit/field";
+import { type Notice, NoticeLine } from "@/components/app-kit/notice-line";
 import { parseExchangeRateBody } from "@/lib/payments/deposit-contract";
-import { saveExchangeRate } from "@/lib/payments/exchange-rate-client";
+import { saveExchangeRate } from "@/lib/payments/finance-settings-client";
 import { billingCopy, rateErrorText } from "./billing-copy";
 
 const copy = billingCopy.rate;
-type Notice = { kind: "status" | "error"; text: string } | null;
 
 /** One field and Save. The same contract as the server checks the value first, so most mistakes show under it. */
 export function ExchangeRateForm() {
   const router = useRouter();
   const [value, setValue] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<Notice>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const [pending, setPending] = useState(false);
 
   async function save(event: FormEvent) {
@@ -52,12 +52,7 @@ export function ExchangeRateForm() {
         <button type="submit" disabled={pending} aria-busy={pending || undefined} className={primaryAction("sm:self-start")}>
           {pending ? copy.saving : copy.save}
         </button>
-        {notice && (
-          <p role={notice.kind === "error" ? "alert" : "status"}
-            className={notice.kind === "error" ? "text-app-small text-app-danger" : "text-app-small text-app-text-2"}>
-            {notice.text}
-          </p>
-        )}
+        {notice && <NoticeLine notice={notice} size="small" />}
       </div>
     </form>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowUp01Icon, ArrowUpDownIcon, CubeIcon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { CopyButton } from "@/components/copy-button";
@@ -26,7 +27,7 @@ function ModelRow({ model: m }: { model: CatalogModel }) {
         <span className="block font-medium text-app-text">{m.name}</span>
         <span className="flex items-center font-mono text-app-small text-app-text-3">
           {m.id}
-          <CopyButton text={m.id} label={common.copy} copiedLabel={common.copied} iconOnly />
+          <CopyButton text={m.id} label={common.copy} copiedLabel={common.copied} failedLabel={common.copyFailed} iconOnly />
         </span>
       </Td>
       <Td align="right">{formatTokens(m.contextLength, formatContext)}</Td>
@@ -65,7 +66,10 @@ export function ModelsView({ models }: { models: CatalogModel[] }) {
     return (
       <>
         <PageHeader title={copy.title} sub={copy.sub} />
-        <Card><EmptyState icon={CubeIcon} title={copy.noModels.title} body={copy.noModels.body} /></Card>
+        <Card>
+          <EmptyState icon={CubeIcon} title={copy.noModels.title} body={copy.noModels.body}
+            action={<Link href="/contact" className={secondaryAction()}>{copy.noModels.contact}</Link>} />
+        </Card>
       </>
     );
   }
@@ -74,7 +78,7 @@ export function ModelsView({ models }: { models: CatalogModel[] }) {
     <>
       <PageHeader title={copy.title} sub={copy.sub} />
       <Card>
-        <div className="flex flex-wrap items-center gap-3 border-b border-app-border px-6 py-4">
+        <div className="flex flex-wrap items-center gap-3 border-b border-app-border bg-app-inset px-6 py-4">
           <div className="relative w-full sm:w-72">
             <HugeiconsIcon icon={Search01Icon} aria-hidden
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-app-text-3" />

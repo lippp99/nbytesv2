@@ -5,7 +5,6 @@ import "server-only";
 export const ADMIN_CODE_PURPOSE = "admin-login"; // otp_challenges.purpose and the hash prefix
 export const TICKET_TTL_MS = 10 * 60 * 1000;
 export const TOTP_MAX_ATTEMPTS = 5; // per ticket
-export const SESSION_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
 export const SESSION_IDLE_MS = 30 * 60 * 1000;
 export const SESSION_TOUCH_MS = 60 * 1000;
 export const INVITE_TTL_MS = 72 * 60 * 60 * 1000; // C4

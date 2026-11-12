@@ -17,14 +17,14 @@ import { createPayment, SumopodError } from "./sumopod-client";
 const LIMIT = { count: 10, windowSeconds: 60 * 60 }; // owner, 2026-11-11: 10 deposit requests per hour per account
 const HOUR_MS = 60 * 60 * 1000;
 
-export async function createDeposit(userId: string, amountIdr: number): Promise<CreatedDeposit> {
+export async function createDeposit(userId: string, amountIdr: number, feeBp: number): Promise<CreatedDeposit> {
   paymentsEnv(); // missing config fails here (503, logged) instead of leaving a deposit row without a payment
   const wait = await hit(`deposit-create:user:${userId}`, LIMIT.count, LIMIT.windowSeconds);
   if (wait) throw rateLimitedError(wait);
   const idrPerUsd = await currentIdrPerUsd();
   if (!idrPerUsd) throw new AppError("unavailable", 503, {}, undefined, { cause: new Error("no exchange rate set") });
 
-  const quote = quoteDeposit(amountIdr, idrPerUsd);
+  const quote = quoteDeposit(amountIdr, idrPerUsd, feeBp);
   const expiresAt = new Date(Date.now() + DEPOSIT_EXPIRES_HOURS * HOUR_MS);
   const [row] = await db
     .insert(deposits)

@@ -1,5 +1,6 @@
 import { Invoice01Icon } from "@hugeicons/core-free-icons";
 import { Badge } from "@/components/app-kit/badge";
+import { CopyButton } from "@/components/copy-button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { Pagination } from "@/components/app-kit/pagination";
@@ -49,8 +50,14 @@ export function DepositsTable({ data, filter }: { data: DepositsPage; filter: De
               return (
                 <Tr key={d.id}>
                   <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(d.createdAt)}</Td>
-                  {/* Sumopod lists deposits by this order id; the first 8 characters are enough to find it there. */}
-                  <Td className="font-mono text-app-code text-app-text-2"><span title={d.id}>{d.id.slice(0, 8)}</span></Td>
+                  {/* Sumopod lists deposits by this order id: 8 characters to read, the copy button carries the full one. */}
+                  <Td className="font-mono text-app-code text-app-text-2">
+                    <span className="flex items-center">
+                      {d.id.slice(0, 8)}
+                      <CopyButton text={d.id} label={copy.copyOrder} copiedLabel={copy.copiedOrder} failedLabel={copy.copyFailed}
+                        iconOnly className="-my-1" />
+                    </span>
+                  </Td>
                   <Td className={cn("max-w-56 truncate", !d.email && "text-app-text-3")}>{d.email ?? copy.deletedAccount}</Td>
                   <Td align="right">{formatIdr(d.totalIdr)}</Td>
                   <Td align="right">{formatIdr(d.idrPerUsd)}</Td>

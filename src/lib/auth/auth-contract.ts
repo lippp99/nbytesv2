@@ -64,7 +64,7 @@ export const DEFAULT_AFTER_LOGIN = "/quick-start";
 export const NEXT_PATH_HEADER = "x-nb-path";
 // Same pages as the dashboard nav and the proxy matcher (which must stay a literal list).
 export const DASHBOARD_PATHS = [
-  "/quick-start", "/playground", "/docs", "/usage", "/api-keys", "/models", "/billing", "/settings", "/sessions",
+  "/quick-start", "/playground", "/docs", "/usage", "/api-keys", "/models", "/billing", "/settings", "/sessions", "/contact",
 ] as const;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

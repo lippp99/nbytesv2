@@ -9,7 +9,8 @@ import type { ClientInfo } from "../client-info";
 import { enforceLimit } from "../rate-limit";
 import { createSession } from "../session";
 import { type Tx, consumeChallenge } from "./challenge";
-import { LIMITS, OTP_PURPOSE, SIGNUP_OPEN, TERMS_VERSION, decideLogin } from "./otp-rules";
+import { currentPlatformSettings } from "../../platform/settings";
+import { LIMITS, OTP_PURPOSE, TERMS_VERSION, decideLogin } from "./otp-rules";
 type Outcome =
   | { kind: "ok"; userId: string; created: boolean }
   | { kind: "invalid"; attemptsLeft: number }
@@ -18,7 +19,7 @@ type Outcome =
 /** Finds the user or creates one (only after a correct code). Both run inside the locked transaction. */
 async function signIn(tx: Tx, email: string, account: AuthAccount, now: Date): Promise<Outcome> {
   const [user] = await tx.select({ id: users.id, status: users.status }).from(users).where(eq(users.email, email));
-  const decision = decideLogin(user?.status, SIGNUP_OPEN, account.mode);
+  const decision = decideLogin(user?.status, (await currentPlatformSettings()).signupOpen, account.mode);
   if (decision !== "login" && decision !== "create") return { kind: "refused", event: decision, userId: user?.id };
   let userId = user?.id;
   if (!userId && account.mode === "register") {

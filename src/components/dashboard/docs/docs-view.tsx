@@ -3,7 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { CodeBlock } from "@/components/app-kit/code-block";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { DocSection } from "./doc-section";
-import { docs } from "./docs-copy";
+import { docs, keyRateText } from "./docs-copy";
 import { ConnectionRows, EndpointIndex } from "./docs-overview";
 import {
   altAuthHeader, authHeader, chatParams, chatResponse, errorResponse, modelFields, modelsRequest, modelsResponse,
@@ -33,7 +33,9 @@ function StatusNote() {
 }
 
 /** API reference: endpoint summary, a sticky section bar, then one frame of topics with sticky, theme-following examples. */
-export function DocsView({ baseUrl }: { baseUrl: string }) {
+/** `keyRpm`: the per-key request limit set on the admin Settings page, shown in Limits and in the error table. */
+export function DocsView({ baseUrl, keyRpm }: { baseUrl: string; keyRpm: number }) {
+  const rate = keyRateText(keyRpm);
   const base = { label: docs.connection.baseUrl, value: baseUrl };
   const header = { label: s.auth.header, value: authHeader };
   return (
@@ -77,11 +79,11 @@ export function DocsView({ baseUrl }: { baseUrl: string }) {
             <ParamList title={docs.fields} params={modelFields} />
           </DocSection>
           <DocSection id="errors" title={s.errors.title}
-            examples={<CodeBlock title={docs.response} lang="json" code={errorResponse} wrap className={onInset} />} wide={<ErrorTable />}>
+            examples={<CodeBlock title={docs.response} lang="json" code={errorResponse} wrap className={onInset} />} wide={<ErrorTable rate={rate} />}>
             <p>{s.errors.body}</p>
           </DocSection>
           <DocSection id="limits" title={s.limits.title} examples={null}>
-            {paragraphs(s.limits.body)}
+            {paragraphs(s.limits.body(rate))}
           </DocSection>
         </div>
       </div>

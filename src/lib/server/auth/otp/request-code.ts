@@ -8,7 +8,8 @@ import { type AuthEventType, logAuthEvent } from "../auth-events";
 import { enforceLimit, undoHit } from "../rate-limit";
 import { dropChallenge, issueChallenge } from "./challenge";
 import { sendAuthEmail } from "./mailer";
-import { type EmailKind, LIMITS, SIGNUP_OPEN, decideEmail, emailGetsCode } from "./otp-rules";
+import { currentPlatformSettings } from "../../platform/settings";
+import { type EmailKind, LIMITS, decideEmail, emailGetsCode } from "./otp-rules";
 
 const EVENT: Record<EmailKind, AuthEventType> = {
   signup: "otp_requested",
@@ -31,7 +32,7 @@ export async function requestCode(email: string, mode: AuthMode, emailHash: stri
   await enforceLimit(`otp-send:email:${emailHash}`, LIMITS.sendPerEmail.limit, LIMITS.sendPerEmail.windowSeconds, who);
 
   const [user] = await db.select({ id: users.id, status: users.status }).from(users).where(eq(users.email, email));
-  const kind = decideEmail(user?.status, SIGNUP_OPEN, mode);
+  const kind = decideEmail(user?.status, (await currentPlatformSettings()).signupOpen, mode);
   const code = emailGetsCode(kind) ? await issueChallenge(email) : undefined;
   try {
     await sendAuthEmail(email, kind, code);

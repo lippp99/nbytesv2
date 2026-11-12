@@ -1,10 +1,11 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { KEY_RATE_LIMIT, readApiKey } from "@/lib/gateway/keys/api-key-contract";
+import { KEY_RATE_WINDOW_SECONDS, readApiKey } from "@/lib/gateway/keys/api-key-contract";
 import { type GatewayErrorCode, gatewayErrorStatus, isGatewayErrorCode, openAiErrorBody } from "@/lib/gateway/error-contract";
 import { logServerError } from "../auth/request-guard";
 import { hit } from "../auth/rate-limit";
 import { AppError, rateLimitedError } from "../errors";
+import { currentPlatformSettings } from "../platform/settings";
 import { type KeyOwner, authenticateApiKey } from "./api-keys";
 
 // Guard of the public /api/v1 endpoints (PRD gateway-api §7 steps 1–3, §9, §10). No Origin check and no CORS: SDK
@@ -34,12 +35,19 @@ export async function readPublicJson(request: Request, maxBytes: number): Promis
   }
 }
 
-/** §7 steps 2–3: the key's owner, then 120 requests per minute per key. */
+/** Maintenance (admin Settings) closes the API and the Playground: 503, the envelope every client already handles. */
+export async function assertNotInMaintenance(): Promise<void> {
+  if ((await currentPlatformSettings()).maintenance) throw new AppError("service_unavailable", 503);
+}
+
+/** §7 steps 2–3: not in maintenance, the key's owner, then the admin's requests per minute per key. */
 export async function authenticatePublic(request: Request): Promise<KeyOwner> {
+  const { maintenance, keyRpm } = await currentPlatformSettings();
+  if (maintenance) throw new AppError("service_unavailable", 503);
   const key = readApiKey(request.headers);
   if (!key) throw new AppError("invalid_api_key", 401);
   const owner = await authenticateApiKey(key);
-  const wait = await hit(`gateway:key:${owner.keyId}`, KEY_RATE_LIMIT.count, KEY_RATE_LIMIT.windowSeconds);
+  const wait = await hit(`gateway:key:${owner.keyId}`, keyRpm, KEY_RATE_WINDOW_SECONDS);
   if (wait) throw rateLimitedError(wait);
   return owner;
 }

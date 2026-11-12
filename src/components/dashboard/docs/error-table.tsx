@@ -1,7 +1,7 @@
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import { gatewayErrors } from "@/lib/gateway/error-contract";
 import { cn } from "@/lib/utils";
-import { docs, errorTexts } from "./docs-copy";
+import { docs, errorTextsFor } from "./docs-copy";
 import { type DocErrorCode, PLAYGROUND_ONLY_CODES } from "./docs-errors";
 
 const cols = docs.sections.errors.cols;
@@ -9,7 +9,8 @@ const cols = docs.sections.errors.cols;
 const rows = gatewayErrors.filter((e) => !PLAYGROUND_ONLY_CODES.includes(e.code));
 
 /** Every public error: status, code, meaning and next step. 4xx (the request) warning, 5xx (our side) danger, always with words (D3). */
-export function ErrorTable() {
+export function ErrorTable({ rate }: { rate: string }) {
+  const errorTexts = errorTextsFor(rate);
   return (
     <div className="overflow-hidden rounded-app-card border border-app-border bg-app-surface">
       <Table minWidth="min-w-3xl">

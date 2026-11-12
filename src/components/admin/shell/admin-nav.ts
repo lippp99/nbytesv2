@@ -5,6 +5,7 @@ import { CardCheckIcon } from "@/components/icons/content/card-check";
 import { CubeIcon } from "@/components/icons/content/cube";
 import { DocumentFoldedIcon } from "@/components/admin/shared/icons/document-folded";
 import { LineChartIcon } from "@/components/icons/content/line-chart";
+import { ProfileIcon } from "@/components/icons/content/profile";
 import { ServerIcon } from "@/components/admin/shared/icons/server";
 import { SettingsIcon } from "@/components/icons/content/settings";
 import { UserGroupIcon } from "@/components/admin/shared/icons/user-group";
@@ -29,6 +30,7 @@ export const adminNav: AdminNavGroup[] = [
       { href: "/admin/users", label: "Pengguna", icon: UserGroupIcon },
       { href: "/admin/models", label: "Model & harga", icon: CubeIcon },
       { href: "/admin/billing", label: "Keuangan", icon: CardCheckIcon },
+      { href: "/admin/contact", label: "Kontak", icon: ProfileIcon },
     ],
   },
   {

@@ -4,7 +4,7 @@ import { isSameOrigin } from "../../auth/request-guard";
 import { hit } from "../../auth/rate-limit";
 import { readSession } from "../../auth/session";
 import { AppError, rateLimitedError } from "../../errors";
-import { readPublicJson } from "../public-api";
+import { assertNotInMaintenance, readPublicJson } from "../public-api";
 import { parseChatRequest, runChat } from "./chat-completions";
 
 // POST /api/playground/chat (PRD dashboard-playground §5.1, gateway-api A5): the signed-in user, no API key, charged
@@ -18,6 +18,7 @@ export function playgroundChat(request: Request): Promise<Response> {
     if (!isSameOrigin(request)) throw new AppError("forbidden", 403);
     const session = await readSession();
     if (!session) throw new AppError("unauthorized", 401);
+    await assertNotInMaintenance();
     const userId = session.user.id;
     const wait = await hit(`gateway:playground:${userId}`, RATE_LIMIT.count, RATE_LIMIT.windowSeconds);
     if (wait) throw rateLimitedError(wait);

@@ -17,6 +17,7 @@ export const modelsCopy = {
   },
   noModels: {
     title: "Belum ada model yang tersedia",
-    body: "Hubungi admin.",
+    body: "Admin belum mengaktifkan model untuk dipakai. Coba lagi nanti, atau tanyakan ke admin.",
+    contact: "Kontak admin",
   },
 };

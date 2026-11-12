@@ -1,4 +1,5 @@
 import { SecurityCheckIcon } from "@hugeicons/core-free-icons";
+import { CopyButton } from "@/components/copy-button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { PageHeader } from "@/components/app-kit/page-header";
@@ -21,7 +22,20 @@ function Target({ target }: { target: AuditEntry["target"] }) {
     return target.idrPerUsd === null ? <span className={quiet}>{copy.removed}</span> : <span className={mono}>{formatIdr(target.idrPerUsd)} / USD</span>;
   }
   if (target.kind === "admin") return target.email ? <span>{target.email}</span> : <span className={quiet}>{copy.removed}</span>;
-  return target.email ? <span>{target.email}</span> : <span className={`${mono} ${quiet}`} title={target.id}>{copy.removed}</span>;
+  if (target.kind === "page") return <span>{copy.pages[target.page]}</span>;
+  if (target.kind === "depositRules") {
+    const { minIdr, maxIdr, feeBp } = target;
+    if (minIdr === null || maxIdr === null || feeBp === null) return <span className={quiet}>{copy.removed}</span>;
+    return <span className={mono}>{copy.depositRules(formatIdr(minIdr), formatIdr(maxIdr), String(feeBp / 100).replace(".", ","))}</span>;
+  }
+  if (target.email) return <span>{target.email}</span>;
+  // deleted account: the short id to read, the copy button carries the full one (to match server logs)
+  return (
+    <span className={`flex items-center ${quiet}`}>
+      {copy.removed} <span className={`${mono} ml-1`}>{target.id.slice(0, 8)}</span>
+      <CopyButton text={target.id} label={copy.copyId} copiedLabel={copy.copiedId} failedLabel={copy.copyFailed} iconOnly className="-my-1" />
+    </span>
+  );
 }
 
 function Row({ entry }: { entry: AuditEntry }) {
@@ -30,7 +44,7 @@ function Row({ entry }: { entry: AuditEntry }) {
       <Td className={`${mono} whitespace-nowrap text-app-text-2 tabular-nums`}>{formatUtc(entry.at)}</Td>
       <Td className="max-w-56 truncate">{entry.adminEmail ?? <span className={quiet}>{copy.noAdmin}</span>}</Td>
       <Td>{actionLabels[entry.type] ?? <span className={mono}>{entry.type}</span>}</Td>
-      <Td className="max-w-64 truncate"><Target target={entry.target} /></Td>
+      <Td className="max-w-72 py-3 break-words"><Target target={entry.target} /></Td>
       <Td className="max-w-72 py-3 text-app-text-2">{entry.reason ?? <span className={quiet}>—</span>}</Td>
       <Td className={`${mono} whitespace-nowrap text-app-text-2 tabular-nums`}>{entry.ipMasked ?? <span className={quiet}>—</span>}</Td>
     </Tr>

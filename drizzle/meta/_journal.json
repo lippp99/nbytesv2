@@ -78,6 +78,34 @@
       "when": 1794467969826,
       "tag": "0010_cloudy_molly_hayes",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794492805704,
+      "tag": "0011_sharp_killer_shrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794493129410,
+      "tag": "0012_wakeful_absorbing_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794495724143,
+      "tag": "0013_bumpy_thunderball",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794496950292,
+      "tag": "0014_chief_johnny_blaze",
+      "breakpoints": true
     }
   ]
 }

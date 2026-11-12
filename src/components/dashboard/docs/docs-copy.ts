@@ -1,13 +1,15 @@
 import { MAX_JSON_BODY_BYTES, ROUTING_FIELDS } from "@/lib/gateway/chat-contract";
-import { KEY_RATE_LIMIT } from "@/lib/gateway/keys/api-key-contract";
+import { KEY_RATE_WINDOW_SECONDS } from "@/lib/gateway/keys/api-key-contract";
 import { buildErrorTexts } from "./docs-errors";
 
-const rate = `${KEY_RATE_LIMIT.count} request per ${KEY_RATE_LIMIT.windowSeconds} detik`;
+/** "120 request per 60 detik": the count is the admin setting, read by the page. */
+export const keyRateText = (perWindow: number) => `${perWindow} request per ${KEY_RATE_WINDOW_SECONDS} detik`;
 const maxBodyMb = MAX_JSON_BODY_BYTES / 1024 / 1024;
 
 // Text of the API Docs page.
 export const docs = {
   title: "API Docs",
+  loading: "Memuat API Docs",
   lead: "Referensi API nbytes. Formatnya mengikuti OpenAI, jadi SDK OpenAI untuk Python, Node, dan bahasa lain bisa langsung dipakai dengan base URL nbytes.",
   facts: ["Versi v1", "Format OpenAI", "JSON lewat HTTPS"],
   status: "Endpoint yang tersedia: chat completions dan models. Endpoint lain menyusul.",
@@ -70,7 +72,7 @@ export const docs = {
     },
     limits: {
       title: "Batas dan penagihan",
-      body: [
+      body: (rate: string) => [
         `Setiap key dibatasi ${rate}. Lewat dari itu dijawab 429 dengan header Retry-After (detik).`,
         "Sebelum request diteruskan, saldo ditahan sebesar perkiraan biaya maksimum. Setelah selesai, yang ditagih hanya pemakaian asli dan sisanya dilepas.",
         "Request yang ditolak atau gagal sebelum jawaban mulai dikirim tidak ditagih."
@@ -81,5 +83,5 @@ export const docs = {
   },
 };
 
-/** Meaning and next step per public error code, with the limits filled in from the contracts. */
-export const errorTexts = buildErrorTexts(rate, maxBodyMb);
+/** Meaning and next step per public error code, with the limits filled in (rate from the admin setting). */
+export const errorTextsFor = (rate: string) => buildErrorTexts(rate, maxBodyMb);

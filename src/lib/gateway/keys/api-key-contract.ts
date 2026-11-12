@@ -7,8 +7,8 @@ export const MAX_ACTIVE_KEYS = 20; // A4
 export const KEY_NAME_MAX = 40;
 /** Sanity bound for a monthly budget: $1,000,000. */
 export const MAX_BUDGET_MICROS = 1_000_000 * 1_000_000;
-/** Requests per key per fixed window (A3); the API Docs page shows the same numbers. */
-export const KEY_RATE_LIMIT = { count: 120, windowSeconds: 60 }; // shortcut: one value for all, per-user override waits for admin
+/** Window of the per-key request limit (A3); the count is an admin setting (keyRpm, lib/platform). */
+export const KEY_RATE_WINDOW_SECONDS = 60;
 
 export type ApiKeyErrorCode = "key_limit_reached" | "not_found";
 export type CreateKeyBody = { name: string; monthlyBudgetMicros: number | null };

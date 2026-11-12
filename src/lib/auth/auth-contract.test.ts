@@ -83,6 +83,7 @@ test("safeNextPath only allows dashboard paths on this site", () => {
   assert.equal(safeNextPath("/usage"), "/usage");
   assert.equal(safeNextPath("/api-keys/new"), "/api-keys/new");
   assert.equal(safeNextPath("/sessions"), "/sessions");
+  assert.equal(safeNextPath("/contact"), "/contact");
   for (const bad of ["//evil.com", "/\evil.com", "https://evil.com", "/%2F%2Fevil.com", "/usage//x",
     "/", "/login", "/admin", "/usage-old", "/usage?x=1", "/usage\n", "javascript:alert(1)", "", null, 7]) {
     assert.equal(safeNextPath(bad), null, String(bad));

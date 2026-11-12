@@ -4,6 +4,7 @@ import {
   CommandLineIcon,
   CreditCardIcon,
   CubeIcon,
+  CustomerSupportIcon,
   Key01Icon,
   LaptopPhoneSyncIcon,
   Rocket01Icon,
@@ -45,6 +46,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { href: "/settings", label: "Account Settings", icon: UserSettings01Icon },
       { href: "/sessions", label: "Active Sessions", icon: LaptopPhoneSyncIcon },
+      { href: "/contact", label: "Kontak admin", icon: CustomerSupportIcon },
     ],
   },
 ];

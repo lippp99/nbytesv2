@@ -1,6 +1,6 @@
 import type { BadgeTone } from "@/components/app-kit/badge";
 import type { DepositFilter, DepositState } from "@/lib/payments/finance-contract";
-import type { RateError } from "@/lib/payments/exchange-rate-client";
+import type { RateError } from "@/lib/payments/finance-settings-client";
 
 // Text of the admin Finance page: deposits (Sumopod QRIS) and the manual exchange rate (PRD gateway-pricing-billing).
 export const billingCopy = {
@@ -36,10 +36,35 @@ export const billingCopy = {
     history: "Riwayat kurs",
     cols: { at: "Waktu (UTC)", rate: "Rupiah per USD", by: "Oleh" },
   },
+  rules: {
+    title: "Batas dan biaya deposit",
+    description: "Berlaku untuk deposit berikutnya; deposit yang sudah dibuat tidak berubah.",
+    min: "Minimal (rupiah)",
+    max: "Maksimal (rupiah)",
+    fee: "Biaya layanan (%)",
+    amountHint: "Angka bulat, tanpa titik. Rp 10.000 sampai Rp 100.000.000.",
+    feeHint: "0 sampai 20, boleh desimal. Contoh: 3 atau 2,5.",
+    minInvalid: "Isi angka bulat antara 10000 dan 100000000.",
+    maxInvalid: "Isi angka bulat, tidak kurang dari minimal dan paling besar 100000000.",
+    feeInvalid: "Isi persen 0 sampai 20, paling banyak dua angka di belakang koma.",
+    presets: "Pilihan nominal cepat (rupiah)",
+    presetsHint:
+      "Tombol nominal di halaman Billing pengguna. Angka tanpa titik, dipisah koma (spasi boleh), maksimal 8. " +
+      "Contoh: 50000, 100000, 250000. Kosongkan untuk menyembunyikan.",
+    presetsInvalid: "Isi angka bulat tanpa titik, dipisah koma, tidak ada yang sama, maksimal 8, semuanya di antara minimal dan maksimal.",
+    save: "Simpan aturan deposit",
+    saving: "Menyimpan…",
+    saved: "Aturan deposit tersimpan dan berlaku untuk deposit berikutnya.",
+    unavailable: "Aturan deposit belum tersimpan. Coba lagi sebentar lagi.",
+  },
   deposits: {
     title: "Deposit",
     description: "Terbaru di atas. Macet = belum lunas setelah kedaluwarsa; cocokkan order di Sumopod lalu kirim ulang webhook.",
     filterLabel: "Saring status deposit",
+    loadingResults: "Memuat…",
+    copyOrder: "Salin order id lengkap",
+    copiedOrder: "Order id tersalin",
+    copyFailed: "Gagal menyalin. Pilih teksnya lalu salin manual.",
     cols: {
       at: "Waktu (UTC)", order: "Order", customer: "Pelanggan", paid: "Dibayar", rate: "Kurs", credit: "Saldo", fee: "Biaya Sumopod",
       status: "Status",

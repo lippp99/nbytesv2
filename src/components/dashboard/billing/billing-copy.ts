@@ -20,7 +20,7 @@ export const billing = {
     invalid: (min: string, max: string) => `Isi angka bulat antara ${min} dan ${max}.`,
     preview: "Rincian",
     amount: "Nominal",
-    fee: "Biaya layanan 3%",
+    fee: (percent: string) => `Biaya layanan ${percent}%`,
     total: "Total bayar",
     rate: "Kurs",
     rateValue: (idr: string) => `1 USD = ${idr}`,
@@ -34,10 +34,10 @@ export const billing = {
   history: {
     title: "Riwayat deposit",
     description: "Deposit yang menunggu bisa dibayar sampai batas waktunya.",
-    cols: { at: "Waktu (UTC)", amount: "Nominal", paid: "Dibayar", rate: "Kurs", credit: "Saldo masuk", status: "Status" },
+    cols: { at: "Waktu", amount: "Nominal", paid: "Dibayar", rate: "Kurs", credit: "Saldo masuk", status: "Status" },
     resume: "Lanjut bayar",
     emptyTitle: "Belum ada deposit",
-    emptyBody: "Isi saldo pertama Anda di atas. Minimal Rp 50.000.",
+    emptyBody: "Isi saldo pertama Anda di atas.",
     pagination: "Halaman riwayat deposit",
     pageOf: (page: number, pages: number) => `Halaman ${page} dari ${pages}`,
     previous: "Sebelumnya",
@@ -46,10 +46,12 @@ export const billing = {
   // After Sumopod sends the user back (/billing?deposit=...). Only the webhook credits; this shows what we know now.
   returned: {
     paid: (credit: string) => `Pembayaran diterima. ${credit} sudah masuk ke saldo Anda.`,
-    pending: "Pembayaran belum terkonfirmasi. Saldo masuk otomatis begitu QRIS dibayar; muat ulang halaman ini untuk melihatnya.",
+    pending: "Pembayaran belum terkonfirmasi. Saldo masuk otomatis begitu QRIS dibayar; tekan Periksa lagi untuk melihatnya.",
     stuck: "Batas waktu pembayaran sudah lewat dan belum ada konfirmasi. Jika Anda sudah membayar, admin akan mencocokkannya dengan Sumopod.",
     failed: "Pembayaran gagal. Saldo tidak berubah; silakan buat deposit baru.",
     expired: "Pembayaran kedaluwarsa. Saldo tidak berubah; silakan buat deposit baru.",
+    check: "Periksa lagi",
+    close: "Tutup",
   },
 };
 

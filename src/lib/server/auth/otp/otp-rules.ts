@@ -9,8 +9,6 @@ export const OTP_TTL_MS = 10 * 60 * 1000;
 export const OTP_MAX_ATTEMPTS = 5; // = OTP_MAX_ATTEMPTS in auth-contract
 export const OTP_RESEND_SECONDS = 60;
 export const TERMS_VERSION = "2026-11-09"; // owner decision §16.10 still open
-// shortcut: the admin "allow new sign-ups" switch has no storage yet; read it here once the admin backend exists.
-export const SIGNUP_OPEN = true;
 
 export const LIMITS = {
   sendPerIp: { limit: 20, windowSeconds: 3600 },

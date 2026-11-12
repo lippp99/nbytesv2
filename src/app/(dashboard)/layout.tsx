@@ -1,12 +1,15 @@
 import { type ReactNode, Suspense } from "react";
 import { AppFooter } from "@/components/dashboard/shell/app-footer";
 import { AppHeader } from "@/components/dashboard/shell/app-header";
+import { MaintenanceBanner } from "@/components/dashboard/shell/maintenance-banner";
 import { Sidebar } from "@/components/dashboard/shell/sidebar/sidebar";
 import { WalletMenu, WalletMenuSkeleton } from "@/components/dashboard/shell/wallet-menu";
 import { getCurrentUser } from "@/lib/server/auth/current-user";
 import { readSession } from "@/lib/server/auth/session";
 import { countActiveApiKeys } from "@/lib/server/gateway/api-keys";
 import { countActiveModels } from "@/lib/server/gateway/catalog";
+import { currentDepositRules } from "@/lib/server/payments/deposit-rules";
+import { currentPlatformSettings } from "@/lib/server/platform/settings";
 import { currentExchangeRate } from "@/lib/server/payments/exchange-rate";
 import { userBalance } from "@/lib/server/payments/user-billing";
 
@@ -25,8 +28,16 @@ async function SessionGate() {
 async function Wallet() {
   const session = await readSession();
   if (!session) return null;
-  const [{ balanceMicros, heldMicros }, rate] = await Promise.all([userBalance(session.user.id), currentExchangeRate()]);
-  return <WalletMenu availableMicros={balanceMicros - heldMicros} heldMicros={heldMicros} rate={rate} />;
+  const [{ balanceMicros, heldMicros }, rate, rules] = await Promise.all([
+    userBalance(session.user.id), currentExchangeRate(), currentDepositRules(),
+  ]);
+  return <WalletMenu availableMicros={balanceMicros - heldMicros} heldMicros={heldMicros} rate={rate} minIdr={rules.minIdr} />;
+}
+
+/** The admin's maintenance text on every page while maintenance is on; nothing otherwise. */
+async function Maintenance() {
+  const { maintenance, banner } = await currentPlatformSettings();
+  return maintenance ? <MaintenanceBanner text={banner} /> : null;
 }
 
 /** Active key count beside "API Keys" in the sidebar; nothing without a session (SessionGate redirects). */
@@ -58,6 +69,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Reading the session must sit behind <Suspense> with Cache Components. */}
         <AppHeader wallet={<Suspense fallback={<WalletMenuSkeleton />}><Wallet /></Suspense>} counts={counts} />
+        <Suspense fallback={null}><Maintenance /></Suspense>
         <main className="flex-1 px-5 py-8 lg:px-10 lg:py-10">
           <div className="mx-auto w-full max-w-app">{children}</div>
         </main>

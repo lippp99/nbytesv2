@@ -1,0 +1,1 @@
+ALTER TABLE "deposit_rules" ADD COLUMN "presets_idr" bigint[] DEFAULT '{}'::bigint[] NOT NULL;

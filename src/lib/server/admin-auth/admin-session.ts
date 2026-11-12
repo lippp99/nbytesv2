@@ -6,9 +6,11 @@ import { type AdminMe, adminSessionCookieName } from "@/lib/admin-auth/admin-aut
 import { randomToken, sha256 } from "../auth/crypto";
 import { db } from "../db/client";
 import { adminSessions, admins } from "../db/schema";
-import { SESSION_ABSOLUTE_MS, SESSION_TOUCH_MS, sessionAlive } from "./admin-rules";
+import { currentPlatformSettings } from "../platform/settings";
+import { SESSION_TOUCH_MS, sessionAlive } from "./admin-rules";
 
-// Admin sessions (PRD backend-auth-admin §8): own table and cookie, 8 h absolute, 30 min idle, SameSite=Strict.
+// Admin sessions (PRD backend-auth-admin §8): own table and cookie, 4/8/12 h absolute (admin Settings, from the next
+// login on), 30 min idle, SameSite=Strict.
 
 const USER_AGENT_MAX = 256;
 
@@ -31,7 +33,8 @@ export async function createAdminSession(adminId: string, userAgent: string | nu
   if (oldHash) await db.delete(adminSessions).where(eq(adminSessions.tokenHash, oldHash));
   const token = randomToken();
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + SESSION_ABSOLUTE_MS);
+  const hours = (await currentPlatformSettings()).adminSessionHours;
+  const expiresAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
   await db.insert(adminSessions).values({
     adminId,
     tokenHash: sha256(token),

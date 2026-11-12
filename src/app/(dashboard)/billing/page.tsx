@@ -4,6 +4,7 @@ import { BillingSkeleton } from "@/components/dashboard/billing/billing-skeleton
 import { BillingView } from "@/components/dashboard/billing/billing-view";
 import { parsePageParam } from "@/lib/auth/auth-contract";
 import { getCurrentUser } from "@/lib/server/auth/current-user";
+import { currentDepositRules } from "@/lib/server/payments/deposit-rules";
 import { currentIdrPerUsd } from "@/lib/server/payments/exchange-rate";
 import { userBalance, userDepositById, userDeposits } from "@/lib/server/payments/user-billing";
 
@@ -15,13 +16,14 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 async function Billing({ searchParams }: { searchParams: SearchParams }) {
   const user = await getCurrentUser();
   const params = await searchParams;
-  const [balance, idrPerUsd, history, returned] = await Promise.all([
+  const [balance, idrPerUsd, rules, history, returned] = await Promise.all([
     userBalance(user.id),
     currentIdrPerUsd(),
+    currentDepositRules(),
     userDeposits(user.id, parsePageParam(params.page)),
     userDepositById(user.id, params.deposit),
   ]);
-  return <BillingView balance={balance} idrPerUsd={idrPerUsd} history={history} returned={returned} />;
+  return <BillingView balance={balance} idrPerUsd={idrPerUsd} rules={rules} history={history} returned={returned} />;
 }
 
 export default function Page({ searchParams }: { searchParams: SearchParams }) {

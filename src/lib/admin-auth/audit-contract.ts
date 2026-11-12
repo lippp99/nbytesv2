@@ -16,6 +16,10 @@ export type AuditTarget =
   | { kind: "rate"; idrPerUsd: number | null }
   | { kind: "model"; id: string }
   | { kind: "admin"; email: string | null }
+  /** The saved row of deposit_rules (append-only, so these are exactly the values set); null values: row removed. */
+  | { kind: "depositRules"; minIdr: number | null; maxIdr: number | null; feeBp: number | null }
+  /** Contact and platform settings are updated in place, so the event names the page, not old values. */
+  | { kind: "page"; page: "contact" | "settings" }
   | null;
 
 export type AuditEntry = {

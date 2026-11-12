@@ -8,7 +8,6 @@ import { appFocus, primaryAction, secondaryAction } from "@/components/app-kit/b
 import { WalletIcon } from "@/components/dashboard/shared/icons/wallet";
 import { PlusIcon } from "@/components/icons/ui/plus";
 import { formatWib } from "@/lib/date-format";
-import { DEPOSIT_RULES } from "@/lib/payments/deposit-contract";
 import { formatIdr, formatMicros, formatSignedMicros } from "@/lib/price-format";
 import { shellCopy } from "./shell-copy";
 
@@ -34,7 +33,9 @@ export function WalletMenuSkeleton() {
 const dot = <span aria-hidden className="size-2 shrink-0 rounded-full bg-app-warning" />;
 
 /** Header wallet: the available balance at a glance; top-up and Billing one click away. */
-export function WalletMenu({ availableMicros, heldMicros, rate }: { availableMicros: number; heldMicros: number; rate: Rate }) {
+export function WalletMenu({ availableMicros, heldMicros, rate, minIdr }: {
+  availableMicros: number; heldMicros: number; rate: Rate; minIdr: number;
+}) {
   const credit = formatSignedMicros(availableMicros);
   // B7: at or below zero every API request is refused until a deposit lands.
   const empty = availableMicros <= 0;
@@ -50,7 +51,7 @@ export function WalletMenu({ availableMicros, heldMicros, rate }: { availableMic
       <Popover.Portal>
         <Popover.Positioner side="bottom" align="end" sideOffset={8} collisionPadding={12} className="z-40">
           <Popover.Popup className={popup}>
-            <WalletSummary availableMicros={availableMicros} heldMicros={heldMicros} rate={rate} empty={empty} />
+            <WalletSummary availableMicros={availableMicros} heldMicros={heldMicros} rate={rate} empty={empty} minIdr={minIdr} />
             <div className="flex gap-2 border-t border-app-border px-4 pt-3 pb-4">
               <Popover.Close nativeButton={false} render={<Link href="/billing#deposit" className={primaryAction("flex-1")} />}>
                 <PlusIcon />
@@ -68,8 +69,8 @@ export function WalletMenu({ availableMicros, heldMicros, rate }: { availableMic
   );
 }
 
-function WalletSummary({ availableMicros, heldMicros, rate, empty }: {
-  availableMicros: number; heldMicros: number; rate: Rate; empty: boolean;
+function WalletSummary({ availableMicros, heldMicros, rate, empty, minIdr }: {
+  availableMicros: number; heldMicros: number; rate: Rate; empty: boolean; minIdr: number;
 }) {
   // shortcut: float rounding is fine for an "≈" display figure; deposits use the exact integer math in deposit-contract.
   const idr = rate && !empty ? Math.round((availableMicros * rate.idrPerUsd) / 1_000_000) : null;
@@ -83,7 +84,7 @@ function WalletSummary({ availableMicros, heldMicros, rate, empty }: {
         {formatSignedMicros(availableMicros)}
       </p>
       {idr !== null && <p className="mt-1 font-mono text-app-code text-app-text-2 tabular-nums">≈ {formatIdr(idr)}</p>}
-      {empty && <p className="mt-3 text-app-small text-app-text-2">{copy.emptyHint(formatIdr(DEPOSIT_RULES.minIdr))}</p>}
+      {empty && <p className="mt-3 text-app-small text-app-text-2">{copy.emptyHint(formatIdr(minIdr))}</p>}
       {heldMicros > 0 && (
         <p className="mt-2.5 flex items-center gap-2 text-app-small text-app-text-2">
           <HugeiconsIcon icon={Clock01Icon} aria-hidden className="size-3.5 shrink-0 text-app-text-3" />
