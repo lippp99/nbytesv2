@@ -12,7 +12,6 @@ const suggestion =
   `text-app-ui text-app-text transition-colors hover:border-app-border-strong hover:bg-app-hover ${appFocus}`;
 const suggestionIcon =
   "size-4 shrink-0 text-app-text-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5";
-const userAvatar = "grid size-7 shrink-0 place-items-center rounded-full bg-app-text text-app-small font-medium text-app-surface";
 // No provider logos (the catalog has none, D2): the model's first letter in a neutral tile.
 const modelAvatar =
   "grid size-7 shrink-0 place-items-center rounded-app-inner border border-app-border bg-app-surface text-app-small font-medium text-app-text-2";
@@ -61,7 +60,7 @@ function TurnFooter({ turn }: { turn: Turn }) {
 
 function PendingRow({ modelName }: { modelName: string }) {
   return (
-    <div role="status" className="mx-auto flex max-w-3xl gap-4 px-6 py-5">
+    <div role="status" className="flex gap-4">
       <span aria-hidden className={modelAvatar}>{modelName.charAt(0)}</span>
       <div className="flex-1 space-y-2 pt-1.5">
         <span className="sr-only">{modelName} {copy.thinking}</span>
@@ -72,35 +71,48 @@ function PendingRow({ modelName }: { modelName: string }) {
   );
 }
 
-function TurnRow({ turn, initials, modelName }: { turn: Turn; initials: string; modelName: string }) {
-  const user = turn.role === "user";
+/** The user's message as a bubble on the right (design B); the label stays for screen readers. */
+function UserTurn({ turn }: { turn: Turn }) {
   return (
-    <article className={user ? "bg-app-inset" : undefined}>
-      <div className="mx-auto flex max-w-3xl gap-4 px-6 py-5">
-        <span aria-hidden className={user ? userAvatar : modelAvatar}>{user ? initials : modelName.charAt(0)}</span>
-        <div className="min-w-0 flex-1">
-          <p className="text-app-ui font-medium text-app-text">{user ? copy.you : modelName}</p>
-          <p className="mt-1 text-app-body whitespace-pre-wrap text-app-text">{turn.content}</p>
-          {!user && <TurnFooter turn={turn} />}
-        </div>
+    <article className="flex justify-end">
+      <div className="max-w-xl rounded-app-card border border-app-border bg-app-inset px-4 py-3">
+        <p className="sr-only">{copy.you}</p>
+        <p className="text-app-body whitespace-pre-wrap text-app-text">{turn.content}</p>
+      </div>
+    </article>
+  );
+}
+
+function ReplyTurn({ turn, modelName }: { turn: Turn; modelName: string }) {
+  return (
+    <article className="flex gap-4">
+      <span aria-hidden className={modelAvatar}>{modelName.charAt(0)}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-app-ui font-medium text-app-text">{modelName}</p>
+        <p className="mt-1 text-app-body whitespace-pre-wrap text-app-text">{turn.content}</p>
+        <TurnFooter turn={turn} />
       </div>
     </article>
   );
 }
 
 type ChatLogProps = {
-  turns: Turn[]; initials: string; modelName: (id: string | undefined) => string; currentModel: string;
+  turns: Turn[]; modelName: (id: string | undefined) => string; currentModel: string;
   onSuggest: (text: string) => void;
 };
 
-/** Console-style transcript: full-width rows, user turns on the inset tone, usage under every reply. */
-export function ChatLog({ turns, initials, modelName, currentModel, onSuggest }: ChatLogProps) {
+/** Centered transcript: user messages as bubbles on the right, replies with the model tile and usage under them. */
+export function ChatLog({ turns, modelName, currentModel, onSuggest }: ChatLogProps) {
   if (turns.length === 0) return <EmptyState modelName={currentModel} onSuggest={onSuggest} />;
   return (
-    <div aria-live="polite" className="divide-y divide-app-border">
-      {turns.map((turn) => (turn.status === "streaming" && !turn.content
-        ? <PendingRow key={turn.id} modelName={modelName(turn.modelId)} />
-        : <TurnRow key={turn.id} turn={turn} initials={initials} modelName={modelName(turn.modelId)} />))}
+    <div aria-live="polite" className="mx-auto flex max-w-3xl flex-col gap-7 px-4 py-8 sm:px-6">
+      {turns.map((turn) => {
+        if (turn.role === "user") return <UserTurn key={turn.id} turn={turn} />;
+        const name = modelName(turn.modelId);
+        return turn.status === "streaming" && !turn.content
+          ? <PendingRow key={turn.id} modelName={name} />
+          : <ReplyTurn key={turn.id} turn={turn} modelName={name} />;
+      })}
     </div>
   );
 }

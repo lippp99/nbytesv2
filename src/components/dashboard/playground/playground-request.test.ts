@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { bodyBytes, buildMessages, curlCommand, estimateTokens, requestBody } from "./playground-request.ts";
+import { bodyBytes, buildMessages, clampParam, curlCommand, estimateTokens, requestBody } from "./playground-request.ts";
 
 test("buildMessages adds a trimmed system prompt first and skips an empty one", () => {
   const history = [{ role: "user" as const, content: "Halo" }];
@@ -30,4 +30,13 @@ test("estimateTokens rounds up and ignores surrounding space", () => {
 test("bodyBytes counts UTF-8 bytes of the JSON, not characters", () => {
   assert.equal(bodyBytes({ a: "x" }), 9);
   assert.equal(bodyBytes({ a: "é" }), 10);
+});
+
+test("clampParam keeps typed parameters inside their range and precision", () => {
+  assert.equal(clampParam(0.75, 0, 2, 1), 0.8);
+  assert.equal(clampParam(5, 0, 2, 1), 2);
+  assert.equal(clampParam(-1, 0, 2, 1), 0);
+  assert.equal(clampParam(100.4, 64, 4096), 100);
+  assert.equal(clampParam(10, 64, 4096), 64);
+  assert.equal(clampParam(Number.NaN, 0, 2, 1), null);
 });

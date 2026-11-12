@@ -1,6 +1,7 @@
 import type { FormEvent, RefObject } from "react";
-import { SentIcon, StopIcon } from "@hugeicons/core-free-icons";
+import { StopIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { SendIcon } from "@/components/dashboard/shared/icons/send";
 import { playground as copy } from "./playground-copy";
 import { estimateTokens } from "./playground-request";
 import { primaryAction, secondaryAction } from "@/components/app-kit/button";
@@ -16,6 +17,8 @@ type ChatComposerProps = {
   disabled: boolean;
   /** "$0.42": the most this send can hold from the balance (R2); null without a model. */
   hold: string | null;
+  /** "Sesi ini 1,234 token · $0.01": what this conversation has used so far. */
+  session: string;
 };
 
 const frame =
@@ -23,16 +26,16 @@ const frame =
   "focus-within:border-app-accent focus-within:ring-3 focus-within:ring-app-accent/20";
 const kbd = "rounded-sm border border-app-border bg-app-inset px-1 font-mono text-app-small text-app-text-2";
 
-/** One framed box: the message field, keyboard hints and the token estimate, with Send (or Stop while waiting). */
-export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, onStop, disabled, hold }: ChatComposerProps) {
+/** One framed box: the message field, keyboard hints, session use and the token estimate, with Send (or Stop). */
+export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, onStop, disabled, hold, session }: ChatComposerProps) {
   function submit(event: FormEvent) {
     event.preventDefault();
     onSend();
   }
 
   return (
-    <form onSubmit={submit} className="border-t border-app-border p-4">
-      <div className={frame}>
+    <form onSubmit={submit} className="border-t border-app-border p-4 sm:px-6">
+      <div className={`mx-auto max-w-3xl ${frame}`}>
         <label htmlFor="pg-message" className="sr-only">{copy.composer.label}</label>
         <textarea
           ref={inputRef}
@@ -56,6 +59,7 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
             <kbd className={kbd}>Shift</kbd>+<kbd className={kbd}>Enter</kbd> {copy.composer.hintNewline}
           </p>
           <span className="ml-auto flex flex-wrap justify-end gap-x-3 text-app-small text-app-text-3 tabular-nums">
+            <span>{session}</span>
             <span>{copy.composer.estimate(estimateTokens(draft))}</span>
             {hold && <span title={copy.composer.holdTitle}>{copy.composer.hold(hold)}</span>}
           </span>
@@ -67,7 +71,7 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
           ) : (
             <button type="submit" disabled={disabled || !draft.trim()} className={primaryAction("h-9 px-4")}>
               {copy.composer.send}
-              <HugeiconsIcon icon={SentIcon} aria-hidden />
+              <SendIcon />
             </button>
           )}
         </div>

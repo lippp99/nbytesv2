@@ -31,3 +31,10 @@ export function curlCommand(baseUrl: string, body: object): string {
 export function estimateTokens(text: string): number {
   return text.trim() ? Math.max(1, Math.ceil(text.trim().length / 4)) : 0;
 }
+
+/** A typed parameter brought into its allowed range and precision (0.1 for temperature, whole tokens); null if not a number. */
+export function clampParam(value: number, min: number, max: number, decimals = 0): number | null {
+  if (!Number.isFinite(value)) return null;
+  const f = 10 ** decimals;
+  return Math.min(max, Math.max(min, Math.round(value * f) / f));
+}
