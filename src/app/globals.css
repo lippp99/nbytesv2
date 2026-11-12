@@ -8,7 +8,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-funnel-sans);
-  --font-mono: var(--font-fragment-mono);
+  /* --font-code is set only under [data-app] (dashboard, admin); the landing keeps Fragment Mono. */
+  --font-mono: var(--font-code, var(--font-fragment-mono));
   --font-heading: var(--font-funnel-display);
   --color-accent-mark: var(--accent-mark);
   --color-accent-mark-foreground: var(--accent-mark-foreground);
@@ -590,6 +591,7 @@
 }
 
 html:has([data-app]) {
+  --font-code: var(--font-jetbrains-mono);
   --app-page: oklch(0.985 0.002 100);
   --app-surface: oklch(1 0 0);
   --app-inset: oklch(0.97 0.003 100);

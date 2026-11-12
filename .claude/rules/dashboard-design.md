@@ -5,8 +5,8 @@ Visual contract for everything under `src/app/(dashboard)/`, `src/components/das
 
 ## 1. Fixed decisions
 
-- Accent: nb-orange `#c2410c` (logo color). Fonts: Funnel Sans (UI), Funnel Display (page titles only), Fragment Mono
-  (code, ids, numbers). Density: spacious, as today.
+- Accent: nb-orange `#c2410c` (logo color). Fonts: Funnel Sans (UI), Funnel Display (page titles only), JetBrains Mono
+  (code, ids, numbers; owner 2026-11-12, replaced Fragment Mono, which the landing keeps). Density: spacious, as today.
 - Mode: Operate (a tool people work in). Familiar patterns, precise details, restraint. Brand lives in the accent,
   the fonts and the care in details, not in decoration.
 - The dashboard never borrows the landing page's look: no offset-shadow buttons (`primaryButton`, `outlineButton`),
@@ -73,7 +73,7 @@ Rules:
 | Body | 0.9375rem / 1.6 | Funnel Sans |
 | UI, labels, table | 0.875rem / 1.45 | Funnel Sans |
 | Small, hints | 0.8125rem / 1.4 | Funnel Sans |
-| Code, ids, numbers | 0.8125rem / 1.65, tabular | Fragment Mono |
+| Code, ids, numbers | 0.8125rem / 1.65, tabular | JetBrains Mono (`--font-code` under `[data-app]`) |
 
 No eyebrow or kicker labels above headings. No monospace for anything that is not code, an id or a number.
 Prose measure 65-75ch.

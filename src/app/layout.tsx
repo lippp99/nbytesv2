@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fragment_Mono, Funnel_Display, Funnel_Sans } from "next/font/google";
+import { Fragment_Mono, Funnel_Display, Funnel_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { sidebarBootScript } from "@/lib/sidebar-state";
 import "./globals.css";
@@ -22,6 +22,14 @@ const fragmentMono = Fragment_Mono({
   subsets: ["latin", "latin-ext"],
 });
 
+// Dashboard and admin code face (dashboard-design §1, owner 2026-11-12). Not preloaded: the landing never uses it, and
+// its @font-face only downloads where a dashboard page draws mono text (globals.css sets --font-code under [data-app]).
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin", "latin-ext"],
+  preload: false,
+});
+
 // Working name "nbytes" until the owner decides the product name (PRD §12).
 export const metadata: Metadata = {
   title: { default: "nbytes · Satu API key untuk semua model AI", template: "%s · nbytes" },
@@ -33,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="id"
       data-scroll-behavior="smooth"
-      className={`${funnelDisplay.variable} ${funnelSans.variable} ${fragmentMono.variable} h-full antialiased`}
+      className={`${funnelDisplay.variable} ${funnelSans.variable} ${fragmentMono.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
