@@ -6,13 +6,17 @@ export type AuthEnv = {
   appOrigin: string;
   otpPepper: Buffer;
   hashKey: Buffer;
+  /** AES-256-GCM key for admin TOTP secrets (PRD backend-auth-admin §6, §13). Exactly 32 bytes. */
+  adminTotpKey: Buffer;
   ipHeader: string | null;
   emailFrom: string;
   /** null = dev console mailer (codes printed to the server log). */
   smtp: SmtpConfig | null;
 };
 
-const REQUIRED = ["APP_URL", "AUTH_OTP_PEPPER", "AUTH_HASH_KEY", "EMAIL_PROVIDER", "EMAIL_FROM"] as const;
+const REQUIRED = [
+  "APP_URL", "AUTH_OTP_PEPPER", "AUTH_HASH_KEY", "ADMIN_TOTP_KEY", "EMAIL_PROVIDER", "EMAIL_FROM",
+] as const;
 const SMTP_REQUIRED = ["SMTP_HOST", "SMTP_PORT", "SMTP_SECURE", "SMTP_USER", "SMTP_PASS"] as const;
 const MIN_KEY_BYTES = 32;
 
@@ -50,6 +54,7 @@ function readAuthEnv(env: NodeJS.ProcessEnv): AuthEnv {
     appOrigin: new URL(env.APP_URL!).origin,
     otpPepper: secretKey(env, "AUTH_OTP_PEPPER"),
     hashKey: secretKey(env, "AUTH_HASH_KEY"),
+    adminTotpKey: aesKey(env, "ADMIN_TOTP_KEY"),
     ipHeader: env.AUTH_TRUSTED_IP_HEADER?.toLowerCase() || null,
     emailFrom: env.EMAIL_FROM!,
     smtp: env.EMAIL_PROVIDER === "smtp" ? readSmtp(env) : null,
@@ -68,5 +73,12 @@ function readSmtp(env: NodeJS.ProcessEnv): SmtpConfig {
 function secretKey(env: NodeJS.ProcessEnv, name: string): Buffer {
   const key = Buffer.from(env[name]!, "base64");
   if (key.length < MIN_KEY_BYTES) throw new Error(`${name} must be at least ${MIN_KEY_BYTES} random bytes (base64)`);
+  return key;
+}
+
+/** AES-256 needs exactly 32 bytes; a key of any other length is refused. */
+function aesKey(env: NodeJS.ProcessEnv, name: string): Buffer {
+  const key = secretKey(env, name);
+  if (key.length !== MIN_KEY_BYTES) throw new Error(`${name} must be exactly ${MIN_KEY_BYTES} random bytes (base64)`);
   return key;
 }

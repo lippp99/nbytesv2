@@ -558,6 +558,7 @@
   --color-app-success: var(--app-success);
   --color-app-warning: var(--app-warning);
   --color-app-danger: var(--app-danger);
+  --color-app-chart-2: var(--app-chart-2);
   --shadow-app-raised: var(--app-shadow-raised);
 }
 
@@ -606,6 +607,8 @@ html:has([data-app]) {
   --app-success: oklch(0.52 0.12 150);
   --app-warning: oklch(0.55 0.12 70);
   --app-danger: oklch(0.55 0.2 27);
+  /* second chart series next to app-accent (dataviz validator: CVD dE 27.9, >= 3:1 on surface) */
+  --app-chart-2: #2a78d6;
   --app-shadow-raised: 0 1px 2px oklch(0.2 0.005 100 / 0.04), 0 6px 16px oklch(0.2 0.005 100 / 0.06);
   --app-scrim: oklch(0.2 0.005 100 / 0.18);
 
@@ -648,6 +651,7 @@ html.dark:has([data-app]) {
   --app-success: oklch(0.72 0.13 150);
   --app-warning: oklch(0.8 0.13 80);
   --app-danger: oklch(0.68 0.18 27);
+  --app-chart-2: #3987e5; /* dataviz validator on the dark surface: CVD dE 28.2, >= 3:1 */
   --app-shadow-raised: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 20px oklch(0 0 0 / 0.35);
   --app-scrim: oklch(0 0 0 / 0.35);
 }

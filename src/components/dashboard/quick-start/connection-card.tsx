@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { apiKeys } from "@/components/dashboard/shared/dashboard-data";
 import { ghostAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { CodeBlock } from "@/components/app-kit/code-block";
-import { BASE_URL, mockModels } from "@/lib/model-catalog";
 import { quickStartCopy } from "./quick-start-copy";
 
 const copy = quickStartCopy.connection;
@@ -20,15 +18,17 @@ function Fact({ label, value, href, action }: { label: string; value: number; hr
   );
 }
 
+type ConnectionCardProps = { baseUrl: string; keyCount: number; modelCount: number };
+
 /** What a client needs to connect: the base URL to copy, and how many keys and models it can use. */
-export function ConnectionCard() {
+export function ConnectionCard({ baseUrl, keyCount, modelCount }: ConnectionCardProps) {
   return (
     <Card title={copy.title}>
       <div className="p-6">
-        <CodeBlock title={copy.baseUrl} code={BASE_URL} wrap />
+        <CodeBlock title={copy.baseUrl} code={baseUrl} wrap />
         <dl className="mt-3 divide-y divide-app-border">
-          <Fact label={copy.activeKeys} value={apiKeys.length} href="/api-keys" action={copy.manage} />
-          <Fact label={copy.models} value={mockModels.length} href="/models" action={copy.browse} />
+          <Fact label={copy.activeKeys} value={keyCount} href="/api-keys" action={copy.manage} />
+          <Fact label={copy.models} value={modelCount} href="/models" action={copy.browse} />
         </dl>
       </div>
     </Card>

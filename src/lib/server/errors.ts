@@ -1,12 +1,16 @@
 import "server-only";
 import type { AuthErrorCode } from "@/lib/auth/auth-contract";
+import type { ApiKeyErrorCode } from "@/lib/gateway/keys/api-key-contract";
+import type { GatewayErrorCode } from "@/lib/gateway/error-contract";
 
-export type AppErrorDetails = { retryAfterMinutes?: number; attemptsLeft?: number };
+export type AppErrorCode = AuthErrorCode | ApiKeyErrorCode | GatewayErrorCode;
+/** param: the request field a gateway error is about (OpenAI envelope, PRD gateway-api §9). */
+export type AppErrorDetails = { retryAfterMinutes?: number; attemptsLeft?: number; param?: string };
 
 /** The one server error type: route handlers turn it into the JSON error contract; anything else becomes 503. */
 export class AppError extends Error {
   constructor(
-    readonly code: AuthErrorCode,
+    readonly code: AppErrorCode,
     readonly status: number,
     readonly details: AppErrorDetails = {},
     readonly retryAfterSeconds?: number,

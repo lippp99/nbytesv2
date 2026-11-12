@@ -1,13 +1,13 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "@/components/app-kit/badge";
-import { appFocus, iconAction } from "@/components/app-kit/button";
+import { appFocus } from "@/components/app-kit/button";
 import { cn } from "@/lib/utils";
 import monogram from "../../../../public/brand/nb-orange.png";
-import { LogoutIcon } from "@/components/icons/ui/logout";
 import { adminNav, isAdminActive } from "./admin-nav";
 import { shellCopy } from "./shell-copy";
 
@@ -25,10 +25,10 @@ const tip =
 /**
  * Admin sidebar: brand with "Admin" tag, grouped menus, the signed-in admin and sign-out. On desktop it folds to a
  * 64px icon rail (`rail:` variant, shared state in lib/sidebar-state); the mobile drawer always shows it in full.
+ * `account` is the signed-in admin block (AdminAccount), streamed in by the layout behind <Suspense>.
  */
-export function AdminSidebar() {
+export function AdminSidebar({ account }: { account: ReactNode }) {
   const pathname = usePathname();
-  const me = shellCopy.me;
   return (
     <div className="flex h-full flex-col bg-app-page">
       <Link href="/admin" aria-label={shellCopy.home}
@@ -58,13 +58,7 @@ export function AdminSidebar() {
         ))}
       </nav>
       <div className="flex items-center gap-1 border-t border-app-border p-3 rail:justify-center">
-        <div className="min-w-0 flex-1 px-3 py-1 leading-tight rail:hidden">
-          <span className="block truncate text-app-ui text-app-text">{me.name}</span>
-          <span className="block truncate text-app-small text-app-text-3">{me.role} · {me.email}</span>
-        </div>
-        <Link href="/admin/login" aria-label={shellCopy.signOut} title={shellCopy.signOut} className={iconAction()}>
-          <LogoutIcon className="size-5!" />
-        </Link>
+        {account}
       </div>
     </div>
   );

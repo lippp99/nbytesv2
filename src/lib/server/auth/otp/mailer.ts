@@ -2,8 +2,7 @@ import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 import { maskEmail } from "@/lib/auth/auth-contract";
 import { type SmtpConfig, authEnv } from "../auth-env";
-import { authEmailContent } from "./auth-email";
-import type { EmailKind } from "./otp-rules";
+import { type MailKind, authEmailContent } from "./auth-email";
 
 const SEND_TIMEOUT_MS = 10_000; // PRD §12.2
 
@@ -23,7 +22,7 @@ function smtpTransport(smtp: SmtpConfig): Transporter {
 }
 
 /** The one place that talks to the email provider; throwing here makes step 1 answer 503 unavailable. */
-export async function sendAuthEmail(to: string, kind: EmailKind, code?: string): Promise<void> {
+export async function sendAuthEmail(to: string, kind: MailKind, code?: string): Promise<void> {
   const mail = authEmailContent(kind, code);
   const { smtp, emailFrom } = authEnv();
   if (!smtp) {

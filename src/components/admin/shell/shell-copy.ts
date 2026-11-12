@@ -9,8 +9,7 @@ export const shellCopy = {
   closeSidebar: "Tutup sidebar",
   darkMode: "Mode gelap",
   signOut: "Keluar",
-  demo: "Data contoh",
-  demoTitle: "Konsol admin belum tersambung ke backend; semua angka adalah contoh.",
+  owner: "Owner",
   footer: {
     note: "© 2026 nbytes · Konsol admin, khusus tim internal",
     label: "Tautan footer admin",
@@ -19,6 +18,4 @@ export const shellCopy = {
       { href: "/admin/settings", label: "Pengaturan" },
     ],
   },
-  // shortcut: fixed mock admin until sessions exist (PRD admin-console §10)
-  me: { name: "Dimas Pratama", email: "dimas@nbytes.example", role: "Owner" },
 };

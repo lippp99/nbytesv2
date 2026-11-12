@@ -12,9 +12,11 @@ type CopyButtonProps = {
   /** Show only the icon; the label stays for screen readers. */
   iconOnly?: boolean;
   className?: string;
+  /** Called after the text reached the clipboard. */
+  onCopy?: () => void;
 };
 
-export function CopyButton({ text, label, copiedLabel, iconOnly, className }: CopyButtonProps) {
+export function CopyButton({ text, label, copiedLabel, iconOnly, className, onCopy }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export function CopyButton({ text, label, copiedLabel, iconOnly, className }: Co
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      onCopy?.();
     } catch {
       // Clipboard can be blocked (permissions, insecure context); the text stays selectable as a fallback.
       setCopied(false);

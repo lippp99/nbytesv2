@@ -17,11 +17,8 @@ export const shellCopy = {
     open: "Saldo wallet",
     credit: "Credit",
     topUp: "Isi saldo",
-    topUpLater: "Tersedia setelah backend pembayaran tersambung.",
     billing: "Buka Billing",
   },
-  demo: "Data contoh",
-  demoTitle: "Dashboard belum tersambung ke backend; semua angka adalah contoh.",
   footerNav: "Tautan footer",
   footerLinks: [
     { href: "/docs", label: "API Docs" },

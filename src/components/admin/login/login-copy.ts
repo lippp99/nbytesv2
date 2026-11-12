@@ -1,6 +1,6 @@
-import type { AuthError } from "@/lib/auth/auth-client";
+import type { AdminError } from "@/lib/admin-auth/admin-auth-client";
 
-// Text of the admin sign-in (PRD admin-console §2). Layout: owner picked design B (card with stepper), 2026-11-08.
+// Text of the admin sign-in (PRD backend-auth-admin A.2–A.4). Layout: owner picked design B (card with stepper), 2026-11-08.
 export const loginCopy = {
   pageTitle: "Masuk admin",
   brand: "nbytes Admin",
@@ -42,13 +42,44 @@ export const loginCopy = {
     back: "Mulai lagi",
     invalid: (left: number) => `Kode authenticator salah. Sisa ${left} percobaan.`,
   },
+  useBackup: "Pakai kode cadangan",
+  backup: {
+    title: "Kode cadangan",
+    sub: "Masukkan salah satu kode cadangan yang Anda simpan saat mengatur authenticator. Setiap kode hanya berlaku sekali.",
+    label: "Kode cadangan",
+    placeholder: "ABCDE-FGHJK",
+    incomplete: "Masukkan kode cadangan 10 karakter.",
+    submit: "Masuk",
+    invalid: (left: number) => `Kode cadangan salah. Sisa ${left} percobaan.`,
+    useTotp: "Pakai kode authenticator",
+  },
+  enroll: {
+    title: "Atur authenticator",
+    sub: "Pindai QR dengan aplikasi authenticator, lalu masukkan 6 digit yang muncul untuk nbytes Admin.",
+    qrTitle: "QR code untuk aplikasi authenticator",
+    secretLabel: "Atau masukkan kunci ini secara manual",
+    openApp: "Buka di aplikasi authenticator",
+    loading: "Menyiapkan kunci…",
+    failed: "Kunci belum bisa dibuat.",
+    retry: "Coba lagi",
+    submit: "Aktifkan dan masuk",
+  },
+  codes: {
+    title: "Simpan kode cadangan",
+    sub: "Pakai salah satu kode ini bila HP Anda hilang. Setiap kode hanya berlaku sekali, dan daftar ini hanya ditampilkan sekarang.",
+    listLabel: "10 kode cadangan",
+    copy: "Salin semua",
+    copied: "Tersalin",
+    download: "Unduh .txt",
+    fileName: "nbytes-admin-kode-cadangan.txt",
+    done: "Saya sudah menyimpan, lanjut",
+  },
   verifying: "Memeriksa…",
   success: "Berhasil masuk.",
-  demo: "Mode demo: kode",
   restart: "Percobaan habis. Mulai lagi dari email.",
 };
 
-export function loginErrorMessage(error: AuthError): string {
+export function loginErrorMessage(error: AdminError): string {
   switch (error.kind) {
     case "offline":
       return "Tidak ada koneksi internet.";
@@ -60,6 +91,8 @@ export function loginErrorMessage(error: AuthError): string {
       return `Kode salah. Sisa ${error.attemptsLeft} percobaan.`;
     case "expired":
       return "Kode tidak berlaku lagi. Minta kode baru.";
+    default:
+      return "Permintaan belum bisa diproses. Coba lagi sebentar lagi.";
   }
 }
 

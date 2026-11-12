@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildMessages, curlCommand, requestBody } from "./playground-request.ts";
+import { bodyBytes, buildMessages, curlCommand, estimateTokens, requestBody } from "./playground-request.ts";
 
 test("buildMessages adds a trimmed system prompt first and skips an empty one", () => {
   const history = [{ role: "user" as const, content: "Halo" }];
@@ -18,4 +18,16 @@ test("curlCommand escapes single quotes so the shell keeps the JSON whole", () =
   assert.match(cmd, /it'\\''s/);
   assert.match(cmd, /\$NBYTES_API_KEY/);
   assert.match(cmd, /^curl https:\/\/api\.example\.com\/v1\/chat\/completions/);
+});
+
+test("estimateTokens rounds up and ignores surrounding space", () => {
+  assert.equal(estimateTokens(""), 0);
+  assert.equal(estimateTokens("   "), 0);
+  assert.equal(estimateTokens("Hi"), 1);
+  assert.equal(estimateTokens("  Halo dunia  "), 3);
+});
+
+test("bodyBytes counts UTF-8 bytes of the JSON, not characters", () => {
+  assert.equal(bodyBytes({ a: "x" }), 9);
+  assert.equal(bodyBytes({ a: "é" }), 10);
 });

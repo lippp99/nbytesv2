@@ -1,4 +1,4 @@
-import type { FormEvent, Ref } from "react";
+import { type FormEvent, type Ref, useState } from "react";
 import { primaryButton, textLink } from "@/components/button-styles";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,8 @@ type EmailStepProps = {
 };
 
 // Pill tabs over the ui/tabs primitive (bare `cn`, so overrides need `!`).
-const listClass = "h-12! w-full rounded-full! bg-muted p-1";
+// Dark track is --secondary (0.24): --muted (0.2) vanishes on the dark card (0.19).
+const listClass = "h-12! w-full rounded-full! bg-muted p-1 dark:bg-secondary";
 const triggerClass = "rounded-full! text-base disabled:opacity-100";
 
 /** Login and register tabs; both send an 8-digit code to the email, register also asks for the names. */
@@ -36,6 +37,8 @@ export function EmailStep(props: EmailStepProps) {
   const { mode, email, error, errorField, pending, headingRef } = props;
   const emailError = errorField === "email" ? error : null;
   const nameError = errorField !== "email" && error ? { field: errorField, message: error } : null;
+  // Autofocus only on first load: after a tab switch it would pull focus off the tab and open the phone keyboard.
+  const [switched, setSwitched] = useState(false);
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -55,6 +58,7 @@ export function EmailStep(props: EmailStepProps) {
               firstName={props.firstName}
               lastName={props.lastName}
               disabled={pending}
+              autoFocus={!switched}
               error={nameError}
               onChange={props.onFieldChange}
             />
@@ -69,7 +73,7 @@ export function EmailStep(props: EmailStepProps) {
           inputMode="email"
           placeholder={copy.placeholder}
           maxLength={EMAIL_MAX_LENGTH}
-          autoFocus={mode === "login"}
+          autoFocus={mode === "login" && !switched}
           required
           value={email}
           disabled={pending}
@@ -100,7 +104,14 @@ export function EmailStep(props: EmailStepProps) {
   );
 
   return (
-    <Tabs value={mode} onValueChange={(value: AuthMode) => props.onModeChange(value)} className="gap-7">
+    <Tabs
+      value={mode}
+      onValueChange={(value: AuthMode) => {
+        setSwitched(true);
+        props.onModeChange(value);
+      }}
+      className="gap-7"
+    >
       <TabsList className={listClass}>
         {MODES.map((m) => (
           <TabsTrigger key={m} value={m} disabled={pending} className={triggerClass}>{authCopy.tabs[m]}</TabsTrigger>

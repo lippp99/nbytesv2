@@ -31,7 +31,16 @@ function toAuthError(error: ErrorBody | undefined): UserAuthError {
   }
 }
 
-async function post<T>(path: string, body: object): Promise<AuthResult<T, UserAuthError>> {
+/** Account deletion can also be refused while money is open (pending deposit, hold, negative balance; billing B6). */
+export type DeleteAccountError = UserAuthError | { kind: "blocked" };
+const toDeleteError = (error: ErrorBody | undefined): DeleteAccountError =>
+  error?.code === "blocked" ? { kind: "blocked" } : toAuthError(error);
+
+async function post<T, E = UserAuthError>(
+  path: string,
+  body: object,
+  toError: (error: ErrorBody | undefined) => E | UserAuthError = toAuthError,
+): Promise<AuthResult<T, E | UserAuthError>> {
   let response: Response;
   try {
     response = await fetch(path, {
@@ -44,7 +53,7 @@ async function post<T>(path: string, body: object): Promise<AuthResult<T, UserAu
   }
   const data = await response.json().catch(() => null);
   if (response.ok && data?.ok === true) return data as { ok: true } & T;
-  return { ok: false, error: toAuthError(data?.error) };
+  return { ok: false, error: toError(data?.error) };
 }
 
 export function requestOtp(mode: AuthMode, email: string): Promise<AuthResult<{ resendAfter: number }, UserAuthError>> {
@@ -71,13 +80,13 @@ export function updateProfile(profile: Profile): Promise<AuthResult<{ profile: P
 }
 
 /** Step 1 of account deletion: emails a code to the account's own address (PRD account-settings §12). */
-export function requestDeleteCode(confirm: string): Promise<AuthResult<{ resendAfter: number }, UserAuthError>> {
-  return post("/api/account/delete/request", { confirm });
+export function requestDeleteCode(confirm: string): Promise<AuthResult<{ resendAfter: number }, DeleteAccountError>> {
+  return post("/api/account/delete/request", { confirm }, toDeleteError);
 }
 
 /** Step 2: deletes the account; the server clears the session cookie. */
-export function deleteAccount(confirm: string, code: string): Promise<AuthResult<object, UserAuthError>> {
-  return post("/api/account/delete", { confirm, code });
+export function deleteAccount(confirm: string, code: string): Promise<AuthResult<object, DeleteAccountError>> {
+  return post("/api/account/delete", { confirm, code }, toDeleteError);
 }
 
 /** Signs out every other device; resolves with how many went (PRD active-sessions §5.2). */

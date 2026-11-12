@@ -1,4 +1,5 @@
 import "server-only";
+import { headers } from "next/headers";
 import { AppError } from "../errors";
 import { authEnv } from "./auth-env";
 import { type ClientInfo, maskIp, normalizeCountry } from "./client-info";
@@ -29,11 +30,25 @@ export async function readGuardedJson(request: Request): Promise<unknown> {
 }
 
 /** Client IP from the one trusted proxy header (AUTH_TRUSTED_IP_HEADER), or undefined without it. */
-function clientIp(request: Request): string | undefined {
+function clientIp(request: Pick<Request, "headers">): string | undefined {
   const { ipHeader } = authEnv();
   // Last hop: for a single-value header (cf-connecting-ip) it is the value; for x-forwarded-for it is the
   // address our own proxy appended.
   return ipHeader ? request.headers.get(ipHeader)?.split(",").at(-1)?.trim() || undefined : undefined;
+}
+
+/**
+ * Masked client IP of the current request ("103.47.xx.xx") for the admin audit log (PRD admin-users-audit U3).
+ * null outside a request (scripts) or without the trusted IP header.
+ */
+export async function requestIpMasked(): Promise<string | null> {
+  let current: Headers;
+  try {
+    current = await headers();
+  } catch {
+    return null;
+  }
+  return maskIp(clientIp({ headers: current }));
 }
 
 /** Keyed hash of the client IP; clients without the trusted header share one "unknown" key. */

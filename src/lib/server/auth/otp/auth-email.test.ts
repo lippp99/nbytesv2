@@ -37,3 +37,14 @@ test("no-code mails explain, without a code block", () => {
   assert.match(authEmailContent("signup_closed").text, /ditutup/);
   assert.match(authEmailContent("no_account").text, /Daftar/);
 });
+
+test("admin code mail: 10 digits grouped 5-5, never in the subject; lock mail has no code", () => {
+  assert.equal(formatCode("1234567890"), "12345-67890");
+  const mail = authEmailContent("admin_login", "0123456789");
+  assert.match(mail.text, /01234-56789/);
+  assert.match(mail.html, /01234-56789/);
+  assert.doesNotMatch(mail.subject, /\d/);
+  const locked = authEmailContent("admin_locked");
+  assert.doesNotMatch(locked.html, /class="nb-well"/);
+  assert.doesNotMatch(locked.html, /<a\s|<img|<button|<script|<form/i);
+});

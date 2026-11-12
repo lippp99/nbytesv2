@@ -1,58 +1,32 @@
-import { Badge } from "@/components/app-kit/badge";
-import { Card } from "@/components/app-kit/card";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { type SummaryStat, StatSummary } from "@/components/app-kit/stat-summary";
-import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
-import { formatUtc } from "@/lib/date-format";
-import { formatMicros } from "@/lib/price-format";
-import { billingCopy as copy, paymentBadge } from "./billing-copy";
-import { financeTotals as t, payments } from "./billing-data";
+import type { DepositFilter, DepositSummary, DepositsPage, ExchangeRateEntry } from "@/lib/payments/finance-contract";
+import { formatIdr, formatMicros } from "@/lib/price-format";
+import { billingCopy as copy } from "./billing-copy";
+import { DepositsTable } from "./deposits-table";
+import { ExchangeRateCard } from "./exchange-rate-card";
 
-const marginMicros = t.revenueMonthMicros - t.upstreamCostMonthMicros;
-// Integer basis points first, so the percentage never comes from float money math.
-const marginBp = Math.round((marginMicros * 10_000) / t.revenueMonthMicros);
+type BillingViewProps = { summary: DepositSummary; deposits: DepositsPage; filter: DepositFilter; rates: ExchangeRateEntry[] };
 
-const stats: SummaryStat[] = [
-  { label: copy.stats.revenue, value: formatMicros(t.revenueMonthMicros), note: copy.refunds(formatMicros(t.refundsMonthMicros)) },
-  { label: copy.stats.upstream, value: formatMicros(t.upstreamCostMonthMicros) },
-  { label: copy.stats.margin, value: formatMicros(marginMicros), note: `${(marginBp / 100).toFixed(1)}%` },
-  { label: copy.stats.outstanding, value: formatMicros(t.outstandingMicros) },
-];
+function summaryStats(s: DepositSummary): SummaryStat[] {
+  const st = copy.stats;
+  return [
+    { label: st.received, value: formatIdr(s.receivedIdr), note: st.paidCount(s.paidCount) },
+    { label: st.providerFee, value: formatIdr(s.providerFeeIdr), note: st.net(formatIdr(s.netIdr)) },
+    { label: st.credited, value: formatMicros(s.creditMicros), note: st.creditedNote },
+    { label: st.stuck, value: String(s.stuckCount), note: st.stuckNote(s.stuckCount), tone: s.stuckCount ? "danger" : undefined },
+  ];
+}
 
-export function BillingView() {
-  const cols = copy.cols;
+/** Real deposit data only; revenue, upstream cost and margin come back once the gateway records requests. */
+export function BillingView({ summary, deposits, filter, rates }: BillingViewProps) {
   return (
     <>
       <PageHeader title={copy.title} sub={copy.sub} />
-      <div className="space-y-6">
-        <StatSummary stats={stats} label={copy.summary} />
-        <Card title={copy.payments} description={copy.paymentsSub}>
-          <Table minWidth="min-w-3xl">
-            <THead>
-              <Th>{cols.at}</Th>
-              <Th>{cols.customer}</Th>
-              <Th>{cols.kind}</Th>
-              <Th>{cols.method}</Th>
-              <Th align="right">{cols.amount}</Th>
-              <Th>{cols.status}</Th>
-            </THead>
-            <tbody>
-              {payments.map((p) => {
-                const badge = paymentBadge[p.status];
-                return (
-                  <Tr key={p.id}>
-                    <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(p.at)}</Td>
-                    <Td className="max-w-56 truncate">{p.customer}</Td>
-                    <Td>{p.kind}</Td>
-                    <Td className="text-app-text-2">{p.method}</Td>
-                    <Td align="right">{formatMicros(p.amountMicros)}</Td>
-                    <Td><Badge tone={badge.tone}>{badge.label}</Badge></Td>
-                  </Tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        </Card>
+      <div className="space-y-10">
+        <StatSummary stats={summaryStats(summary)} label={copy.summary} />
+        <ExchangeRateCard history={rates} />
+        <DepositsTable data={deposits} filter={filter} />
       </div>
     </>
   );

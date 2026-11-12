@@ -6,8 +6,8 @@ import { authEnv } from "../auth-env";
 import { equalHex, hmac, randomOtp } from "../crypto";
 import { type AttemptResult, OTP_PURPOSE, OTP_TTL_MS, judgeAttempt } from "./otp-rules";
 
-// Email codes, shared by login ("user-login") and account deletion ("account-delete"). The purpose is part of the
-// hash and of every lookup, so a code made for one purpose never works for the other.
+// Email codes, shared by login ("user-login"), account deletion ("account-delete") and admin login ("admin-login",
+// 10 digits). The purpose is part of the hash and of every lookup, so a code made for one purpose never works for another.
 
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -19,8 +19,8 @@ const sameEmail = (email: string, purpose: string) =>
   and(eq(otpChallenges.email, email), eq(otpChallenges.purpose, purpose));
 
 /** New code for this email and purpose; any older code of the same pair stops working. */
-export async function issueChallenge(email: string, purpose = OTP_PURPOSE): Promise<string> {
-  const code = randomOtp();
+export async function issueChallenge(email: string, purpose = OTP_PURPOSE, makeCode = randomOtp): Promise<string> {
+  const code = makeCode();
   await db.transaction(async (tx) => {
     await tx.delete(otpChallenges).where(sameEmail(email, purpose));
     await tx.insert(otpChallenges).values({

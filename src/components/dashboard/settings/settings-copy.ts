@@ -40,6 +40,7 @@ export const settings = {
     codeIncomplete: "Masukkan 8 digit kode.",
     codeInvalid: (left: number) => `Kode salah. Sisa ${left} percobaan.`,
     codeExpired: "Kode tidak berlaku lagi. Kirim ulang kode.",
+    blocked: "Akun belum bisa dihapus selama ada deposit yang menunggu pembayaran atau saldo minus.",
     resend: "Kirim ulang kode",
     resent: "Kode baru sudah dikirim.",
     confirm: "Hapus akun permanen",

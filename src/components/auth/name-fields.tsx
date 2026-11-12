@@ -12,12 +12,13 @@ type NameFieldsProps = {
   firstName: string;
   lastName: string;
   disabled: boolean;
+  autoFocus: boolean;
   error: { field: NameField; message: string } | null;
   onChange: (field: NameField, value: string) => void;
 };
 
 /** First and last name of the register tab, side by side from 640px; an error shows under its own field. */
-export function NameFields({ firstName, lastName, disabled, error, onChange }: NameFieldsProps) {
+export function NameFields({ firstName, lastName, disabled, autoFocus, error, onChange }: NameFieldsProps) {
   const fields = [
     { field: "firstName", label: copy.firstLabel, placeholder: copy.firstPlaceholder, value: firstName, required: true },
     { field: "lastName", label: copy.lastLabel, placeholder: copy.lastPlaceholder, value: lastName, required: false },
@@ -38,7 +39,7 @@ export function NameFields({ firstName, lastName, disabled, error, onChange }: N
               autoComplete={required ? "given-name" : "family-name"}
               placeholder={placeholder}
               maxLength={NAME_MAX_LENGTH}
-              autoFocus={i === 0}
+              autoFocus={autoFocus && i === 0}
               required={required}
               value={value}
               disabled={disabled}

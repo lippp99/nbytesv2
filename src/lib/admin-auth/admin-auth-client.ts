@@ -1,52 +1,58 @@
-import type { AuthResult } from "@/lib/auth/auth-client";
-import { OTP_MAX_ATTEMPTS, normalizeEmail } from "@/lib/auth/auth-contract";
+import type { AuthErrorCode } from "@/lib/auth/auth-contract";
 
-// shortcut: mock tanpa server, ganti dengan fetch ke API admin saat backend dibuat (PRD admin-console §2.4)
-const MOCK_DELAY_MS = 600;
-const MOCK_EMAIL_CODE = "1234567890";
-const MOCK_EXPIRED_CODE = "0000000000";
-const MOCK_TOTP = "123456";
-let emailAttempts = 0;
-let totpAttempts = 0;
+// Calls to the admin auth API (PRD backend-auth-admin §12). Components use these, never raw fetch.
 
-const wait = () => new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
+export type AdminError =
+  | { kind: "offline" }
+  | { kind: "unavailable" }
+  | { kind: "rate_limited"; retryAfterMinutes: number }
+  | { kind: "invalid"; attemptsLeft: number }
+  | { kind: "expired" }
+  | { kind: "invalid_input" }
+  | { kind: "unauthorized" };
+
+export type AdminResult<T> = ({ ok: true } & T) | { ok: false; error: AdminError };
+
+type ErrorBody = { code?: AuthErrorCode; retryAfterMinutes?: number; attemptsLeft?: number };
+
 const isOffline = () => typeof navigator !== "undefined" && !navigator.onLine;
 
-/** Always "sent" for a valid email, so the response never tells who is an admin. `@limit.test` -> rate limited. */
-export async function requestAdminCode(rawEmail: string): Promise<AuthResult<{ resendAfter: number }>> {
-  if (isOffline()) return { ok: false, error: { kind: "offline" } };
-  await wait();
-  if (normalizeEmail(rawEmail).endsWith("@limit.test")) {
-    return { ok: false, error: { kind: "rate_limited", retryAfterMinutes: 15 } };
+function toAdminError(error: ErrorBody | undefined): AdminError {
+  switch (error?.code) {
+    case "rate_limited":
+      return { kind: "rate_limited", retryAfterMinutes: Math.max(1, error.retryAfterMinutes ?? 1) };
+    case "invalid":
+      return { kind: "invalid", attemptsLeft: error.attemptsLeft ?? 0 };
+    case "expired":
+    case "invalid_input":
+    case "unauthorized":
+      return { kind: error.code };
+    default:
+      return { kind: "unavailable" };
   }
-  emailAttempts = OTP_MAX_ATTEMPTS;
-  return { ok: true, resendAfter: 60 };
 }
 
-/** 1234567890 -> next step, 0000000000 -> expired, other codes burn one of 5 attempts. */
-export async function verifyAdminCode(code: string): Promise<AuthResult<object>> {
-  if (isOffline()) return { ok: false, error: { kind: "offline" } };
-  await wait();
-  if (code === MOCK_EXPIRED_CODE || emailAttempts <= 0) return { ok: false, error: { kind: "expired" } };
-  if (code === MOCK_EMAIL_CODE) {
-    totpAttempts = OTP_MAX_ATTEMPTS;
-    return { ok: true };
+async function post<T>(path: string, body: object = {}): Promise<AdminResult<T>> {
+  let response: Response;
+  try {
+    response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  } catch {
+    return { ok: false, error: { kind: isOffline() ? "offline" : "unavailable" } };
   }
-  emailAttempts -= 1;
-  return emailAttempts <= 0
-    ? { ok: false, error: { kind: "expired" } }
-    : { ok: false, error: { kind: "invalid", attemptsLeft: emailAttempts } };
+  const data = await response.json().catch(() => null);
+  if (response.ok && data?.ok === true) return data as { ok: true } & T;
+  return { ok: false, error: toAdminError(data?.error) };
 }
 
-/** 123456 -> signed in; 5 wrong codes -> expired (the form sends the admin back to step 1). */
-export async function verifyTotp(code: string): Promise<AuthResult<object>> {
-  if (isOffline()) return { ok: false, error: { kind: "offline" } };
-  await wait();
-  if (code === MOCK_TOTP && totpAttempts > 0) return { ok: true };
-  totpAttempts -= 1;
-  return totpAttempts <= 0
-    ? { ok: false, error: { kind: "expired" } }
-    : { ok: false, error: { kind: "invalid", attemptsLeft: totpAttempts } };
-}
+/** Step 1: same answer for every valid email, so it never tells who is an admin. */
+export const requestAdminCode = (email: string) => post<{ resendAfter: number }>("/api/admin/auth/code/request", { email });
 
-export const DEMO_ADMIN_CODES = { email: MOCK_EMAIL_CODE, totp: MOCK_TOTP };
+/** Step 2: the 10-digit email code; says whether step 3 is the authenticator or its first setup. */
+export const verifyAdminCode = (email: string, code: string) =>
+  post<{ next: "totp" | "enroll" }>("/api/admin/auth/code/verify", { email, code });
+
+/** Step 3, first login: a new secret to add to the authenticator app. */
+export const startTotpEnrollment = () => post<{ secret: string; otpauthUrl: string }>("/api/admin/auth/totp/enroll");
+
+/** Step 3: authenticator or backup code. After a first setup the 10 backup codes come back, once. */
+export const verifySecondFactor = (code: string) => post<{ backupCodes?: string[] }>("/api/admin/auth/totp/verify", { code });

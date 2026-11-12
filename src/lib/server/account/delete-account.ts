@@ -10,6 +10,7 @@ import { DELETE_PURPOSE, LIMITS, OTP_RESEND_SECONDS } from "../auth/otp/otp-rule
 import { enforceLimit, undoHit } from "../auth/rate-limit";
 import { emailKey } from "../auth/request-guard";
 import type { SessionUser } from "../auth/session";
+import { assertAccountDeletable } from "../payments/delete-guard";
 
 // Account deletion (PRD account-settings §12). The code always goes to the session's own email, never to an address
 // from the request, and only the session's own user row is deleted.
@@ -19,6 +20,7 @@ const who = (user: SessionUser, ipHash: string) => ({ emailHash: emailKey(user.e
 /** Step 1: emails a deletion code to the account's address. */
 export async function requestDeleteCode(user: SessionUser, ipHash: string): Promise<void> {
   const actor = who(user, ipHash);
+  await assertAccountDeletable(db, user.id); // no code is sent for an account that cannot be deleted yet
   const cooldownKey = `delete-send:cooldown:${user.id}`;
   await enforceLimit(cooldownKey, 1, OTP_RESEND_SECONDS, actor);
   const { limit, windowSeconds } = LIMITS.deleteSendPerUser;
@@ -44,6 +46,7 @@ export async function deleteAccount(user: SessionUser, code: string, ipHash: str
   const { limit, windowSeconds } = LIMITS.verifyPerIp;
   await enforceLimit(`otp-verify:ip:${ipHash}`, limit, windowSeconds, actor);
   const result = await db.transaction(async (tx) => {
+    await assertAccountDeletable(tx, user.id); // checked again here: nothing is written yet, so a throw rolls back nothing
     const attempt = await consumeChallenge(tx, user.email, code, DELETE_PURPOSE, new Date());
     if (attempt.kind !== "ok") return attempt; // returned, not thrown: a throw would roll back the attempt count
     await tx.delete(otpChallenges).where(eq(otpChallenges.email, user.email));

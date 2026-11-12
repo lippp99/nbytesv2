@@ -18,6 +18,6 @@ export const settingsCopy = {
   sessionLength: "Durasi sesi",
   sessionOptions: ["4 jam", "8 jam", "12 jam"],
   save: "Simpan",
-  // shortcut: nothing is persisted until the admin API exists (PRD admin-console §10)
+  // shortcut: nothing is persisted until the admin API exists (PRD backend-auth-admin)
   saved: "Tersimpan (mode demo, tidak dikirim ke server).",
 };

@@ -5,13 +5,11 @@ import { Popover } from "@base-ui/react/popover";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { appFocus, ghostAction, primaryAction } from "@/components/app-kit/button";
-import { wallet } from "@/components/dashboard/shared/dashboard-data";
 import { WalletIcon } from "@/components/dashboard/shared/icons/wallet";
-import { formatMicros } from "@/lib/price-format";
+import { formatSignedMicros } from "@/lib/price-format";
 import { shellCopy } from "./shell-copy";
 
 const copy = shellCopy.wallet;
-const credit = formatMicros(wallet.creditMicros);
 
 const trigger =
   "group inline-flex h-9 shrink-0 items-center gap-2.5 rounded-app-control border border-app-border bg-app-surface pr-2 pl-1 " +
@@ -21,8 +19,14 @@ const popup =
   "transition-[opacity,scale] duration-150 ease-out data-starting-style:scale-97 data-starting-style:opacity-0 " +
   "data-ending-style:scale-97 data-ending-style:opacity-0 motion-reduce:transition-none";
 
-/** Header wallet: the Credit balance at a glance; top-up and Billing one click away. */
-export function WalletMenu() {
+/** Same footprint as the trigger, while the balance streams in (no layout shift in the header). */
+export function WalletMenuSkeleton() {
+  return <span aria-hidden className="h-9 w-28 shrink-0 animate-pulse rounded-app-control border border-app-border bg-app-surface motion-reduce:animate-none" />;
+}
+
+/** Header wallet: the available balance (from the server) at a glance; top-up and Billing one click away. */
+export function WalletMenu({ availableMicros }: { availableMicros: number }) {
+  const credit = formatSignedMicros(availableMicros);
   return (
     <Popover.Root>
       <Popover.Trigger aria-label={`${copy.open}: ${credit}`} className={trigger}>
@@ -50,10 +54,9 @@ export function WalletMenu() {
               </div>
             </div>
             <div className="space-y-2 p-4">
-              <button type="button" disabled aria-describedby="wallet-top-up-later" className={primaryAction("w-full")}>
+              <Popover.Close nativeButton={false} render={<Link href="/billing#deposit" className={primaryAction("w-full")} />}>
                 {copy.topUp}
-              </button>
-              <p id="wallet-top-up-later" className="text-center text-app-small text-app-text-3">{copy.topUpLater}</p>
+              </Popover.Close>
               <Popover.Close nativeButton={false} render={<Link href="/billing" className={ghostAction("w-full")} />}>
                 {copy.billing}
               </Popover.Close>

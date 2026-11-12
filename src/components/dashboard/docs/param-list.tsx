@@ -12,7 +12,7 @@ export function ParamList({ title, params }: { title: string; params: Param[] })
             <dt className="flex flex-wrap items-baseline gap-x-2">
               <code className="font-mono text-app-code font-medium text-app-text">{p.name}</code>
               <span className="font-mono text-app-small text-app-text-3">{p.type}</span>
-              <span className={p.required ? "text-app-small font-medium text-app-accent-text" : "text-app-small text-app-text-3"}>
+              <span className={p.required ? "text-app-small font-medium text-app-text" : "text-app-small text-app-text-3"}>
                 {p.required ? docs.required : docs.optional}
               </span>
             </dt>

@@ -7,7 +7,7 @@ import { Field, TextInput, describedBy } from "@/components/app-kit/field";
 import {
   AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { type UserAuthError, deleteAccount, requestDeleteCode } from "@/lib/auth/auth-client";
+import { type DeleteAccountError, deleteAccount, requestDeleteCode } from "@/lib/auth/auth-client";
 import { isDeleteConfirmed, isValidOtp, maskEmail, sanitizeOtp } from "@/lib/auth/auth-contract";
 import { settings, errorText } from "./settings-copy";
 
@@ -49,8 +49,9 @@ export function DeleteAccountDialog({ email }: { email: string }) {
     setNotice(null);
   }
 
-  function fail(err: UserAuthError) {
+  function fail(err: DeleteAccountError) {
     if (err.kind === "unauthorized") return router.push("/login?next=%2Fsettings");
+    if (err.kind === "blocked") return setError(copy.blocked);
     if (err.kind === "invalid") return setError(copy.codeInvalid(err.attemptsLeft));
     if (err.kind !== "expired") return setError(errorText(err));
     setError(copy.codeExpired);

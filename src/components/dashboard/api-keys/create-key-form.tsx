@@ -1,51 +1,53 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import type { ApiKey } from "@/components/dashboard/shared/dashboard-data";
+import { useRouter } from "next/navigation";
 import { primaryAction, secondaryAction } from "@/components/app-kit/button";
 import { Field, TextInput, describedBy } from "@/components/app-kit/field";
+import { createApiKey } from "@/lib/gateway/keys/api-key-client";
+import { KEY_NAME_MAX, MAX_BUDGET_MICROS } from "@/lib/gateway/keys/api-key-contract";
 import { parseDollarsToMicros } from "@/lib/price-format";
-import { apiKeysCopy as copy } from "./api-keys-copy";
-
-const NAME_MAX = 40;
-
-// Demo only: a random string shaped like a key. The real key is created and hashed on the server.
-function demoSecret(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(20));
-  return `nb-live-${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
-}
+import { apiKeyErrorText, apiKeysCopy as copy } from "./api-keys-copy";
 
 type Errors = { name?: string; budget?: string };
-type CreateKeyFormProps = { onCreate: (key: ApiKey, secret: string) => void; onCancel: () => void };
+type CreateKeyFormProps = { onCreated: (secret: string) => void; onCancel: () => void };
 
-export function CreateKeyForm({ onCreate, onCancel }: CreateKeyFormProps) {
+/** Same limits as parseCreateKeyBody on the server: name 1–40 after trimming, budget above 0 and at most $1,000,000. */
+function check(name: string, budget: string): { errors: Errors; budgetMicros: number | null } {
+  const budgetMicros = budget.trim() ? parseDollarsToMicros(budget) : null;
+  let budgetError: string | undefined;
+  if (budget.trim() && (budgetMicros === null || budgetMicros <= 0)) budgetError = copy.budgetInvalid;
+  else if (budgetMicros !== null && budgetMicros > MAX_BUDGET_MICROS) budgetError = copy.budgetTooHigh;
+  return { errors: { name: name.trim() ? undefined : copy.nameRequired, budget: budgetError }, budgetMicros };
+}
+
+export function CreateKeyForm({ onCreated, onCancel }: CreateKeyFormProps) {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [budget, setBudget] = useState("");
   const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
-    const trimmed = name.trim();
-    const budgetMicros = budget.trim() ? parseDollarsToMicros(budget) : null;
-    const next: Errors = {
-      name: trimmed ? undefined : copy.nameRequired,
-      budget: budget.trim() && budgetMicros === null ? copy.budgetInvalid : undefined,
-    };
+    const { errors: next, budgetMicros } = check(name, budget);
     setErrors(next);
+    setFormError(null);
     if (next.name || next.budget) return;
-    const secret = demoSecret();
-    onCreate(
-      { id: secret.slice(-12), name: trimmed, preview: `nb-live-…${secret.slice(-4)}`, createdAt: new Date().toISOString().slice(0, 10),
-        lastUsedAt: null, budgetMicros, spentMicros: 0 },
-      secret,
-    );
+    setPending(true);
+    const result = await createApiKey({ name: name.trim(), monthlyBudgetMicros: budgetMicros });
+    setPending(false);
+    if (result.ok) return onCreated(result.key.key);
+    if (result.error.kind === "unauthorized") return router.push("/login?next=%2Fapi-keys");
+    setFormError(apiKeyErrorText(result.error));
   }
 
   return (
     <form noValidate onSubmit={submit}>
       <div className="grid gap-6 p-6 sm:grid-cols-2">
         <Field id="key-name" label={copy.name} hint={copy.nameHint} error={errors.name}>
-          <TextInput id="key-name" value={name} maxLength={NAME_MAX} autoFocus placeholder={copy.namePlaceholder}
+          <TextInput id="key-name" value={name} maxLength={KEY_NAME_MAX} autoFocus placeholder={copy.namePlaceholder}
             onChange={(e) => setName(e.target.value)} aria-invalid={errors.name ? true : undefined}
             aria-describedby={describedBy("key-name", { hint: copy.nameHint, error: errors.name })} />
         </Field>
@@ -55,9 +57,10 @@ export function CreateKeyForm({ onCreate, onCancel }: CreateKeyFormProps) {
             aria-describedby={describedBy("key-budget", { hint: copy.budgetHint, error: errors.budget })} />
         </Field>
       </div>
-      <div className="flex justify-end gap-2 border-t border-app-border bg-app-inset px-6 py-4">
-        <button type="button" onClick={onCancel} className={secondaryAction()}>{copy.cancel}</button>
-        <button type="submit" className={primaryAction()}>{copy.save}</button>
+      <div className="flex flex-wrap items-center justify-end gap-2 border-t border-app-border bg-app-inset px-6 py-4">
+        {formError && <p role="alert" className="mr-auto text-app-small text-app-danger">{formError}</p>}
+        <button type="button" onClick={onCancel} disabled={pending} className={secondaryAction()}>{copy.cancel}</button>
+        <button type="submit" disabled={pending} aria-busy={pending || undefined} className={primaryAction()}>{copy.save}</button>
       </div>
     </form>
   );

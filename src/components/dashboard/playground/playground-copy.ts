@@ -1,11 +1,16 @@
+import type { PlaygroundError } from "@/lib/playground/playground-client";
+
 // Text of the Playground page.
 export const playground = {
   title: "Playground",
   sub: "Uji model dan parameter sebelum menulis kode. Percakapan ini bisa disalin sebagai request API.",
+  loading: "Memuat Playground",
   you: "Anda",
-  session: "Sesi",
+  session: "Sesi ini",
+  tokens: "token",
   clear: "Bersihkan",
   context: "konteks",
+  maxOutput: "maks output",
   empty: {
     title: (model: string) => `Uji ${model} sebelum menulis kode`,
     body: "Atur parameter di panel kanan, lalu kirim pesan. Request API untuk percakapan ini ada di tab Kode.",
@@ -15,20 +20,27 @@ export const playground = {
       "Jelaskan beda REST dan GraphQL untuk tim backend.",
     ],
   },
+  noModels: { title: "Belum ada model yang tersedia", body: "Hubungi admin." },
   composer: {
     label: "Pesan",
     placeholder: "Tulis pesan untuk model…",
     hintSend: "kirim",
     hintNewline: "baris baru",
-    estimate: "token",
+    estimate: (n: number) => `≈ ${n.toLocaleString("en-US")} token (perkiraan)`,
+    hold: (amount: string) => `Ditahan maks ${amount}`,
+    holdTitle: "Saldo yang ditahan selama request berjalan. Yang ditagih hanya pemakaian asli; sisanya dilepas.",
     send: "Kirim",
     stop: "Stop",
   },
-  reply: (prompt: string, model: string) =>
-    `Mode demo: ini balasan contoh untuk "${prompt}". Setelah backend tersambung, jawaban asli dari ${model} muncul di sini.`,
   usage: { input: "masuk", output: "keluar" },
+  status: {
+    costLater: "Biaya menyusul",
+    stopped: "Dihentikan · biaya dicatat di Usage",
+    cut: "Terputus",
+  },
   thinking: "menyusun jawaban",
   views: { label: "Tampilan area kerja", chat: "Chat", code: "Kode" },
+  topUp: "Isi saldo",
   settings: {
     title: "Parameter",
     description: "Berlaku untuk pesan berikutnya.",
@@ -38,10 +50,21 @@ export const playground = {
     temperature: "Temperature",
     temperatureHint: "Rendah untuk jawaban konsisten, tinggi untuk variasi.",
     maxTokens: "Max tokens",
-    maxTokensHint: "Batas panjang jawaban. Biaya keluar dihitung dari token yang benar-benar dipakai.",
-    price: "Harga per 1 juta token",
+    maxTokensHint: (max: string) => `Batas panjang jawaban, maksimal ${max} untuk model ini. Biaya keluar dihitung dari token yang dipakai.`,
     input: "Input",
     output: "Output",
     codeHint: "Request untuk percakapan dan parameter saat ini. Simpan key di NBYTES_API_KEY.",
   },
 };
+
+/** Message above the composer for a failed send; unauthorized never shows, it sends the user to the login page. */
+export function playgroundErrorText(error: PlaygroundError): string {
+  switch (error.kind) {
+    case "insufficient_balance": return "Saldo tidak cukup untuk request ini.";
+    case "rate_limited": return `Terlalu banyak request. Coba lagi dalam ${error.retryAfterSeconds} detik.`;
+    case "model_not_found": return "Model ini tidak tersedia lagi. Pilih model lain.";
+    case "invalid_request": return "Request tidak valid. Bersihkan percakapan lalu coba lagi.";
+    case "offline": return "Anda sedang offline. Periksa koneksi lalu coba lagi.";
+    default: return "Model belum bisa menjawab. Coba lagi.";
+  }
+}

@@ -4,8 +4,8 @@ import { ArrowRight01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ghostAction } from "@/components/app-kit/button";
 import { cn } from "@/lib/utils";
+import type { StepState } from "./quick-start-data";
 
-export type StepState = "done" | "current" | "todo";
 export type SetupStep = {
   title: string;
   body: string;

@@ -10,6 +10,17 @@ export function formatMicros(micros: number): string {
   return `$${dollars.toLocaleString("en-US")}.${fraction}`;
 }
 
+/** A balance, which may be slightly negative (billing B7): -120000 -> "−$0.12". */
+export function formatSignedMicros(micros: number): string {
+  return micros < 0 ? `−${formatMicros(-micros)}` : formatMicros(micros);
+}
+
+/** Whole rupiah with Indonesian dot grouping: 103000 -> "Rp 103.000" (no Intl, same output on server and client). */
+export function formatIdr(rupiah: number): string {
+  if (!Number.isSafeInteger(rupiah) || rupiah < 0) throw new RangeError(`rupiah must be a non-negative integer, got ${rupiah}`);
+  return `Rp ${String(rupiah).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+}
+
 const DOLLAR_INPUT = /^(\d{1,7})(?:[.,](\d{1,2}))?$/;
 
 /** "40" / "40.5" / "40,50" -> integer micro-dollars; null for anything else (string math, no floats). */

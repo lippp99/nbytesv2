@@ -36,6 +36,48 @@
       "when": 1794230769809,
       "tag": "0004_uneven_zaladane",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794404421127,
+      "tag": "0005_silly_redwing",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794406139518,
+      "tag": "0006_sturdy_johnny_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794406939441,
+      "tag": "0007_red_microbe",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794463964056,
+      "tag": "0008_quiet_junta",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794466947965,
+      "tag": "0009_serious_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794467969826,
+      "tag": "0010_cloudy_molly_hayes",
+      "breakpoints": true
     }
   ]
 }

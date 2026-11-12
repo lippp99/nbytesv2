@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { type ReactNode, Suspense } from "react";
 import { SidebarContent } from "./sidebar-content";
 import { RailAvatar, RailAvatarSkeleton, SidebarUser, SidebarUserSkeleton } from "./sidebar-user";
 
@@ -6,9 +6,10 @@ import { RailAvatar, RailAvatarSkeleton, SidebarUser, SidebarUserSkeleton } from
  * The sidebar with the signed-in user filled in. SidebarContent is a client component, so the user parts are server
  * components passed in as slots, each behind its own <Suspense> (docs: a session read cannot be in the static shell).
  */
-export function Sidebar() {
+export function Sidebar({ counts }: { counts: Record<string, ReactNode> }) {
   return (
     <SidebarContent
+      counts={counts}
       user={<Suspense fallback={<SidebarUserSkeleton />}><SidebarUser /></Suspense>}
       avatar={<Suspense fallback={<RailAvatarSkeleton />}><RailAvatar /></Suspense>}
     />

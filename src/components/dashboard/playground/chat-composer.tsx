@@ -2,7 +2,7 @@ import type { FormEvent, RefObject } from "react";
 import { SentIcon, StopIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { playground as copy } from "./playground-copy";
-import { estimateTokens } from "./playground-cost";
+import { estimateTokens } from "./playground-request";
 import { primaryAction, secondaryAction } from "@/components/app-kit/button";
 
 type ChatComposerProps = {
@@ -12,6 +12,10 @@ type ChatComposerProps = {
   onDraftChange: (value: string) => void;
   onSend: () => void;
   onStop: () => void;
+  /** No model to send to (empty catalog, F10). */
+  disabled: boolean;
+  /** "$0.42": the most this send can hold from the balance (R2); null without a model. */
+  hold: string | null;
 };
 
 const frame =
@@ -20,7 +24,7 @@ const frame =
 const kbd = "rounded-sm border border-app-border bg-app-inset px-1 font-mono text-app-small text-app-text-2";
 
 /** One framed box: the message field, keyboard hints and the token estimate, with Send (or Stop while waiting). */
-export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, onStop }: ChatComposerProps) {
+export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, onStop, disabled, hold }: ChatComposerProps) {
   function submit(event: FormEvent) {
     event.preventDefault();
     onSend();
@@ -34,6 +38,7 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
           ref={inputRef}
           id="pg-message"
           rows={3}
+          disabled={disabled}
           value={draft}
           onChange={(e) => onDraftChange(e.target.value)}
           onKeyDown={(e) => {
@@ -50,8 +55,9 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
             <span aria-hidden className="mx-1">·</span>
             <kbd className={kbd}>Shift</kbd>+<kbd className={kbd}>Enter</kbd> {copy.composer.hintNewline}
           </p>
-          <span className="ml-auto font-mono text-app-small text-app-text-3 tabular-nums">
-            ~{estimateTokens(draft)} {copy.composer.estimate}
+          <span className="ml-auto flex flex-wrap justify-end gap-x-3 text-app-small text-app-text-3 tabular-nums">
+            <span>{copy.composer.estimate(estimateTokens(draft))}</span>
+            {hold && <span title={copy.composer.holdTitle}>{copy.composer.hold(hold)}</span>}
           </span>
           {pending ? (
             <button type="button" onClick={onStop} className={secondaryAction("h-9 px-4")}>
@@ -59,7 +65,7 @@ export function ChatComposer({ draft, pending, inputRef, onDraftChange, onSend, 
               {copy.composer.stop}
             </button>
           ) : (
-            <button type="submit" disabled={!draft.trim()} className={primaryAction("h-9 px-4")}>
+            <button type="submit" disabled={disabled || !draft.trim()} className={primaryAction("h-9 px-4")}>
               {copy.composer.send}
               <HugeiconsIcon icon={SentIcon} aria-hidden />
             </button>

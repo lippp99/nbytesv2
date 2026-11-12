@@ -7,13 +7,12 @@ import { DocumentFoldedIcon } from "@/components/admin/shared/icons/document-fol
 import { LineChartIcon } from "@/components/icons/content/line-chart";
 import { ServerIcon } from "@/components/admin/shared/icons/server";
 import { SettingsIcon } from "@/components/icons/content/settings";
-import { ShieldFilledIcon } from "@/components/icons/content/shield-filled";
 import { UserGroupIcon } from "@/components/admin/shared/icons/user-group";
 
 export type AdminNavItem = { href: string; label: string; icon: ComponentType<IconProps> };
 export type AdminNavGroup = { label: string; items: AdminNavItem[] };
 
-// Menus from PRD admin-console §3, grouped by what the admin does: watch, manage, secure.
+// Menus from PRD backend-auth-admin A.7, grouped by what the admin does: watch, manage, secure.
 // Icons: the owner's two-tone set (admin/shared/icons/, shared ones in components/icons/).
 export const adminNav: AdminNavGroup[] = [
   {
@@ -21,7 +20,7 @@ export const adminNav: AdminNavGroup[] = [
     items: [
       { href: "/admin", label: "Ringkasan", icon: AppsIcon },
       { href: "/admin/requests", label: "Request log", icon: LineChartIcon },
-      { href: "/admin/providers", label: "Provider", icon: ServerIcon },
+      { href: "/admin/upstream", label: "Upstream", icon: ServerIcon },
     ],
   },
   {
@@ -35,7 +34,6 @@ export const adminNav: AdminNavGroup[] = [
   {
     label: "Keamanan",
     items: [
-      { href: "/admin/team", label: "Admin & akses", icon: ShieldFilledIcon },
       { href: "/admin/audit", label: "Audit log", icon: DocumentFoldedIcon },
       { href: "/admin/settings", label: "Pengaturan", icon: SettingsIcon },
     ],

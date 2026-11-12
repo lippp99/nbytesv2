@@ -47,7 +47,9 @@ export function maskEmail(email: string): string {
 
 // --- API contract (PRD backend-auth-user §8): parsed once here, used by the route handlers and the client.
 
-export type AuthErrorCode = "invalid_input" | "rate_limited" | "invalid" | "expired" | "unavailable" | "unauthorized";
+// blocked: account deletion refused while money is open (pending deposit, hold, negative balance; billing PRD B6).
+export type AuthErrorCode =
+  | "invalid_input" | "rate_limited" | "invalid" | "expired" | "unavailable" | "unauthorized" | "blocked";
 /** The user's own name (register tab, Account Settings). Last name is optional. */
 export type Profile = { firstName: string; lastName: string | null };
 // Login and register are separate tabs; both prove the email with a code. Register also sends the names, which are

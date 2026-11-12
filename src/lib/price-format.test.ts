@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { formatMicros, parseDollarsToMicros } from "./price-format.ts";
+import { formatIdr, formatMicros, formatSignedMicros, parseDollarsToMicros } from "./price-format.ts";
 
 test("formatMicros keeps two decimals for whole cents", () => {
   assert.equal(formatMicros(0), "$0.00");
@@ -28,4 +28,19 @@ test("parseDollarsToMicros reads whole dollars and up to two decimals", () => {
 
 test("parseDollarsToMicros rejects everything else", () => {
   for (const bad of ["", "-1", "1.234", "abc", "1e3", "12345678"]) assert.equal(parseDollarsToMicros(bad), null, bad);
+});
+
+test("formatIdr groups whole rupiah with dots", () => {
+  assert.equal(formatIdr(0), "Rp 0");
+  assert.equal(formatIdr(661), "Rp 661");
+  assert.equal(formatIdr(103_000), "Rp 103.000");
+  assert.equal(formatIdr(10_300_000), "Rp 10.300.000");
+  assert.throws(() => formatIdr(-1), RangeError);
+  assert.throws(() => formatIdr(1.5), RangeError);
+});
+
+test("formatSignedMicros shows a negative balance with a minus sign", () => {
+  assert.equal(formatSignedMicros(2_967_359), "$2.967359");
+  assert.equal(formatSignedMicros(-120_000), "−$0.12");
+  assert.equal(formatSignedMicros(0), "$0.00");
 });

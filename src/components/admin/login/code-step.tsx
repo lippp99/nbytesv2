@@ -22,6 +22,7 @@ type CodeStepProps = {
   error: string | null;
   locked: boolean;
   submitLabel: string;
+  before?: ReactNode;
   note?: ReactNode;
   below?: ReactNode;
   headingRef: Ref<HTMLHeadingElement>;
@@ -43,7 +44,7 @@ function Slots({ start, count, filled, invalid }: { start: number; count: number
 
 /** One code entry step (email code or authenticator code): digits split in two halves, auto-submit when full. */
 export function CodeStep(props: CodeStepProps) {
-  const { icon, title, sub, srLabel, length, code, error, locked, submitLabel, note, below } = props;
+  const { icon, title, sub, srLabel, length, code, error, locked, submitLabel, before, note, below } = props;
   const { headingRef, inputRef, onCodeChange, onVerify } = props;
   const half = length / 2;
   const clean = (value: string) => sanitizeDigits(value, length);
@@ -56,6 +57,7 @@ export function CodeStep(props: CodeStepProps) {
   return (
     <form noValidate onSubmit={submit}>
       <StepHeading icon={icon} title={title} sub={sub} headingRef={headingRef} />
+      {before}
       <div className="mt-6">
         <InputOTP ref={inputRef} maxLength={length} value={code} onChange={(v) => onCodeChange(clean(v))}
           onComplete={onVerify} pasteTransformer={clean} pattern="[0-9]*" inputMode="numeric"

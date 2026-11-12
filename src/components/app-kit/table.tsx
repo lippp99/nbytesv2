@@ -13,10 +13,14 @@ export function Table({ children, minWidth = "min-w-2xl", className }: { childre
   );
 }
 
-export function Th({ children, align = "left", className }: CellProps) {
+type ThProps = CellProps & { colSpan?: number; rowSpan?: number; sort?: "ascending" | "none" };
+
+/** colSpan/rowSpan: grouped headers (e.g. "Harga list" over its Input and Output columns). sort: aria-sort of a sortable column. */
+export function Th({ children, align = "left", className, colSpan, rowSpan, sort }: ThProps) {
   return (
-    <th scope="col" className={cn("h-11 px-4 text-app-small font-medium text-app-text-3 first:pl-6 last:pr-6",
-      align === "right" ? "text-right" : "text-left", className)}>
+    <th scope={colSpan ? "colgroup" : "col"} colSpan={colSpan} rowSpan={rowSpan} aria-sort={sort}
+      className={cn("h-11 px-4 text-app-small font-medium text-app-text-3 first:pl-6 last:pr-6",
+        align === "right" ? "text-right" : "text-left", className)}>
       {children}
     </th>
   );

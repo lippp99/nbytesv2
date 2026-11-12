@@ -2,27 +2,27 @@ import { ArrowUpRight01Icon, CommandLineIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react";
 import { CopyButton } from "@/components/copy-button";
 import { common } from "@/components/dashboard/shared/common-copy";
-import { account } from "@/components/dashboard/shared/dashboard-data";
 import { appFocus } from "@/components/app-kit/button";
-import { ProviderLogo } from "@/components/provider-logo";
-import { modelById } from "@/lib/model-catalog";
 import { formatMicros } from "@/lib/price-format";
 import { playground as copy } from "./playground-copy";
 import type { Turn } from "./use-playground";
 
-const initials = account.userName.split(" ").map((p) => p[0]).slice(0, 2).join("");
 const suggestion =
   "group flex w-full items-center gap-3 rounded-app-control border border-app-border bg-app-surface px-4 py-3 text-left " +
   `text-app-ui text-app-text transition-colors hover:border-app-border-strong hover:bg-app-hover ${appFocus}`;
 const suggestionIcon =
   "size-4 shrink-0 text-app-text-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5";
 const userAvatar = "grid size-7 shrink-0 place-items-center rounded-full bg-app-text text-app-small font-medium text-app-surface";
-const modelAvatar = "grid size-7 shrink-0 place-items-center rounded-app-inner border border-app-border bg-app-surface";
+// No provider logos (the catalog has none, D2): the model's first letter in a neutral tile.
+const modelAvatar =
+  "grid size-7 shrink-0 place-items-center rounded-app-inner border border-app-border bg-app-surface text-app-small font-medium text-app-text-2";
+const pulse = "block h-3 animate-pulse rounded-full bg-app-hover motion-reduce:animate-none";
 
 function EmptyState({ modelName, onSuggest }: { modelName: string; onSuggest: (text: string) => void }) {
   return (
     <div className="mx-auto flex h-full max-w-md flex-col justify-center px-6 py-10">
-      <span aria-hidden className="grid size-10 place-items-center rounded-app-control bg-app-accent-soft text-app-accent-text">
+      {/* Neutral tile: accent is for actions and selection, not decoration (D1). */}
+      <span aria-hidden className="grid size-10 place-items-center rounded-app-control bg-app-inset text-app-text-2">
         <HugeiconsIcon icon={CommandLineIcon} className="size-5" />
       </span>
       <h2 className="mt-5 text-app-section text-balance text-app-text">{copy.empty.title(modelName)}</h2>
@@ -41,58 +41,66 @@ function EmptyState({ modelName, onSuggest }: { modelName: string; onSuggest: (t
   );
 }
 
-function Avatar({ turn }: { turn: Turn }) {
-  const model = turn.modelId ? modelById(turn.modelId) : undefined;
-  if (turn.role === "user") return <span aria-hidden className={userAvatar}>{initials}</span>;
-  return <span aria-hidden className={modelAvatar}>{model && <ProviderLogo icon={model.icon} className="size-3.5" />}</span>;
+/** Tokens and cost when the answer reported usage; otherwise what happened to it (D6). */
+function TurnFooter({ turn }: { turn: Turn }) {
+  if (turn.status === "streaming") return null;
+  const note = turn.status === "stopped" ? copy.status.stopped : turn.status === "cut" ? copy.status.cut : null;
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 font-mono text-app-small text-app-text-3 tabular-nums">
+      {turn.usage && turn.status === "done" ? (
+        <>
+          <span>{turn.usage.input} {copy.usage.input}</span>
+          <span>{turn.usage.output} {copy.usage.output}</span>
+          <span>{formatMicros(turn.usage.costMicros)}</span>
+        </>
+      ) : <span className="font-sans">{note ?? copy.status.costLater}</span>}
+      {turn.content && <CopyButton text={turn.content} label={common.copy} copiedLabel={common.copied} iconOnly className="-ml-1" />}
+    </div>
+  );
 }
 
-function TurnRow({ turn }: { turn: Turn }) {
-  const name = turn.role === "user" ? copy.you : (modelById(turn.modelId ?? "")?.name ?? "");
+function PendingRow({ modelName }: { modelName: string }) {
   return (
-    <article className={turn.role === "user" ? "bg-app-inset" : undefined}>
+    <div role="status" className="mx-auto flex max-w-3xl gap-4 px-6 py-5">
+      <span aria-hidden className={modelAvatar}>{modelName.charAt(0)}</span>
+      <div className="flex-1 space-y-2 pt-1.5">
+        <span className="sr-only">{modelName} {copy.thinking}</span>
+        <span aria-hidden className={`${pulse} w-3/4`} />
+        <span aria-hidden className={`${pulse} w-1/2`} />
+      </div>
+    </div>
+  );
+}
+
+function TurnRow({ turn, initials, modelName }: { turn: Turn; initials: string; modelName: string }) {
+  const user = turn.role === "user";
+  return (
+    <article className={user ? "bg-app-inset" : undefined}>
       <div className="mx-auto flex max-w-3xl gap-4 px-6 py-5">
-        <Avatar turn={turn} />
+        <span aria-hidden className={user ? userAvatar : modelAvatar}>{user ? initials : modelName.charAt(0)}</span>
         <div className="min-w-0 flex-1">
-          <p className="text-app-ui font-medium text-app-text">{name}</p>
+          <p className="text-app-ui font-medium text-app-text">{user ? copy.you : modelName}</p>
           <p className="mt-1 text-app-body whitespace-pre-wrap text-app-text">{turn.content}</p>
-          {turn.usage && (
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 font-mono text-app-small text-app-text-3 tabular-nums">
-              <span>{turn.usage.input} {copy.usage.input}</span>
-              <span>{turn.usage.output} {copy.usage.output}</span>
-              <span>{formatMicros(turn.usage.costMicros)}</span>
-              <CopyButton text={turn.content} label={common.copy} copiedLabel={common.copied} iconOnly className="-ml-1" />
-            </div>
-          )}
+          {!user && <TurnFooter turn={turn} />}
         </div>
       </div>
     </article>
   );
 }
 
-function PendingRow({ modelId }: { modelId: string }) {
-  const model = modelById(modelId);
-  return (
-    <div role="status" className="mx-auto flex max-w-3xl gap-4 px-6 py-5">
-      <span aria-hidden className={modelAvatar}>{model && <ProviderLogo icon={model.icon} className="size-3.5" />}</span>
-      <div className="flex-1 space-y-2 pt-1.5">
-        <span className="sr-only">{model?.name} {copy.thinking}</span>
-        <span aria-hidden className="block h-3 w-3/4 animate-pulse rounded-full bg-app-hover motion-reduce:animate-none" />
-        <span aria-hidden className="block h-3 w-1/2 animate-pulse rounded-full bg-app-hover motion-reduce:animate-none" />
-      </div>
-    </div>
-  );
-}
-
-type ChatLogProps = { turns: Turn[]; pending: boolean; modelId: string; onSuggest: (text: string) => void };
+type ChatLogProps = {
+  turns: Turn[]; initials: string; modelName: (id: string | undefined) => string; currentModel: string;
+  onSuggest: (text: string) => void;
+};
 
 /** Console-style transcript: full-width rows, user turns on the inset tone, usage under every reply. */
-export function ChatLog({ turns, pending, modelId, onSuggest }: ChatLogProps) {
-  if (turns.length === 0 && !pending) return <EmptyState modelName={modelById(modelId)?.name ?? ""} onSuggest={onSuggest} />;
+export function ChatLog({ turns, initials, modelName, currentModel, onSuggest }: ChatLogProps) {
+  if (turns.length === 0) return <EmptyState modelName={currentModel} onSuggest={onSuggest} />;
   return (
     <div aria-live="polite" className="divide-y divide-app-border">
-      {turns.map((turn) => <TurnRow key={turn.id} turn={turn} />)}
-      {pending && <PendingRow modelId={modelId} />}
+      {turns.map((turn) => (turn.status === "streaming" && !turn.content
+        ? <PendingRow key={turn.id} modelName={modelName(turn.modelId)} />
+        : <TurnRow key={turn.id} turn={turn} initials={initials} modelName={modelName(turn.modelId)} />))}
     </div>
   );
 }

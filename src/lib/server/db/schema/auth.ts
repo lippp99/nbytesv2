@@ -20,7 +20,11 @@ export const users = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   // The DB refuses any other status, so the auth flow never meets one it does not handle.
-  (t) => [uniqueIndex("users_email_idx").on(t.email), check("users_status_check", sql`${t.status} in ('active', 'suspended')`)],
+  (t) => [
+    uniqueIndex("users_email_idx").on(t.email),
+    index("users_created_at_idx").on(t.createdAt), // admin Users list, newest first
+    check("users_status_check", sql`${t.status} in ('active', 'suspended')`),
+  ],
 );
 
 export const otpChallenges = pgTable(

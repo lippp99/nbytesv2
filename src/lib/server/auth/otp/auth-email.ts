@@ -6,10 +6,12 @@ import type { EmailKind } from "./otp-rules";
 // ends in a deliberate fallback; colors are inline because many clients ignore <style>.
 
 export type AuthEmail = { subject: string; text: string; html: string };
+/** User emails plus the admin ones (PRD backend-auth-admin §16a): admin code, and the C3 lock notice to the Owner. */
+export type MailKind = EmailKind | "admin_login" | "admin_locked";
 
 type Copy = { subject: string; heading: string; intro: string };
 
-const COPY: Record<EmailKind, Copy> = {
+const COPY: Record<MailKind, Copy> = {
   login: {
     subject: "Kode login nbytes",
     heading: "Kode login Anda",
@@ -41,19 +43,31 @@ const COPY: Record<EmailKind, Copy> = {
     heading: "Akun Anda ditangguhkan",
     intro: "Akun Anda sedang ditangguhkan, jadi tidak ada kode yang dibuat. Hubungi support untuk informasi lebih lanjut.",
   },
+  admin_login: {
+    subject: "Kode masuk konsol admin nbytes",
+    heading: "Kode masuk admin",
+    intro: "Masukkan kode ini di halaman masuk admin nbytes, lalu kode dari aplikasi authenticator Anda.",
+  },
+  // The PRD does not fix this text; the audit log has the details.
+  admin_locked: {
+    subject: "Login admin nbytes dikunci",
+    heading: "Login admin dikunci 1 jam",
+    intro: "Ada 10 kode authenticator atau kode cadangan yang salah dalam satu jam, jadi login konsol admin dikunci selama 1 jam.",
+  },
 };
 
 const VALIDITY = "Berlaku 10 menit.";
 const SAFETY = "Abaikan email ini jika Anda tidak meminta kode. Jangan bagikan kode ini kepada siapa pun.";
 const IGNORE = "Abaikan email ini jika Anda tidak memintanya.";
+const OWNERS_NOTE = "Email ini dikirim ke Owner konsol admin nbytes.";
 
-/** "44348940" -> "4434-8940": the 4-4 grouping of the code input, with a hyphen (pasting it back works). */
-export const formatCode = (code: string) => `${code.slice(0, 4)}-${code.slice(4)}`;
+/** "44348940" -> "4434-8940", "1234567890" -> "12345-67890": the halves of the code input (pasting it back works). */
+export const formatCode = (code: string) => `${code.slice(0, code.length / 2)}-${code.slice(code.length / 2)}`;
 
-export function authEmailContent(kind: EmailKind, code?: string): AuthEmail {
+export function authEmailContent(kind: MailKind, code?: string): AuthEmail {
   const copy = COPY[kind];
   const shown = code ? formatCode(code) : null;
-  const footer = shown ? SAFETY : IGNORE;
+  const footer = shown ? SAFETY : kind === "admin_locked" ? OWNERS_NOTE : IGNORE;
   const text = shown
     ? `${copy.heading}:\n\n${shown}\n\n${VALIDITY} ${copy.intro}\n\n${footer}`
     : `${copy.heading}\n\n${copy.intro}\n\n${footer}`;

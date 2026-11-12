@@ -17,21 +17,26 @@ async function RedirectIfSignedIn({ next }: { next: string | null }) {
   return null;
 }
 
-// One centred rounded card on a muted page, after jatevo.ai/app/login (480px card, 20px radius, 34/40px padding).
+// One card (max 480px, 20px radius) on a grey page; in dark mode the page stays darker than the card.
+// Phones: card top-aligned so switching tabs does not move the logo and tabs, 20px inner padding (320px phone -> 246px
+// content, OTP slots ~26px). From 640px: centred, 40px padding.
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   // ?mode=register (landing "Register" link) opens the register tab.
   const { next, mode } = await searchParams;
   const nextPath = typeof next === "string" ? next : null;
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-muted px-4 py-12 pt-safe">
+    <main className="flex min-h-dvh items-start justify-center bg-secondary px-4 pt-safe sm:items-center dark:bg-background">
       <Suspense fallback={null}>
         <RedirectIfSignedIn next={nextPath} />
       </Suspense>
-      <div className="w-full max-w-120 animate-enter-up rounded-card border border-border bg-background px-6 pt-8 pb-7 sm:px-10">
-        <div className="mb-6 flex justify-center">
-          <Wordmark />
+      {/* own wrapper for the vertical padding: pt-safe on <main> would override a py-* there */}
+      <div className="w-full max-w-120 py-10 sm:py-12">
+        <div className="animate-enter-up rounded-card border border-border bg-card px-5 pt-8 pb-7 shadow-sm sm:px-10">
+          <div className="mb-6 flex justify-center">
+            <Wordmark />
+          </div>
+          <LoginForm nextPath={nextPath} initialMode={parseModeParam(mode)} />
         </div>
-        <LoginForm nextPath={nextPath} initialMode={parseModeParam(mode)} />
       </div>
     </main>
   );
