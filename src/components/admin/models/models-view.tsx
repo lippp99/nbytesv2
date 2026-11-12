@@ -1,4 +1,5 @@
 import { AiChat02Icon, CloudOffIcon } from "@hugeicons/core-free-icons";
+import { secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { PageHeader } from "@/components/app-kit/page-header";
@@ -43,7 +44,9 @@ export function ModelsView({ curated, surplus }: ModelsViewProps) {
           {catalog ? (
             <CatalogTable models={catalog} curatedIds={curated.map((m) => m.modelId)} />
           ) : (
-            <EmptyState icon={CloudOffIcon} title={copy.surplus.failed.title} body={copy.surplus.failed.body} />
+            // a full reload: the catalog is read from Surplus on every page view
+            <EmptyState icon={CloudOffIcon} tone="danger" title={copy.surplus.failed.title} body={copy.surplus.failed.body}
+              action={<a href="/admin/models" className={secondaryAction()}>{copy.surplus.failed.reload}</a>} />
           )}
         </Card>
       </div>

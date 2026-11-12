@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -12,11 +12,16 @@ import { filterLabels, usersCopy as copy } from "./users-copy";
 
 const options = USER_FILTERS.map((value) => ({ value, label: filterLabels[value] }));
 
-/** Search (on Enter or the button) and status filter, both kept in the URL so the server renders the list. */
+/**
+ * Search (on Enter or the button) and status filter, both kept in the URL so the server renders the list. The push
+ * runs in a transition so `pending` can show that the new list is loading (docs: guides/interactive-apps).
+ */
 export function UsersToolbar({ filter, search }: { filter: UserFilter; search: string | null }) {
   const router = useRouter();
   const [query, setQuery] = useState(search ?? "");
-  const go = (nextFilter: UserFilter, text: string) => router.push(usersHref(nextFilter, text.trim() || null), { scroll: false });
+  const [pending, startTransition] = useTransition();
+  const go = (nextFilter: UserFilter, text: string) =>
+    startTransition(() => router.push(usersHref(nextFilter, text.trim() || null), { scroll: false }));
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -32,9 +37,14 @@ export function UsersToolbar({ filter, search }: { filter: UserFilter; search: s
           <TextInput type="search" aria-label={copy.search} placeholder={copy.searchPlaceholder} value={query} className="pl-9"
             onChange={(e) => setQuery(e.target.value)} />
         </div>
-        <button type="submit" className={secondaryAction()}>{copy.searchSubmit}</button>
+        <button type="submit" disabled={pending} aria-busy={pending || undefined} className={secondaryAction()}>
+          {pending ? copy.searching : copy.searchSubmit}
+        </button>
       </form>
-      <Segmented label={copy.filterLabel} options={options} value={filter} onChange={(next) => go(next, query)} />
+      <div className="flex flex-wrap items-center gap-3">
+        <span role="status" className="text-app-small text-app-text-2">{pending ? copy.loadingResults : ""}</span>
+        <Segmented label={copy.filterLabel} options={options} value={filter} onChange={(next) => go(next, query)} />
+      </div>
     </div>
   );
 }

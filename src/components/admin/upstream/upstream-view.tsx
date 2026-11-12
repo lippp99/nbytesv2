@@ -1,5 +1,7 @@
 import { CloudOffIcon, CubeIcon } from "@hugeicons/core-free-icons";
+import { AllClear } from "@/components/admin/shared/all-clear";
 import { Badge } from "@/components/app-kit/badge";
+import { secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { PageHeader } from "@/components/app-kit/page-header";
@@ -17,7 +19,9 @@ function Balance({ balance }: { balance: SurplusBalance | null }) {
   if (!balance) {
     return (
       <Card title={c.title}>
-        <EmptyState icon={CloudOffIcon} title={c.failedTitle} body={c.failedBody} />
+        {/* a full reload: Surplus is read again on every page view */}
+        <EmptyState icon={CloudOffIcon} tone="danger" title={c.failedTitle} body={c.failedBody}
+          action={<a href="/admin/upstream" className={secondaryAction()}>{c.reload}</a>} />
       </Card>
     );
   }
@@ -45,7 +49,7 @@ function Attention({ items, hours }: { items: UpstreamHealth["attention"]; hours
   return (
     <Card title={c.title} description={c.description(hours)}>
       {items.length === 0 ? (
-        <p className="px-6 py-4 text-app-ui text-app-text-2">{c.none}</p>
+        <AllClear text={c.none} />
       ) : (
         <Table minWidth="min-w-xl">
           <THead>

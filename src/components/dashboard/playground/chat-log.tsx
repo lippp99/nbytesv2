@@ -53,7 +53,8 @@ function TurnFooter({ turn }: { turn: Turn }) {
           <span>{formatMicros(turn.usage.costMicros)}</span>
         </>
       ) : <span className="font-sans">{note ?? copy.status.costLater}</span>}
-      {turn.content && <CopyButton text={turn.content} label={common.copy} copiedLabel={common.copied} iconOnly className="-ml-1" />}
+      {turn.content && <CopyButton text={turn.content} label={common.copy} copiedLabel={common.copied}
+        failedLabel={common.copyFailed} iconOnly className="-ml-1" />}
     </div>
   );
 }

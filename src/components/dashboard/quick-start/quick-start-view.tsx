@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ArrowRight01Icon, BookOpen01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ghostAction, primaryAction, secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { PageHeader } from "@/components/app-kit/page-header";
+import { BookIcon } from "@/components/icons/content/book";
 import type { CatalogModel } from "@/lib/gateway/catalog-contract";
 import { cn } from "@/lib/utils";
 import { QuickStartAside } from "./quick-start-aside";
@@ -71,7 +72,7 @@ export function QuickStartView({ data }: { data: QuickStartData }) {
   const actions = (
     <>
       <Link href="/docs" className={secondaryAction()}>
-        <HugeiconsIcon icon={BookOpen01Icon} aria-hidden />
+        <BookIcon />
         {copy.openDocs}
       </Link>
       <Link href="/playground" className={primaryAction()}>
@@ -86,7 +87,7 @@ export function QuickStartView({ data }: { data: QuickStartData }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 lg:self-start">
           {allDone ? <AllDone /> : (
-            <Card title={copy.setup} headerClassName="bg-app-inset" action={<Progress steps={steps} />}>
+            <Card title={copy.setup} action={<Progress steps={steps} />}>
               <div className="p-6">
                 <SetupSteps steps={steps} labels={copy} />
               </div>

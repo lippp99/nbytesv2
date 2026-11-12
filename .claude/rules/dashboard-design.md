@@ -92,6 +92,8 @@ Prose measure 65-75ch.
   Header 64px, content max width 1200px. Pages scroll in the window, not in a box,
   except a work area that must stay in view (the playground transcript).
 - Radius: cards 16px, controls and inputs 10px, chips and badges full, code 12px. One scale, no mixing.
+- Header rows sit on `app-inset` (owner, 2026-11-12): the `Card` title row, the table `THead`, and a toolbar or column
+  row that opens a card (search, filters). Set once in `app-kit/card.tsx` and `app-kit/table.tsx`, not per page.
 - Elevation: cards are flat with a 1px `app-border`. Shadow only on `app-raised` things that float (menus, popovers,
   sheet) and on the current-page chip in the sidebar panel. The sticky header has no shadow, scrolled or not: only its
   1px bottom border (owner, 2026-11-08: a scroll shadow made the bar look like it opened).
@@ -111,7 +113,7 @@ Button (primary, secondary, ghost), Card, Field (input, select, textarea), Segme
 CodeBlock (theme-following, wraps or uses the wide area), EmptyState, PageHeader. Files: `button.ts` (`primaryAction`,
 `secondaryAction`, `ghostAction`, `dangerAction`, `iconAction`, `appFocus`), `card.tsx`, `field.tsx` (`Field`, `TextInput`,
 `TextArea`, `Select`, `controlStyles`), `segmented.tsx`, `table.tsx`, `badge.tsx`, `code-block.tsx`,
-`bar-chart.tsx`, `empty-state.tsx`, `list-skeleton.tsx`, `page-header.tsx`, `pagination.tsx`, `stat-summary.tsx`, `theme-switch.tsx`. Pages use these, not raw classes for the same job. Add a
+`bar-chart.tsx`, `empty-state.tsx` (`tone="danger"` when something failed), `list-skeleton.tsx`, `notice-line.tsx` (result of an action: icon + words, no toast), `page-error.tsx` (fallback of every `error.tsx`), `page-header.tsx`, `pagination.tsx`, `stat-summary.tsx`, `theme-switch.tsx`. Pages use these, not raw classes for the same job. Add a
 Tabs wrapper over `ui/tabs` only when a page needs real tabbed sections (Segmented covers in-place switches). Every interactive one has
 default, hover, focus, active, disabled and, where it applies, loading and error states.
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChartHistogramIcon } from "@hugeicons/core-free-icons";
+import { StatisticsIcon } from "@/components/dashboard/shared/icons/statistics";
 import { BarChart, type BarSeries } from "@/components/app-kit/bar-chart";
 import { primaryAction, secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
@@ -27,7 +27,7 @@ function stats(s: UsageSummary): SummaryStat[] {
 function NoUsage() {
   return (
     <Card>
-      <EmptyState icon={ChartHistogramIcon} title={copy.empty.title} body={copy.empty.body} action={
+      <EmptyState icon={StatisticsIcon} title={copy.empty.title} body={copy.empty.body} action={
         <span className="flex flex-wrap justify-center gap-2">
           <Link href="/api-keys" className={primaryAction()}>{copy.empty.keys}</Link>
           <Link href="/playground" className={secondaryAction()}>{copy.empty.playground}</Link>

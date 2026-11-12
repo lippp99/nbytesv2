@@ -5,7 +5,7 @@ import { CopyButton } from "@/components/copy-button";
 import { type CodeLang, type CodeToken, highlightCode } from "@/lib/code-highlight";
 import { cn } from "@/lib/utils";
 // Same words as dashboard/shared/common-copy.ts; the kit cannot import a feature folder.
-const common = { copy: "Salin", copied: "Tersalin" };
+const common = { copy: "Salin", copied: "Tersalin", copyFailed: "Gagal menyalin. Pilih teksnya lalu salin manual." };
 
 type CodeBlockProps = {
   title?: string; code: string; lineNumbers?: boolean; wrap?: boolean; className?: string; onCopy?: () => void;
@@ -51,7 +51,7 @@ export function CodeBlock({ title, code, lineNumbers, wrap, className, onCopy, l
     <div className={cn("min-w-0 overflow-hidden rounded-app-code border border-app-border bg-app-inset", className)}>
       <div className="flex h-10 items-center justify-between border-b border-app-border pr-1 pl-4">
         <span className="truncate font-mono text-app-small text-app-text-2">{title}</span>
-        <CopyButton text={code} label={common.copy} copiedLabel={common.copied} onCopy={onCopy} />
+        <CopyButton text={code} label={common.copy} copiedLabel={common.copied} failedLabel={common.copyFailed} onCopy={onCopy} />
       </div>
       <pre className={cn("py-4 font-mono text-app-code text-app-text", wrap ? "whitespace-pre-wrap break-words" : "overflow-x-auto")}>
         <code className="grid">

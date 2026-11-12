@@ -13,7 +13,8 @@ export const upstreamCopy = {
     off: "Mati",
     unknown: "Tidak diketahui",
     failedTitle: "Saldo tidak bisa dibaca",
-    failedBody: "Surplus tidak menjawab atau key Surplus belum diatur. Cek dashboard Surplus, lalu muat ulang halaman ini.",
+    failedBody: "Surplus tidak menjawab atau key Surplus belum diatur. Cek dashboard Surplus, lalu tekan Muat ulang.",
+    reload: "Muat ulang",
   },
   attention: {
     title: "Perlu tindakan",

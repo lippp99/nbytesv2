@@ -16,6 +16,7 @@ export const apiKeysCopy = {
   budget: "Batas bulanan (USD)",
   budgetHint: "Opsional. Request ditolak setelah batas tercapai.",
   save: "Buat key",
+  saving: "Membuat…",
   cancel: "Batal",
   nameRequired: "Isi nama key.",
   budgetInvalid: "Tulis angka dolar, misalnya 50 atau 49.99.",
@@ -40,7 +41,8 @@ export const apiKeysCopy = {
   revoke: "Cabut",
   confirmRevoke: "Cabut key ini?",
   confirm: "Ya, cabut",
-  revoked: "Key dicabut.",
+  revoking: "Mencabut…",
+  revoked: (name: string) => `Key "${name}" dicabut. Request yang memakainya sekarang ditolak.`,
   empty: {
     title: "Belum ada key aktif",
     body: "Buat key pertama untuk mulai mengirim request. Satu key bisa memanggil semua model.",
@@ -48,8 +50,8 @@ export const apiKeysCopy = {
 };
 
 /** Message for a failed create or revoke; unauthorized never shows, it sends the user to the login page. */
-export function apiKeyErrorText(error: ApiKeyError): string {
+export function apiKeyErrorText(error: ApiKeyError, action: "create" | "revoke" = "create"): string {
   if (error.kind === "key_limit_reached") return apiKeysCopy.limitNote;
   if (error.kind === "offline") return "Anda sedang offline. Periksa koneksi lalu coba lagi.";
-  return "Belum bisa menyimpan. Coba lagi.";
+  return action === "revoke" ? "Key belum bisa dicabut dan masih aktif. Coba lagi." : "Belum bisa menyimpan. Coba lagi.";
 }

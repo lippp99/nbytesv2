@@ -7,6 +7,7 @@ import { TextInput } from "@/components/app-kit/field";
 import { Table, Td, Th, Tr } from "@/components/app-kit/table";
 import type { CuratedModel } from "@/lib/gateway/catalog-contract";
 import { formatMicros } from "@/lib/price-format";
+import { DeactivateDialog } from "./deactivate-dialog";
 import { formatBp, parsePercentToBp } from "./markup-format";
 import { modelsCopy } from "./models-copy";
 import { SaveNoticeLine } from "./save-notice";
@@ -32,7 +33,7 @@ function MarkupInput({ row, busy, save }: { row: CuratedRow; busy: boolean; save
     const bp = draft === null ? null : parsePercentToBp(draft);
     if (bp === null) return;
     if (bp === row.markupBp) return setDraft(null);
-    if (await save({ modelId: row.modelId, markupBp: bp, active: true })) setDraft(null);
+    if (await save({ modelId: row.modelId, markupBp: bp, active: true }, modelsCopy.saved.markup)) setDraft(null);
   }
 
   const errorId = `markup-${row.modelId}-error`;
@@ -44,6 +45,7 @@ function MarkupInput({ row, busy, save }: { row: CuratedRow; busy: boolean; save
           onChange={(e) => setDraft(e.target.value)} onBlur={commit} onKeyDown={(e) => e.key === "Enter" && commit()}
           className="h-8 w-20 text-right font-mono text-app-code tabular-nums" />
         <span className="text-app-small text-app-text-3">%</span>
+        {busy && <span className="text-app-small text-app-text-2">{modelsCopy.saving}</span>}
       </span>
       {invalid && <span id={errorId} className="max-w-48 text-app-small text-app-danger">{copy.invalid}</span>}
     </span>
@@ -68,13 +70,13 @@ function Flag({ tone, label, hint }: { tone: "danger" | "warning"; label: string
 }
 
 export function CuratedTable({ rows }: { rows: CuratedRow[] }) {
-  const { pending, notice, save } = useSaveModel(modelsCopy.saved);
+  const { pending, notice, save } = useSaveModel();
   const cols = copy.cols;
   return (
     <>
       <Table minWidth="min-w-4xl">
         {/* Two header rows: each price group names its own Input and Output columns. */}
-        <thead className="border-b border-app-border">
+        <thead className="border-b border-app-border bg-app-inset">
           <tr>
             <Th className="align-bottom" rowSpan={2}>{cols.model}</Th>
             <Th colSpan={2} className={groupHead}>{cols.list}</Th>
@@ -104,11 +106,16 @@ export function CuratedTable({ rows }: { rows: CuratedRow[] }) {
               <Td>
                 <span className="flex items-center gap-2">
                   <Badge tone={r.active ? "success" : "neutral"}>{r.active ? copy.on : copy.off}</Badge>
-                  <button type="button" disabled={pending === r.modelId} aria-busy={pending === r.modelId || undefined}
-                    aria-label={`${r.active ? copy.disable : copy.enable} ${r.modelId}`} className={secondaryAction(undefined, "sm")}
-                    onClick={() => save({ modelId: r.modelId, markupBp: r.markupBp, active: !r.active })}>
-                    {r.active ? copy.disable : copy.enable}
-                  </button>
+                  {r.active ? (
+                    <DeactivateDialog modelId={r.modelId} busy={pending === r.modelId}
+                      onConfirm={() => save({ modelId: r.modelId, markupBp: r.markupBp, active: false }, modelsCopy.saved.disabled)} />
+                  ) : (
+                    <button type="button" disabled={pending === r.modelId} aria-busy={pending === r.modelId || undefined}
+                      aria-label={`${copy.enable} ${r.modelId}`} className={secondaryAction(undefined, "sm")}
+                      onClick={() => save({ modelId: r.modelId, markupBp: r.markupBp, active: true }, modelsCopy.saved.enabled)}>
+                      {pending === r.modelId ? modelsCopy.saving : copy.enable}
+                    </button>
+                  )}
                 </span>
               </Td>
             </Tr>

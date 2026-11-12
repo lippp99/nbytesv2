@@ -38,7 +38,7 @@ export function Td({ children, align = "left", className }: CellProps) {
   );
 }
 
-/** Header row with the divider under it. */
+/** Header row on the inset tone with the divider under it (same tone as a Card header). */
 export function THead({ children, className }: { children: ReactNode; className?: string }) {
-  return <thead className={cn("border-b border-app-border", className)}><tr>{children}</tr></thead>;
+  return <thead className={cn("border-b border-app-border bg-app-inset", className)}><tr>{children}</tr></thead>;
 }

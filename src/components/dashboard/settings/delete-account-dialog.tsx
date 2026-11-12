@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { type DeleteAccountError, deleteAccount, requestDeleteCode } from "@/lib/auth/auth-client";
 import { isDeleteConfirmed, isValidOtp, maskEmail, sanitizeOtp } from "@/lib/auth/auth-contract";
+import { formatCountdown } from "@/lib/date-format";
 import { settings, errorText } from "./settings-copy";
 
 const copy = settings.deleteDialog;
@@ -119,7 +120,7 @@ export function DeleteAccountDialog({ email }: { email: string }) {
             {step === "code" && (
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <button type="button" onClick={sendCode} disabled={pending || resendIn > 0} className={ghostAction("-ml-3", "sm")}>
-                  {resendIn > 0 ? `${copy.resend} (${resendIn})` : copy.resend}
+                  {resendIn > 0 ? <>{copy.resendIn} <span className="font-mono tabular-nums">{formatCountdown(resendIn)}</span></> : copy.resend}
                 </button>
                 {notice && <p role="status" className="text-app-small text-app-text-2">{notice}</p>}
               </div>

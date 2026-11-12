@@ -45,14 +45,31 @@ export const modelsCopy = {
     zero: "Harga 0",
     zeroHint: "Harga list 0 di katalog. Belum diketahui apakah Surplus tetap menagih nbytes, jadi model ini belum bisa dijual.",
     more: (n: number) => `Tampilkan ${n} lagi`,
-    none: "Tidak ada model yang cocok dengan pencarian.",
+    none: "Tidak ada model yang cocok",
+    noneBody: "Coba nama, id, atau penyedia lain, atau tampilkan Semua.",
+    reset: "Hapus pencarian dan saringan",
     failed: {
       title: "Katalog Surplus tidak bisa dibaca",
-      body: "Model yang sudah dipilih tetap jalan. Muat ulang halaman sebentar lagi untuk menambah model.",
+      body: "Model yang sudah dipilih tetap jalan. Tekan Muat ulang sebentar lagi untuk menambah model.",
+      reload: "Muat ulang",
     },
     note: "Hanya model teks yang ditampilkan: endpoint gambar, audio, video dan embeddings belum dibangun.",
   },
-  saved: "Tersimpan.",
+  saving: "Menyimpan…",
+  saved: {
+    markup: "markup disimpan; harga jual di tabel sudah diperbarui.",
+    enabled: "diaktifkan; pengguna bisa memanggil model ini lagi.",
+    disabled: "dinonaktifkan; pengguna tidak bisa memanggilnya dan model hilang dari halaman Models.",
+    added: "ditambahkan dengan markup 0% dan langsung aktif.",
+  },
+  deactivate: {
+    title: "Nonaktifkan model ini?",
+    body: (model: string) =>
+      `${model} langsung tidak bisa dipanggil: API menjawab 404 model_not_found dan model hilang dari halaman Models ` +
+      "pengguna. Markup tetap tersimpan, jadi model bisa diaktifkan lagi kapan saja.",
+    cancel: "Batal",
+    confirm: "Ya, nonaktifkan",
+  },
 };
 
 export const modelPriceErrorText: Record<Exclude<ModelPriceError, "unauthorized">, string> = {

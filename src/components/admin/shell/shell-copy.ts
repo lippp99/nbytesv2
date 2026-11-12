@@ -10,6 +10,13 @@ export const shellCopy = {
   darkMode: "Mode gelap",
   signOut: "Keluar",
   owner: "Owner",
+  pageError: {
+    title: "Halaman ini belum bisa dimuat",
+    body: "Ada gangguan saat mengambil data. Coba lagi; kalau tetap gagal, cocokkan kode kejadian di log server.",
+    retry: "Coba lagi",
+    home: "Ke Ringkasan",
+    ref: (digest: string) => `Kode kejadian: ${digest}`,
+  },
   footer: {
     note: "© 2026 nbytes · Konsol admin, khusus tim internal",
     label: "Tautan footer admin",

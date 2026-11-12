@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { LinkSquare02Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { CopyButton } from "@/components/copy-button";
 import { Badge } from "@/components/app-kit/badge";
+import { secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { PageHeader } from "@/components/app-kit/page-header";
@@ -36,7 +39,12 @@ function Row({ row }: { row: AdminRequestRow }) {
     <Tr>
       <Td className="py-2">
         <span className="block font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(row.at)}</span>
-        <span className={`${small} font-mono`}>{copy.idLabel} {row.id.slice(0, 8)}</span>
+        {/* short id to read; the copy button carries the full one, which is what the search matches */}
+        <span className={`${small} flex items-center font-mono`}>
+          {copy.idLabel} {row.id.slice(0, 8)}
+          <CopyButton text={row.id} label={copy.copyId} copiedLabel={copy.copiedId} failedLabel={copy.copyFailed} iconOnly
+            className="-my-1" />
+        </span>
       </Td>
       <Td className="max-w-56 py-2">
         <span className="block truncate">{row.email ?? <span className="text-app-text-3">{copy.deletedUser}</span>}</span>
@@ -66,11 +74,13 @@ export function RequestsView({ data, query }: { data: RequestsPage; query: Omit<
   return (
     <>
       <PageHeader title={copy.title} sub={copy.sub} />
-      <RequestsToolbar query={query} />
+      {/* keyed on the search, so "reset" (a link to the bare URL) also empties the search field */}
+      <RequestsToolbar key={query.search ?? ""} query={query} />
       <Card title={copy.count(data.total)}>
         {data.rows.length === 0 ? (
           filtered
-            ? <EmptyState icon={Search01Icon} title={copy.noMatch.title} body={copy.noMatch.body} />
+            ? <EmptyState icon={Search01Icon} title={copy.noMatch.title} body={copy.noMatch.body}
+                action={<Link href="/admin/requests" className={secondaryAction()}>{copy.noMatch.reset}</Link>} />
             : <EmptyState icon={LinkSquare02Icon} title={copy.empty.title} body={copy.empty.body} />
         ) : (
           <Table minWidth="min-w-6xl">

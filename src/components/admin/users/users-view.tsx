@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { Search01Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
 import { Badge } from "@/components/app-kit/badge";
+import { secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { PageHeader } from "@/components/app-kit/page-header";
@@ -10,6 +12,7 @@ import { formatUtc } from "@/lib/date-format";
 import { formatMicros, formatSignedMicros } from "@/lib/price-format";
 import { StatusDialog } from "./status-dialog";
 import { usersCopy as copy, userStatusBadge } from "./users-copy";
+import { UsersFeedback } from "./users-feedback";
 import { UsersToolbar } from "./users-toolbar";
 
 const mono = "font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums";
@@ -45,29 +48,33 @@ export function UsersView({ data, filter, search }: UsersViewProps) {
   return (
     <>
       <PageHeader title={copy.title} sub={copy.sub} />
-      <UsersToolbar filter={filter} search={search} />
-      <Card title={copy.count(data.total)}>
-        {data.users.length === 0 ? (
-          filtered
-            ? <EmptyState icon={Search01Icon} title={copy.noMatch.title} body={copy.noMatch.body} />
-            : <EmptyState icon={UserGroupIcon} title={copy.empty.title} body={copy.empty.body} />
-        ) : (
-          <Table minWidth="min-w-5xl">
-            <THead>
-              <Th>{cols.user}</Th>
-              <Th>{cols.status}</Th>
-              <Th align="right">{cols.balance}</Th>
-              <Th align="right">{cols.spent}</Th>
-              <Th align="right">{cols.keys}</Th>
-              <Th>{cols.lastLogin}</Th>
-              <Th>{cols.joined}</Th>
-              <Th>{cols.action}</Th>
-            </THead>
-            <tbody>{data.users.map((u) => <Row key={u.id} user={u} />)}</tbody>
-          </Table>
-        )}
-        <Pagination page={data.page} pages={data.pages} href={(page) => usersHref(filter, search, page)} labels={copy.pagination} />
-      </Card>
+      {/* keyed on the search, so "reset" (a link to the bare URL) also empties the search field */}
+      <UsersToolbar key={search ?? ""} filter={filter} search={search} />
+      <UsersFeedback>
+        <Card title={copy.count(data.total)}>
+          {data.users.length === 0 ? (
+            filtered
+              ? <EmptyState icon={Search01Icon} title={copy.noMatch.title} body={copy.noMatch.body}
+                  action={<Link href="/admin/users" className={secondaryAction()}>{copy.noMatch.reset}</Link>} />
+              : <EmptyState icon={UserGroupIcon} title={copy.empty.title} body={copy.empty.body} />
+          ) : (
+            <Table minWidth="min-w-5xl">
+              <THead>
+                <Th>{cols.user}</Th>
+                <Th>{cols.status}</Th>
+                <Th align="right">{cols.balance}</Th>
+                <Th align="right">{cols.spent}</Th>
+                <Th align="right">{cols.keys}</Th>
+                <Th>{cols.lastLogin}</Th>
+                <Th>{cols.joined}</Th>
+                <Th>{cols.action}</Th>
+              </THead>
+              <tbody>{data.users.map((u) => <Row key={u.id} user={u} />)}</tbody>
+            </Table>
+          )}
+          <Pagination page={data.page} pages={data.pages} href={(page) => usersHref(filter, search, page)} labels={copy.pagination} />
+        </Card>
+      </UsersFeedback>
     </>
   );
 }

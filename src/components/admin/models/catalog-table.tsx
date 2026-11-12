@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Search01Icon } from "@hugeicons/core-free-icons";
 import { Badge } from "@/components/app-kit/badge";
 import { ghostAction, secondaryAction } from "@/components/app-kit/button";
+import { EmptyState } from "@/components/app-kit/empty-state";
 import { TextInput } from "@/components/app-kit/field";
 import { Segmented } from "@/components/app-kit/segmented";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
@@ -33,14 +35,14 @@ function Action({ model, picked, busy, onAdd }: { model: CatalogModel; picked: b
   return (
     <button type="button" disabled={busy} aria-busy={busy || undefined} aria-label={copy.addLabel(model.modelId)}
       onClick={onAdd} className={secondaryAction(undefined, "sm")}>
-      {copy.add}
+      {busy ? modelsCopy.saving : copy.add}
     </button>
   );
 }
 
 /** Live Surplus text models with search; adding one sells it at list price (markup 0%), changed later above. */
 export function CatalogTable({ models, curatedIds }: { models: CatalogModel[]; curatedIds: string[] }) {
-  const { pending, notice, save } = useSaveModel(modelsCopy.saved);
+  const { pending, notice, save } = useSaveModel();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [limit, setLimit] = useState(PAGE);
@@ -51,7 +53,7 @@ export function CatalogTable({ models, curatedIds }: { models: CatalogModel[]; c
 
   return (
     <>
-      <div className="flex flex-col gap-3 border-b border-app-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-b border-app-border bg-app-inset px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <TextInput type="search" aria-label={copy.search} placeholder={copy.searchPlaceholder} value={query} className="sm:max-w-xs"
           onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }} />
         <Segmented label={copy.filterLabel} options={filterOptions} value={filter}
@@ -59,7 +61,11 @@ export function CatalogTable({ models, curatedIds }: { models: CatalogModel[]; c
       </div>
       <p className="px-6 pt-3 text-app-small text-app-text-2" aria-live="polite">{copy.count(found.length, models.length)}</p>
       {shown.length === 0 ? (
-        <p className="px-6 py-8 text-app-ui text-app-text-2">{copy.none}</p>
+        <EmptyState icon={Search01Icon} title={copy.none} body={copy.noneBody} className="py-8" action={
+          <button type="button" className={secondaryAction()} onClick={() => { setQuery(""); setFilter("all"); setLimit(PAGE); }}>
+            {copy.reset}
+          </button>
+        } />
       ) : (
         <Table minWidth="min-w-4xl">
           <THead>
@@ -85,7 +91,7 @@ export function CatalogTable({ models, curatedIds }: { models: CatalogModel[]; c
                 <Td className="text-app-text-2">{m.supportsImages ? copy.yes : "—"}</Td>
                 <Td>
                   <Action model={m} picked={picked.has(m.modelId)} busy={pending === m.modelId}
-                    onAdd={() => save({ modelId: m.modelId, markupBp: 0, active: true })} />
+                    onAdd={() => save({ modelId: m.modelId, markupBp: 0, active: true }, modelsCopy.saved.added)} />
                 </Td>
               </Tr>
             ))}

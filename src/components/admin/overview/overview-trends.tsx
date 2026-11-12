@@ -1,5 +1,7 @@
 import { type BarSeries, BarChart } from "@/components/app-kit/bar-chart";
 import { Card } from "@/components/app-kit/card";
+import { EmptyState } from "@/components/app-kit/empty-state";
+import { LineChartIcon } from "@/components/icons/content/line-chart";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import { type TopModel, type TopUser, type TrendDay, grossMargin } from "@/lib/admin-overview-contract";
 import { formatMicros, formatSignedMicros } from "@/lib/price-format";
@@ -14,16 +16,17 @@ const requestSeries: BarSeries[] = [{ name: t.ok, className: "bg-app-chart-2" },
 /** §3.3, K3/K5: two daily charts over 30 UTC days; one axis each, never two scales on one chart. */
 export function OverviewTrends({ days }: { days: TrendDay[] }) {
   const empty = days.every((d) => d.requests === 0);
+  const none = <EmptyState icon={LineChartIcon} title={t.empty} body={t.emptyBody} className="py-8" />;
   return (
     <section aria-label={t.title} className="grid gap-6 xl:grid-cols-2">
       <Card title={t.usageTitle}>
-        {empty ? <p className="px-6 py-4 text-app-ui text-app-text-2">{t.empty}</p> : (
+        {empty ? none : (
           <BarChart mode="grouped" series={usageSeries} format={formatMicros} tableCaption={t.usageCaption} dateHeader={t.date}
             days={days.map((d) => ({ date: d.date, values: [d.chargeMicros, d.costMicros] }))} />
         )}
       </Card>
       <Card title={t.requestsTitle}>
-        {empty ? <p className="px-6 py-4 text-app-ui text-app-text-2">{t.empty}</p> : (
+        {empty ? none : (
           <BarChart mode="stacked" series={requestSeries} format={n} tableCaption={t.requestsCaption} dateHeader={t.date}
             days={days.map((d) => ({ date: d.date, values: [d.requests - d.failed, d.failed] }))} />
         )}
@@ -35,7 +38,7 @@ export function OverviewTrends({ days }: { days: TrendDay[] }) {
 /** §3.4: five models and five users of this month by amount charged. */
 export function OverviewTop({ models, users }: { models: TopModel[]; users: TopUser[] }) {
   const c = overviewCopy.top;
-  const none = <p className="px-6 py-4 text-app-ui text-app-text-2">{c.empty}</p>;
+  const none = <EmptyState icon={LineChartIcon} title={c.empty} body={c.emptyBody} className="py-8" />;
   return (
     <div className="grid gap-6 xl:grid-cols-5">
       <Card title={c.modelsTitle} className="xl:col-span-3">

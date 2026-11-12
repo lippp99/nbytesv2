@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AllClear } from "@/components/admin/shared/all-clear";
 import { Badge } from "@/components/app-kit/badge";
 import { Card } from "@/components/app-kit/card";
 import { type MoneyHealth, type OverviewAlert, coverageBp } from "@/lib/admin-overview-contract";
@@ -14,7 +15,7 @@ export function OverviewAlerts({ alerts }: { alerts: OverviewAlert[] }) {
   return (
     <Card title={c.title} description={c.description}>
       {alerts.length === 0 ? (
-        <p className="px-6 py-4 text-app-ui text-app-text-2">{c.none}</p>
+        <AllClear text={c.none} />
       ) : (
         <ul className="divide-y divide-app-border">
           {alerts.map((a) => (

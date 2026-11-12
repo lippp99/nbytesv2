@@ -10,14 +10,14 @@ export type SaveNotice = { modelId: string; kind: "status" | "error"; text: stri
 
 /**
  * Save state of one table: the model being saved, the last notice, and save(). The rows come from the server, so a
- * success refreshes the route instead of patching local state.
+ * success refreshes the route instead of patching local state. `savedText` says what changed (markup, on, off, added).
  */
-export function useSaveModel(savedText: string) {
+export function useSaveModel() {
   const router = useRouter();
   const [pending, setPending] = useState<string | null>(null);
   const [notice, setNotice] = useState<SaveNotice>(null);
 
-  async function save(body: ModelPriceBody): Promise<boolean> {
+  async function save(body: ModelPriceBody, savedText: string): Promise<boolean> {
     setPending(body.modelId);
     setNotice(null);
     const result = await saveModelPrice(body);

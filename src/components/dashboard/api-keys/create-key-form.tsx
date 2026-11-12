@@ -60,7 +60,7 @@ export function CreateKeyForm({ onCreated, onCancel }: CreateKeyFormProps) {
       <div className="flex flex-wrap items-center justify-end gap-2 border-t border-app-border bg-app-inset px-6 py-4">
         {formError && <p role="alert" className="mr-auto text-app-small text-app-danger">{formError}</p>}
         <button type="button" onClick={onCancel} disabled={pending} className={secondaryAction()}>{copy.cancel}</button>
-        <button type="submit" disabled={pending} aria-busy={pending || undefined} className={primaryAction()}>{copy.save}</button>
+        <button type="submit" disabled={pending} aria-busy={pending || undefined} className={primaryAction()}>{pending ? copy.saving : copy.save}</button>
       </div>
     </form>
   );

@@ -10,6 +10,7 @@ import {
 import { setUserStatus } from "@/lib/admin-users/user-admin-client";
 import { REASON_MAX, type UserStatus } from "@/lib/admin-users/user-admin-contract";
 import { statusErrorText, usersCopy } from "./users-copy";
+import { useUsersNotice } from "./users-feedback";
 
 const copy = usersCopy.dialog;
 
@@ -21,6 +22,7 @@ const popup =
 /** Suspend (with the reason U5 requires) or restore one account, always behind a confirmation (A.7). */
 export function StatusDialog({ userId, email, status }: { userId: string; email: string; status: UserStatus }) {
   const router = useRouter();
+  const report = useUsersNotice();
   const suspending = status === "active";
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -48,6 +50,7 @@ export function StatusDialog({ userId, email, status }: { userId: string; email:
     }
     setOpen(false);
     setReason("");
+    report({ kind: "status", text: suspending ? copy.suspended(email) : copy.restored(email) });
     router.refresh(); // the row's status comes from the server
   }
 

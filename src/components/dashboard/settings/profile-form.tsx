@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { primaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { Field, TextInput, describedBy } from "@/components/app-kit/field";
+import { type Notice, NoticeLine } from "@/components/app-kit/notice-line";
 import { updateProfile } from "@/lib/auth/auth-client";
 import { NAME_MAX_LENGTH, type Profile, isValidName, normalizeName } from "@/lib/auth/auth-contract";
 import { settings as copy, errorText } from "./settings-copy";
 
 type NameField = "firstName" | "lastName";
 type Errors = Partial<Record<NameField, string>>;
-type Notice = { kind: "status" | "error"; text: string } | null;
 
 /** Same contract as the server, so most mistakes show under their field before any request. */
 function check(firstName: string, lastName: string): Errors {
@@ -33,7 +33,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
   const [values, setValues] = useState({ firstName: profile.firstName, lastName: profile.lastName ?? "" });
   const [errors, setErrors] = useState<Errors>({});
   const [pending, setPending] = useState(false);
-  const [notice, setNotice] = useState<Notice>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const lastName = values.lastName.trim() ? values.lastName : null;
   const changed =
     normalizeName(values.firstName) !== saved.firstName || (lastName && normalizeName(lastName)) !== saved.lastName;
@@ -77,8 +77,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-app-border bg-app-inset px-6 py-4">
-          {notice?.kind === "status" && <p role="status" className="mr-auto text-app-small text-app-text-2">{notice.text}</p>}
-          {notice?.kind === "error" && <p role="alert" className="mr-auto text-app-small text-app-danger">{notice.text}</p>}
+          {notice && <NoticeLine notice={notice} size="small" className="mr-auto" />}
           <button type="submit" disabled={!changed || pending} aria-busy={pending || undefined} className={primaryAction()}>
             {pending ? copy.saving : copy.save}
           </button>

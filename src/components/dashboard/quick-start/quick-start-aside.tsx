@@ -20,7 +20,7 @@ const row = `group flex items-center gap-3 px-6 py-3 transition-colors hover:bg-
 function CheapestModels({ models }: { models: CatalogModel[] }) {
   if (models.length === 0) return null;
   return (
-    <Card title={copy.cheapest} description={copy.perInput} headerClassName="bg-app-inset"
+    <Card title={copy.cheapest} description={copy.perInput}
       action={<Link href="/models" className={ghostAction("-mr-2", "sm")}>{copy.allModels}</Link>}>
       <ul className="py-2">
         {models.map((m) => (
@@ -45,7 +45,7 @@ export function QuickStartAside({ baseUrl, keyCount, modelCount, cheapest }: Qui
     <div className="space-y-6">
       <ConnectionCard baseUrl={baseUrl} keyCount={keyCount} modelCount={modelCount} />
       <CheapestModels models={cheapest} />
-      <Card title={copy.explore} headerClassName="bg-app-inset">
+      <Card title={copy.explore}>
         <ul className="py-2">
           {quickStartCopy.links.map((link, i) => {
             const Icon = linkIcons[i];

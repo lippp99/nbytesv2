@@ -61,7 +61,8 @@ export const overviewCopy = {
     ok: "Berhasil atau berjalan",
     failed: "Gagal",
     date: "Tanggal",
-    empty: "Belum ada request dalam 30 hari terakhir.",
+    empty: "Belum ada request dalam 30 hari terakhir",
+    emptyBody: "Grafik terisi setelah pengguna memanggil API dengan key mereka.",
   },
   top: {
     modelsTitle: "Model teratas bulan ini",
@@ -71,7 +72,8 @@ export const overviewCopy = {
       cost: "Biaya Surplus", margin: "Margin", balance: "Saldo sekarang",
     },
     deleted: "akun dihapus",
-    empty: "Belum ada request bulan ini.",
+    empty: "Belum ada request bulan ini",
+    emptyBody: "Daftar terisi setelah ada request yang ditagih bulan ini.",
   },
 };
 

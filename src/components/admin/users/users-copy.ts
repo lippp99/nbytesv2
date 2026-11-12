@@ -19,7 +19,9 @@ export const usersCopy = {
   held: (amount: string) => `${amount} ditahan`,
   never: "Belum pernah",
   empty: { title: "Belum ada pengguna", body: "Akun muncul di sini setelah orang mendaftar lewat halaman login." },
-  noMatch: { title: "Tidak ada yang cocok", body: "Coba nama atau email lain, atau pilih status Semua." },
+  noMatch: { title: "Tidak ada yang cocok", body: "Coba nama atau email lain, atau pilih status Semua.", reset: "Hapus pencarian dan saringan" },
+  searching: "Mencari…",
+  loadingResults: "Memuat hasil…",
   pagination: { nav: "Halaman daftar pengguna", pageOf: (p: number, n: number) => `Halaman ${p} dari ${n}`, previous: "Sebelumnya", next: "Berikutnya" },
   suspend: "Tangguhkan",
   restore: "Aktifkan",
@@ -38,6 +40,8 @@ export const usersCopy = {
     confirmSuspend: "Ya, tangguhkan",
     confirmRestore: "Ya, aktifkan",
     saving: "Menyimpan…",
+    suspended: (email: string) => `${email} ditangguhkan: keluar dari semua perangkat dan key API-nya ditolak.`,
+    restored: (email: string) => `${email} aktif lagi: bisa masuk dan key API yang belum dicabut berfungsi.`,
   },
 };
 

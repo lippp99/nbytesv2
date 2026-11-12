@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { primaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
+import { type Notice, NoticeLine } from "@/components/app-kit/notice-line";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { revokeApiKey } from "@/lib/gateway/keys/api-key-client";
 import { MAX_ACTIVE_KEYS, type UserApiKey } from "@/lib/gateway/keys/api-key-contract";
@@ -15,26 +16,27 @@ import { CreateKeyForm } from "./create-key-form";
 import { KeysTable } from "./keys-table";
 import { NewKeyNotice } from "./new-key-notice";
 
-type Notice = { kind: "status" | "error"; text: string } | null;
-
 /** The user's active keys from the server; creating or revoking one refetches the page (router.refresh). */
 export function ApiKeysView({ keys }: { keys: UserApiKey[] }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [notice, setNotice] = useState<Notice>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const atLimit = keys.length >= MAX_ACTIVE_KEYS;
 
   async function revoke(id: string) {
+    const name = keys.find((k) => k.id === id)?.name ?? "";
     setBusyId(id);
     setNotice(null);
     const result = await revokeApiKey(id);
     setBusyId(null);
     // not_found: already revoked (another tab) or never ours; either way the row should go.
     if (!result.ok && result.error.kind === "unauthorized") return router.push("/login?next=%2Fapi-keys");
-    if (!result.ok && result.error.kind !== "not_found") return setNotice({ kind: "error", text: apiKeyErrorText(result.error) });
-    setNotice({ kind: "status", text: copy.revoked });
+    if (!result.ok && result.error.kind !== "not_found") {
+      return setNotice({ kind: "error", text: apiKeyErrorText(result.error, "revoke") });
+    }
+    setNotice({ kind: "status", text: copy.revoked(name) });
     router.refresh();
   }
 
@@ -64,6 +66,7 @@ export function ApiKeysView({ keys }: { keys: UserApiKey[] }) {
         )}
         {secret && <NewKeyNotice secret={secret} onDone={() => setSecret(null)} />}
         <div>
+          {notice && <NoticeLine notice={notice} className="mb-3" />}
           <Card title={copy.list} description={copy.count(keys.length)}>
             {keys.length > 0 ? (
               <KeysTable keys={keys} busyId={busyId} onRevoke={revoke} />
@@ -72,11 +75,7 @@ export function ApiKeysView({ keys }: { keys: UserApiKey[] }) {
                 action={!creating && <button type="button" onClick={() => setCreating(true)} className={primaryAction()}>{copy.create}</button>} />
             )}
           </Card>
-          <div className="mt-4 space-y-1 text-app-small">
-            <p className="text-app-text-3">{copy.resetNote}</p>
-            {notice?.kind === "status" && <p role="status" className="text-app-text-2">{notice.text}</p>}
-            {notice?.kind === "error" && <p role="alert" className="text-app-danger">{notice.text}</p>}
-          </div>
+          <p className="mt-4 text-app-small text-app-text-3">{copy.resetNote}</p>
         </div>
       </div>
     </>

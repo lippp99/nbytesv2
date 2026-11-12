@@ -52,7 +52,7 @@ export function SessionsTable({ sessions, busyId, locked, onRevoke }: SessionsTa
   return (
     <Table minWidth="min-w-2xl">
       {/* Header band on app-inset: a gray well inside the card in both themes (text-3 on inset >= 4.83:1). */}
-      <THead className="bg-app-inset">
+      <THead>
         <Th>{copy.cols.device}</Th>
         <Th>{copy.cols.location}</Th>
         <Th>{copy.cols.lastSeen}</Th>
@@ -74,7 +74,7 @@ export function SessionsTable({ sessions, busyId, locked, onRevoke }: SessionsTa
                 <button type="button" onClick={() => onRevoke(session.id)} disabled={locked}
                   aria-busy={busyId === session.id || undefined} aria-label={copy.signOutLabel(session.device)}
                   className={secondaryAction("", "sm")}>
-                  {copy.signOut}
+                  {busyId === session.id ? copy.signingOut : copy.signOut}
                 </button>
               )}
             </Td>

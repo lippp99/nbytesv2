@@ -64,7 +64,7 @@ function RevokeControl({ apiKey, busy, locked, onRevoke }: RevokeProps) {
       <span className="text-app-small text-app-text-2">{copy.confirmRevoke}</span>
       <button type="button" onClick={() => setConfirming(false)} disabled={busy} className={ghostAction("", "sm")}>{copy.cancel}</button>
       <button type="button" onClick={() => onRevoke(apiKey.id)} disabled={locked} aria-busy={busy || undefined}
-        className={dangerAction("", "sm")}>{copy.confirm}</button>
+        className={dangerAction("", "sm")}>{busy ? copy.revoking : copy.confirm}</button>
     </span>
   );
 }
