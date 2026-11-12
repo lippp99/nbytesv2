@@ -6,14 +6,19 @@ import { exchangeRates } from "../db/schema";
 
 // Manual rate "1 USD = X rupiah" (PRD gateway-pricing-billing §5). No default in code: no row -> no deposits.
 
-/** The rate in force (newest row), or null when an admin has never set one. */
-export async function currentIdrPerUsd(): Promise<number | null> {
+/** The rate in force (newest row) and when it was set, or null when an admin has never set one. */
+export async function currentExchangeRate(): Promise<{ idrPerUsd: number; setAt: string } | null> {
   const [row] = await db
-    .select({ idrPerUsd: exchangeRates.idrPerUsd })
+    .select({ idrPerUsd: exchangeRates.idrPerUsd, setAt: exchangeRates.createdAt })
     .from(exchangeRates)
     .orderBy(desc(exchangeRates.createdAt))
     .limit(1);
-  return row?.idrPerUsd ?? null;
+  return row ? { idrPerUsd: row.idrPerUsd, setAt: row.setAt.toISOString() } : null;
+}
+
+/** The rate in force, or null when an admin has never set one. */
+export async function currentIdrPerUsd(): Promise<number | null> {
+  return (await currentExchangeRate())?.idrPerUsd ?? null;
 }
 
 /**

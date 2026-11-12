@@ -16,8 +16,15 @@ export const shellCopy = {
   wallet: {
     open: "Saldo wallet",
     credit: "Credit",
+    available: "Credit tersedia",
+    empty: "Saldo habis",
+    emptyHint: (minIdr: string) => `Request API ditolak sampai saldo terisi. Minimal ${minIdr}, masuk otomatis setelah bayar.`,
+    held: "ditahan untuk request yang sedang jalan",
+    rate: "Kurs isi saldo",
+    rateNone: "Belum diatur",
+    updated: (when: string) => `Diperbarui ${when}`,
     topUp: "Isi saldo",
-    billing: "Buka Billing",
+    billing: "Billing",
   },
   footerNav: "Tautan footer",
   footerLinks: [

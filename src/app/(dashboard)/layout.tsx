@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/server/auth/current-user";
 import { readSession } from "@/lib/server/auth/session";
 import { countActiveApiKeys } from "@/lib/server/gateway/api-keys";
 import { countActiveModels } from "@/lib/server/gateway/catalog";
+import { currentExchangeRate } from "@/lib/server/payments/exchange-rate";
 import { userBalance } from "@/lib/server/payments/user-billing";
 
 // Folds from 256px to a 64px rail on desktop (`rail:` variant); z-40 keeps the rail tooltips above page content.
@@ -25,8 +26,8 @@ async function SessionGate() {
 async function Wallet() {
   const session = await readSession();
   if (!session) return null;
-  const { balanceMicros, heldMicros } = await userBalance(session.user.id);
-  return <WalletMenu availableMicros={balanceMicros - heldMicros} />;
+  const [{ balanceMicros, heldMicros }, rate] = await Promise.all([userBalance(session.user.id), currentExchangeRate()]);
+  return <WalletMenu availableMicros={balanceMicros - heldMicros} heldMicros={heldMicros} rate={rate} />;
 }
 
 /** Active key count beside "API Keys" in the sidebar; nothing without a session (SessionGate redirects). */
