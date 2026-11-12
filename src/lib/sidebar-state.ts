@@ -2,7 +2,7 @@
 const KEY = "nb-sidebar";
 const EVENT = "nb-sidebar-change";
 
-/** Inline in the dashboard layout, so a folded sidebar is folded before first paint instead of flashing open. */
+/** Inline in the root layout, so a folded sidebar is folded before first paint instead of flashing open. */
 export const sidebarBootScript =
   `try{if(localStorage.getItem("${KEY}")==="collapsed")document.documentElement.dataset.sidebar="collapsed"}catch(e){}`;
 

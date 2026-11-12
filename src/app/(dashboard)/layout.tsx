@@ -3,7 +3,6 @@ import { AppFooter } from "@/components/dashboard/shell/app-footer";
 import { AppHeader } from "@/components/dashboard/shell/app-header";
 import { Sidebar } from "@/components/dashboard/shell/sidebar/sidebar";
 import { WalletMenu, WalletMenuSkeleton } from "@/components/dashboard/shell/wallet-menu";
-import { sidebarBootScript } from "@/lib/sidebar-state";
 import { getCurrentUser } from "@/lib/server/auth/current-user";
 import { readSession } from "@/lib/server/auth/session";
 import { countActiveApiKeys } from "@/lib/server/gateway/api-keys";
@@ -50,8 +49,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     // data-app switches on the dashboard tokens in globals.css (html:has([data-app])); the landing never has it.
     <div data-app className="flex min-h-dvh flex-1 bg-app-page text-app-text">
-      {/* restores a folded sidebar before first paint; static string, no user input */}
-      <script dangerouslySetInnerHTML={{ __html: sidebarBootScript }} />
       <Suspense fallback={null}>
         <SessionGate />
       </Suspense>

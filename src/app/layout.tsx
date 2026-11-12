@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fragment_Mono, Funnel_Display, Funnel_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { sidebarBootScript } from "@/lib/sidebar-state";
 import "./globals.css";
 
 const funnelDisplay = Funnel_Display({
@@ -36,6 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        {/* Restores a folded dashboard/admin sidebar before first paint. In the root layout because a <script> in a
+            nested layout is created on the client after router.push (login -> dashboard) and never runs. */}
+        <script dangerouslySetInnerHTML={{ __html: sidebarBootScript }} />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>

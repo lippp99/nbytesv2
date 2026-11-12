@@ -4,7 +4,6 @@ import { AdminAccount } from "@/components/admin/shell/admin-account";
 import { AdminFooter } from "@/components/admin/shell/admin-footer";
 import { AdminHeader } from "@/components/admin/shell/admin-header";
 import { AdminSidebar } from "@/components/admin/shell/admin-sidebar";
-import { sidebarBootScript } from "@/lib/sidebar-state";
 import { readAdminSession } from "@/lib/server/admin-auth/admin-session";
 import { getCurrentAdmin } from "@/lib/server/admin-auth/current-admin";
 
@@ -39,8 +38,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     // data-app switches on the dashboard tokens in globals.css (html:has([data-app])).
     <div data-app className="flex min-h-dvh flex-1 bg-app-page text-app-text">
-      {/* restores a folded sidebar before first paint; static string, no user input */}
-      <script dangerouslySetInnerHTML={{ __html: sidebarBootScript }} />
       <Suspense fallback={null}>
         <SessionGate />
       </Suspense>
