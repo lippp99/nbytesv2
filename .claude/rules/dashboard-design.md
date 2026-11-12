@@ -1,7 +1,7 @@
 # Dashboard design foundation
 
 Visual contract for everything under `src/app/(dashboard)/`, `src/components/dashboard/`, and the admin console
-(`src/app/admin/`, `src/components/admin/`, PRD `PRD/admin-console.md`). The landing page and user login keep their own look; nothing here may change them. Decided with the owner on 2026-11-08.
+(`src/app/admin/`, `src/components/admin/`, PRD `PRD/backend-auth-admin.md`). The landing page and user login keep their own look; nothing here may change them. Decided with the owner on 2026-11-08.
 
 ## 1. Fixed decisions
 
@@ -42,6 +42,7 @@ Visual contract for everything under `src/app/(dashboard)/`, `src/components/das
 | `app-accent-soft` | selected row (not the sidebar, which marks with solid `app-accent`) | `0.96 0.03 45` | `0.27 0.06 40` |
 | `app-scrim` | dim behind the mobile drawer (with 10px blur) | `0.2 0.005 100 / 0.18` | `0 0 0 / 0.35` |
 | `app-success` / `app-warning` / `app-danger` | status text and dots | `0.52 0.12 150` / `0.55 0.12 70` / `0.55 0.2 27` | `0.72 0.13 150` / `0.8 0.13 80` / `0.68 0.18 27` |
+| `app-chart-2` | second chart series next to `app-accent` (never status) | `#2a78d6` | `#3987e5` |
 
 Measured contrast (script, 2026-11-08): every text token >= 4.5:1 on page, surface and inset in both themes
 (lowest: `app-text-3` on inset, light, 4.83; `app-accent-text` on inset, light, 4.75). White on `app-accent` 5.18.
@@ -107,7 +108,7 @@ Button (primary, secondary, ghost), Card, Field (input, select, textarea), Segme
 CodeBlock (theme-following, wraps or uses the wide area), EmptyState, PageHeader. Files: `button.ts` (`primaryAction`,
 `secondaryAction`, `ghostAction`, `dangerAction`, `iconAction`, `appFocus`), `card.tsx`, `field.tsx` (`Field`, `TextInput`,
 `TextArea`, `Select`, `controlStyles`), `segmented.tsx`, `table.tsx`, `badge.tsx`, `code-block.tsx`,
-`empty-state.tsx`, `page-header.tsx`, `stat-summary.tsx`, `theme-switch.tsx`. Pages use these, not raw classes for the same job. Add a
+`bar-chart.tsx`, `empty-state.tsx`, `list-skeleton.tsx`, `page-header.tsx`, `pagination.tsx`, `stat-summary.tsx`, `theme-switch.tsx`. Pages use these, not raw classes for the same job. Add a
 Tabs wrapper over `ui/tabs` only when a page needs real tabbed sections (Segmented covers in-place switches). Every interactive one has
 default, hover, focus, active, disabled and, where it applies, loading and error states.
 

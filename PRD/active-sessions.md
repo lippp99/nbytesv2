@@ -292,7 +292,7 @@ Diputuskan 2026-11-09:
 
 ## 12. Di luar cakupan (fase berikutnya)
 
-Log login lengkap per waktu, IP dan lokasi, notifikasi email login dari perangkat baru, menampilkan percobaan login gagal, mengganti nama perangkat, sesi admin (PRD admin-console), pencabutan otomatis saat akun ditangguhkan dari UI admin (fungsinya sudah ada: `deleteUserSessions`).
+Log login lengkap per waktu, IP dan lokasi, notifikasi email login dari perangkat baru, menampilkan percobaan login gagal, mengganti nama perangkat, sesi admin (PRD backend-auth-admin), pencabutan otomatis saat akun ditangguhkan dari UI admin (fungsinya sudah ada: `deleteUserSessions`).
 
 ---
 

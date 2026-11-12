@@ -189,7 +189,7 @@ Masih terbuka: kapan sapaan Quick Start dan inisial Playground disambungkan; kap
 | `session.ts`, `request-guard.ts`, `rate-limit.ts`, `auth-events.ts`, `api/auth/sessions/revoke/route.ts`, `api/auth/logout/route.ts`, `sessions-view.tsx`, `sessions/page.tsx`, `layout.tsx` | pola endpoint, sesi, Suspense, refresh | Dibaca |
 | `auth-contract.ts` (`isValidName`, `normalizeName`) | validasi nama | Dibaca, dipakai di sesi ini |
 | DB lokal (`psql \d users`, daftar tabel schema) | kolom dan tabel | Dicek |
-| `PRD/backend-auth-user.md` (utuh), `PRD/admin-console.md` (grep saldo/refund) | batas cakupan, saldo | Dibaca |
+| `PRD/backend-auth-user.md` (utuh), `PRD/admin-console.md` (grep saldo/refund; sejak 2026-11-11 digabung ke `PRD/backend-auth-admin.md`) | batas cakupan, saldo | Dibaca |
 | Docs Next 16.4.5 terpasang: `02-guides/data-security.md` (re-verify, IDOR, DAL mutasi), `authentication-with-cache-components.md` (Suspense, `use cache: private`, context + `use()`) | aturan keamanan dan sesi | Dibaca dari `node_modules/next/dist/docs` |
 | `.claude/rules/*`, `AGENTS.md` | aturan proyek | Dibaca |
 | Praktik umum (mass assignment, alur ganti email) | — | Tidak dikutip dari dokumen yang dibuka |

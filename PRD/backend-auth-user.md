@@ -6,7 +6,7 @@
 | Tanggal | 2026-11-09 |
 | Repo / branch | `nbytesv2` / `develop` |
 | Cakupan | Backend login & register pengguna di `/login`: kirim kode, verifikasi kode, buat akun, sesi, logout, proteksi halaman dashboard, dan perubahan frontend yang wajib agar tersambung |
-| Di luar cakupan | Login admin `/admin/login` (punya PRD sendiri: `PRD/admin-console.md`), API key, billing, hapus akun, ganti email, OAuth, passkey (§17) |
+| Di luar cakupan | Login admin `/admin/login` (punya PRD sendiri: `PRD/backend-auth-admin.md`), API key, billing, hapus akun, ganti email, OAuth, passkey (§17) |
 | Frontend acuan | Sudah ada dan dibaca utuh: `src/components/auth/*`, `src/lib/auth-contract.ts`, `src/lib/auth-client.ts` (masih mock) |
 
 Aturan baca: setiap klaim tentang kode proyek dan docs berasal dari file yang dibuka di sesi ini (daftar di §18). Praktik keamanan umum yang tidak dikutip dari dokumen yang dibuka ditandai **(praktik umum)**. Yang tidak bisa dibuktikan ditandai **belum dibuktikan**.
@@ -576,7 +576,7 @@ Server menolak start jika env wajib kosong atau pepper < 32 byte.
 
 ## 17. Di luar cakupan (fase berikutnya)
 
-Login admin (OTP 10 digit + TOTP, `PRD/admin-console.md`), hapus akun (wajib verifikasi ulang dengan kode baru), ganti email, daftar perangkat dan "keluar dari semua perangkat" untuk pengguna, organisasi/tim, API key, billing, OAuth Google/GitHub, passkey/2FA pengguna, CSP lengkap, webhook bounce provider email, i18n email.
+Login admin (OTP 10 digit + TOTP, `PRD/backend-auth-admin.md`), hapus akun (wajib verifikasi ulang dengan kode baru), ganti email, daftar perangkat dan "keluar dari semua perangkat" untuk pengguna, organisasi/tim, API key, billing, OAuth Google/GitHub, passkey/2FA pengguna, CSP lengkap, webhook bounce provider email, i18n email.
 
 Catatan untuk fase admin: `crypto.ts`, `rate-limit.ts`, dan tabel `otp_challenges` (kolom `purpose`) bisa dipakai ulang; sesi admin harus tabel dan cookie terpisah (`SameSite=Strict`), sesuai PRD admin §8.
 
@@ -588,7 +588,7 @@ Catatan untuk fase admin: `crypto.ts`, `rate-limit.ts`, dan tabel `otp_challenge
 |---|---|---|
 | `src/components/auth/*`, `src/lib/auth-contract.ts`, `src/lib/auth-client.ts`, `src/lib/auth-contract.test.ts`, `src/app/(auth)/login/page.tsx` | alur, error, validasi, copy | Dibaca utuh |
 | `src/components/dashboard/shell/sidebar/sidebar-user.tsx`, `dashboard/shared/dashboard-data.ts`, `dashboard/settings/settings-copy.ts`, `dashboard/shell/nav-items.ts`, `src/app/(dashboard)/layout.tsx` | logout, data akun, path dashboard | Dibaca |
-| `src/components/admin/users/users-data.ts`, `users-copy.ts`, `admin/settings/settings-copy.ts`, `PRD/admin-console.md` | status user, saklar pendaftaran, batas dengan auth admin | Dibaca (bagian relevan) |
+| `src/components/admin/users/users-data.ts`, `users-copy.ts`, `admin/settings/settings-copy.ts`, `PRD/admin-console.md` (sejak 2026-11-11 digabung ke `PRD/backend-auth-admin.md`) | status user, saklar pendaftaran, batas dengan auth admin | Dibaca (bagian relevan) |
 | `package.json`, `next.config.ts`, `.env.example`, `drizzle.config.ts`, `docker-compose.yml`, `src/lib/server/db/client.ts`, `schema/index.ts`, versi di `node_modules` | stack dan versi | Dibaca |
 | `AGENTS.md`, `.claude/rules/architecture.md`, `backend-security.md`, `tooling.md`, `git.md`, `dashboard-design.md` | aturan proyek | Dibaca |
 | Docs Next 16.4.5 terpasang: `02-guides/authentication.md`, `authentication-with-cache-components.md`, `data-security.md`, `backend-for-frontend.md`, `03-api-reference/03-file-conventions/proxy.md`, `04-functions/cookies.md`, `next-request.md`, `unauthorized.md`, `05-config/01-next-config-js/serverActions.md` | DAL, cookie, Proxy, Cache Components, rate limit, Origin check, IP | Dibaca via `nextjs_docs` |
