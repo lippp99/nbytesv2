@@ -5,14 +5,13 @@ import {
 } from "@/lib/admin-users/user-admin-contract";
 import { logAdminEvent } from "../admin-auth/audit";
 import { db } from "../db/client";
+import { likeContains as contains } from "../db/like-pattern";
 import { apiKeys, gatewayRequests, sessions, userBalances, users } from "../db/schema";
 import { AppError } from "../errors";
 
 // Admin side of user accounts (PRD admin-users-audit §3). Callers check the admin session.
 
 const monthStartUtc = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-/** LIKE pattern for a literal search text: %, _ and \ in the text match only themselves. */
-const contains = (text: string) => `%${text.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
 function whereOf(filter: UserFilter, search: string | null): SQL | undefined {
   const status = filter === "all" ? undefined : eq(users.status, filter);

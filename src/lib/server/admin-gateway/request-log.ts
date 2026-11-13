@@ -4,12 +4,10 @@ import {
   type AdminRequestRow, type RequestQuery, type RequestsPage, REQUESTS_PAGE_SIZE,
 } from "@/lib/admin-gateway/request-log-contract";
 import { db } from "../db/client";
+import { likeContains as contains } from "../db/like-pattern";
 import { apiKeys, gatewayRequests, users } from "../db/schema";
 
 // Read-only list for the admin Request log (PRD admin-requests-upstream §3). Callers check the admin session.
-
-/** LIKE pattern for a literal search text: %, _ and \ in the text match only themselves. */
-const contains = (text: string) => `%${text.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** The x-request-id a user reports (nbytes' own id) finds its row exactly. */

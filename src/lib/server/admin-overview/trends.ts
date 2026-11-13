@@ -2,13 +2,13 @@ import "server-only";
 import { desc, eq, gte, sql } from "drizzle-orm";
 import { TREND_DAYS, type TopModel, type TopUser, type TrendDay, fillDays } from "@/lib/admin-overview-contract";
 import { db } from "../db/client";
+import { sqlNumber as num } from "../db/sql-number";
 import { gatewayRequests, userBalances, users } from "../db/schema";
 import { monthStartUtc } from "./figures";
 
 // Trends and leaders of the admin overview (PRD admin-overview §3.3–3.4, K3). Callers check the admin session.
 
 const g = gatewayRequests;
-const num = (expr: ReturnType<typeof sql>) => sql<number>`coalesce(${expr}, 0)`.mapWith(Number);
 const TOP = 5;
 
 /** 30 UTC days: charge vs known Surplus cost, requests and failures per day; empty days filled with zeros. */

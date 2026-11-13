@@ -2,14 +2,13 @@ import "server-only";
 import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import type { DayFigures, MonthFigures, MoneyHealth, UserFigures } from "@/lib/admin-overview-contract";
 import { db } from "../db/client";
+import { sqlNumber as num } from "../db/sql-number";
 import { deposits, exchangeRates, gatewayRequests, userBalances, users } from "../db/schema";
 import { surplusBalance } from "../admin-gateway/upstream-health";
 
 // Headline figures of the admin overview (PRD admin-overview §3.1–3.2). Callers check the admin session.
-// pg returns sum(bigint) as numeric text; every total here stays far below 2^53, so Number is exact.
 
 const g = gatewayRequests;
-const num = (expr: ReturnType<typeof sql>) => sql<number>`coalesce(${expr}, 0)`.mapWith(Number);
 const DAY_MS = 86_400_000;
 
 export const monthStartUtc = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
