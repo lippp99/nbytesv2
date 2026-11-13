@@ -71,8 +71,9 @@ Tidak ada float di jalur uang (aturan proyek, `.claude/rules/backend-security.md
    mengkreditkan lebih dari yang dibayar.
    Contoh: Rp 100.000 pada kurs 16.850 → 5.934.718 mikrodolar = $5,934718 (ditampilkan $5,93).
 4. Pengguna melihat pratinjau sebelum membayar: nominal rupiah, kurs, saldo USD yang akan masuk.
-5. Kurs admin memuat selisih aman di atas kurs pasar, karena nbytes membayar Surplus dalam USD lewat kartu (biaya
-   Stripe dan kurs bank tidak bisa dihitung pasti di muka) [S2]. Besarnya: kurs pasar + 4% sebagai awal (B4, §13).
+5. Kurs admin memuat selisih aman di atas kurs pasar, karena nbytes mengisi saldo Surplus dalam USD dengan kartu
+   (biaya kartu yang diteruskan Surplus dan kurs kartu tidak bisa dihitung pasti di muka) [S2]. Besarnya: kurs pasar
+   + 4% sebagai awal (B4, §13). Biaya nbytes hanya dua: potongan Sumopod dan tagihan Surplus (owner 2026-11-13).
 6. Kurs kosong atau belum pernah diisi → deposit ditolak dengan pesan umum; tidak ada kurs bawaan di kode.
 
 ## 6. Deposit (IDR → saldo USD)
@@ -297,7 +298,7 @@ rekomendasi untuk B2, B4, B5, B6, B7 dan B9 ("sesuai rekomendasimu yang penting 
 | B9 | Webhook gagal hanya bisa dikirim ulang manual dan docs tidak menyebut API cek status pembayaran. | **Diputuskan (rekomendasi):** admin mendapat daftar deposit `pending` yang sudah lewat `expires_at` untuk dicocokkan manual dengan tab Payments/Webhooks Sumopod (lalu "resend" webhook di sana, bukan kredit manual). Tanyakan ke Sumopod apakah ada API cek status; bila ada, ganti dengan pengecekan otomatis. |
 | B2 | Batas deposit minimal dan maksimal (rupiah)? | **Diputuskan (rekomendasi diterima owner): min Rp 50.000, maks Rp 10.000.000**, bisa diatur admin. Alasan min: di bawah ±Rp 13.000 biaya tetap Sumopod Rp 300 membuat biaya 3% tidak cukup (rugi); di Rp 50.000 sisa ±Rp 839. Maks: batas per transaksi QRIS di Sumopod **tidak terdokumentasi**; turunkan bila Sumopod menolak. |
 | B3 | Biaya deposit? | **Diputuskan owner: 3%** (§6.2), bisa diatur admin. |
-| B4 | Selisih aman di kurs admin? | **Diputuskan (rekomendasi): kurs admin = kurs pasar + 4%** sebagai awal. Menutup biaya Stripe yang dipotong Surplus saat nbytes top-up kartu (perkiraan 2,9% + $0,30 per top-up [S2]) dan selisih kurs bank (besarnya **belum dibuktikan**). Ditinjau bulanan dengan biaya nyata: rupiah yang keluar ÷ USD kredit Surplus yang diterima. Halaman admin kurs menampilkan angka ini. |
+| B4 | Selisih aman di kurs admin? | **Diputuskan (rekomendasi): kurs admin = kurs pasar + 4%** sebagai awal. Menutup biaya kartu yang diteruskan Surplus saat nbytes mengisi saldo Surplus dengan kartu (perkiraan 2,9% + $0,30 per pengisian [S2]) dan selisih kurs kartu (besarnya **belum dibuktikan**). Ini bagian dari biaya Surplus; pengguna nbytes hanya membayar lewat Sumopod. Ditinjau bulanan dengan biaya nyata: rupiah yang keluar ÷ USD kredit Surplus yang diterima. Angka ini **belum ditampilkan** di admin (pengisian saldo Surplus belum dicatat). |
 | B5 | Refund saldo? | **Diputuskan (rekomendasi):** saldo yang sudah masuk tidak bisa diuangkan kembali, kecuali (a) pembayaran tertagih tetapi saldo tidak masuk, (b) tertagih ganda, atau (c) diwajibkan hukum. Diproses admin manual, tercatat sebagai `refund` di buku saldo dan audit log. Sejalan dengan Surplus yang tidak merefund kredit setelah 24 jam (Terms §4.2 [S14]). Wajib tertulis di syarat layanan nbytes; kesesuaian dengan hukum perlindungan konsumen Indonesia **belum dibuktikan** (perlu ditinjau ahli hukum). |
 | B6 | Hapus akun dengan saldo tersisa? | **Diputuskan (rekomendasi):** popup konfirmasi menampilkan jumlah saldo dan menyatakan saldo hangus (sesuai B5). Hapus akun **ditolak** selama ada deposit `pending`, tahanan saldo aktif, job video/musik berjalan, atau saldo negatif. Mengubah alur di `PRD/account-settings.md` S5. |
 | B7 | Saldo negatif kecil (§9 butir 4) diizinkan? | **Diputuskan (rekomendasi): ya**, hanya dari selisih satu request yang melampaui tahanan; request berikutnya ditolak sampai saldo positif lagi. |

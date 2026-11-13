@@ -38,7 +38,8 @@ belum dicek ditandai **belum dibuktikan**. Docs Surplus bisa berubah: cek ulang 
 
 Marketplace inferensi LLM: pembeli memakai satu API key dan satu base URL, router memilih penjual (seller) termurah
 yang sehat. Penjual memasang endpoint kompatibel OpenAI dengan harga sendiri. Setelmen dalam USDC di jaringan Base;
-pembeli juga bisa memakai kredit fiat (kartu via Stripe). [S1, S2]
+pembeli juga bisa memakai kredit fiat yang diisi dengan kartu di Surplus. Ini hanya cara nbytes mengisi saldonya
+sendiri di Surplus; pengguna nbytes membayar deposit lewat Sumopod, nbytes tidak memakai payment gateway lain. [S1, S2]
 
 Konsekuensi untuk nbytes: **siapa penyedia model sebenarnya per request bisa berganti**, dan biayanya juga.
 
@@ -155,7 +156,8 @@ Header `x-request-id` (selalu ada), `x-si-served-by`, `x-si-provider-family`, `x
 
 ### 4.7 Pembayaran ke Surplus
 
-- Kredit prabayar dalam USD. Kartu via Stripe (biaya Stripe diteruskan), atau USDC di Base. [S2, S9]
+- Kredit prabayar dalam USD, diisi nbytes dengan kartu (Surplus meneruskan biaya pemrosesan kartunya) atau USDC di
+  Base. Ini biaya Surplus, bukan payment gateway nbytes: pengguna nbytes hanya membayar lewat Sumopod. [S2, S9]
 - Kartu Indonesia / IDR: **tidak terdokumentasi**. [S9]
 - Kredit tidak bisa dipindahtangankan atau dijual; kredit fiat tidak bisa ditarik. [S14 §4.1, S9]
 
