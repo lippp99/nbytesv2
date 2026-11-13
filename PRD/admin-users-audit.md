@@ -55,7 +55,7 @@ Setiap klaim tentang kode berasal dari berkas yang dibuka saat PRD ini ditulis (
 | Pengguna | `users.first_name` + `last_name`, `users.email` | Nama kosong untuk akun lama (sebelum tab daftar) → tampil email saja |
 | Status | `users.status` | Badge titik + kata: Aktif / Ditangguhkan |
 | Saldo | `user_balances.balance_micros` (dan `held_micros` bila > 0) | Tanpa baris = $0; boleh negatif kecil (B7) |
-| Pemakaian bulan ini | `sum(gateway_requests.charge_micros)` sejak tanggal 1 bulan ini (UTC) | Saat ini selalu $0 sampai ada request nyata |
+| Pemakaian bulan ini | `sum(gateway_requests.charge_micros)` sejak tanggal 1 bulan ini (00.00 WIB) | Saat ini selalu $0 sampai ada request nyata |
 | Key aktif | `count(api_keys where revoked_at is null)` | Membantu menilai dampak penangguhan |
 | Login terakhir | `users.last_login_at` | |
 | Daftar | `users.created_at` | |
@@ -91,14 +91,14 @@ ditangguhkan), deposit `pending` tetap bisa dikreditkan oleh webhook, request ya
 
 | Kolom | Sumber | Catatan |
 |---|---|---|
-| Waktu (UTC) | `created_at` | |
+| Waktu (WIB) | `created_at` | |
 | Admin | `admins.email` lewat `admin_id`; kosong → "—" | Event sebelum login (mis. `code_failed` untuk email tak dikenal) tidak punya admin |
 | Aksi | `type`, ditampilkan sebagai kalimat Indonesia (mis. `exchange_rate_set` → "Mengubah kurs") | Daftar terjemahan di kontrak, satu per jenis |
 | Target | `target`, dibaca sesuai jenis: id model, nilai kurs (join `exchange_rates`), email pengguna (join `users`) | Target yang barisnya sudah tidak ada → id saja |
 | Alasan | kolom baru `reason` (U5) | Hanya untuk aksi yang mewajibkan alasan |
 | IP | lihat U3 | |
 
-- Saring per grup: Semua / Login admin / Aksi admin (usulan). Urut terbaru, 50 per halaman.
+- Saring per grup: Semua / Login admin / Aksi admin (usulan). Urut terbaru, 25 per halaman (owner 2026-11-13).
 - Hanya baca. Tidak ada tombol ubah atau hapus.
 
 ### 4.2 Jenis audit yang wajib ditulis

@@ -2,7 +2,7 @@
 
 export const AUDIT_FILTERS = ["all", "login", "actions"] as const;
 export type AuditFilter = (typeof AUDIT_FILTERS)[number];
-export const AUDIT_PAGE_SIZE = 50;
+export const AUDIT_PAGE_SIZE = 25;
 
 /** Sign-in and account events of the admin; every other type is an action on users, prices or settings. */
 export const LOGIN_AUDIT_TYPES = [
