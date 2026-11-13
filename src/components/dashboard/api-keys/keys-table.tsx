@@ -1,27 +1,19 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { dangerAction, ghostAction, iconAction } from "@/components/app-kit/button";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import { type UserApiKey, budgetState } from "@/lib/gateway/keys/api-key-contract";
+import { formatWib, formatWibDate } from "@/lib/date-format";
 import { formatMicros } from "@/lib/price-format";
 import { cn } from "@/lib/utils";
 import { apiKeysCopy as copy } from "./api-keys-copy";
 
-// Local time of the viewer: the server does not know the time zone, so dates render only after hydration.
-const dateLabel = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric" });
-const timeLabel = new Intl.DateTimeFormat("id-ID", {
-  day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
-});
-const noop = () => () => {};
-const useIsClient = () => useSyncExternalStore(noop, () => true, () => false);
-
+// Always WIB (owner 2026-11-13): the same text on server and client, so it renders straight away.
 function When({ iso, withTime }: { iso: string; withTime?: boolean }) {
-  const client = useIsClient();
-  const label = client ? (withTime ? timeLabel : dateLabel).format(new Date(iso)) : " ";
-  return <time dateTime={iso} className="tabular-nums">{label}</time>;
+  return <time dateTime={iso} className="tabular-nums">{withTime ? formatWib(iso, true) : formatWibDate(iso)}</time>;
 }
 
 // Neutral bar while there is room; status colours only with their word next to them (dashboard-design §3).

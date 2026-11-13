@@ -6,7 +6,7 @@ import { gatewayRequests as g } from "../db/schema";
 
 // Period pieces shared by the admin Usage and Leaderboard queries. Failed requests carry no tokens (null).
 
-/** Requests made inside the period ([start, end) in UTC). */
+/** Requests made inside the period ([start, end), WIB days). */
 export const inPeriod = (period: UsagePeriod) => {
   const { start, end } = periodRange(period);
   return and(gte(g.createdAt, start), lt(g.createdAt, end));

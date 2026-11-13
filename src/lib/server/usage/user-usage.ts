@@ -1,10 +1,10 @@
 import "server-only";
 import { type SQL, and, desc, eq, gte, sql } from "drizzle-orm";
-import { STOPPED_ERROR_CODE, type UsageData, fillUsageDays, windowStartUtc } from "@/lib/usage-contract";
+import { STOPPED_ERROR_CODE, type UsageData, fillUsageDays, windowStart } from "@/lib/usage-contract";
 import { db } from "../db/client";
 import { apiKeys, gatewayRequests, modelPrices } from "../db/schema";
 
-// Usage page of one user (PRD dashboard-usage §5.1): every query is scoped to the session's user and the last 30 UTC
+// Usage page of one user (PRD dashboard-usage §5.1): every query is scoped to the session's user and the last 30 WIB
 // days. Cost is what was charged (charge_micros); holds of running requests are counted, not added (F4).
 
 const g = gatewayRequests;
@@ -32,7 +32,7 @@ async function summary(where: SQL | undefined) {
 }
 
 async function byDay(where: SQL | undefined) {
-  const day = sql<string>`to_char(${g.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`;
+  const day = sql<string>`to_char(${g.createdAt} at time zone 'Asia/Jakarta', 'YYYY-MM-DD')`;
   return db.select({ date: day, chargeMicros: charged() }).from(g).where(where).groupBy(day);
 }
 
@@ -62,7 +62,7 @@ async function byKey(where: SQL | undefined) {
 
 /** The four parts of the Usage page, read in parallel. */
 export async function userUsage(userId: string, now = new Date()): Promise<UsageData> {
-  const where = and(eq(g.userId, userId), gte(g.createdAt, windowStartUtc(now)));
+  const where = and(eq(g.userId, userId), gte(g.createdAt, windowStart(now)));
   const [s, days, models, keys] = await Promise.all([summary(where), byDay(where), byModel(where), byKey(where)]);
   return { summary: s, days: fillUsageDays(days, now), models, keys };
 }

@@ -12,7 +12,7 @@ export const settingsCopy = {
   maintenanceHint: "API /v1 dan Playground menjawab 503. Dashboard tetap terbuka (saldo, API key, billing) dengan banner di atas.",
   banner: "Teks banner",
   bannerHint: "Tampil di atas setiap halaman dashboard pengguna. Wajib saat maintenance nyala, maksimal 140 karakter.",
-  bannerPlaceholder: "Contoh: Pemeliharaan terjadwal 02:00–03:00 UTC.",
+  bannerPlaceholder: "Contoh: Pemeliharaan terjadwal 02:00–03:00 WIB.",
   limits: { title: "Batas API", body: "Berlaku untuk semua key, termasuk yang sudah ada, mulai request berikutnya." },
   rpm: "Request per menit per key",
   rpmHint: "Angka bulat 1–10.000. Lewat dari itu dijawab 429. Halaman API Docs ikut menampilkan angka ini.",

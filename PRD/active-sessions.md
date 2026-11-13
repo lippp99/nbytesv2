@@ -39,7 +39,7 @@ Prinsip:
 | Proteksi halaman | `src/proxy.ts` matcher berupa daftar literal; `DASHBOARD_PATHS` di `src/lib/auth/auth-contract.ts` (dipakai `safeNextPath`) | Keduanya wajib ditambah `/sessions` |
 | Pola halaman | Route `src/app/(dashboard)/<page>/page.tsx` merender `components/dashboard/<page>/<page>-view.tsx` (mis. `usage/page.tsx`) | Ikuti pola yang sama |
 | Komponen | `app-kit`: `PageHeader`, `Card`, `Table`/`THead`/`Th`/`Tr`/`Td`, `Badge`, `EmptyState`, `secondaryAction` | Dipakai, tidak membuat komponen baru |
-| Format tanggal | `src/lib/date-format.ts` hanya `formatUtc` (UTC mentah) | Perlu format waktu lokal pengguna (§6.4) |
+| Format tanggal | `src/lib/date-format.ts` saat itu hanya `formatUtc` (UTC mentah; dihapus 2026-11-13, admin kini `formatWibStamp`) | Tampilkan WIB (§6.4) |
 | Arti kata "log" | Deskripsi situs (`src/app/layout.tsx`): "log dan biaya per request"; Settings: "log aktivitas" | Menu tidak dinamai "Log" agar tidak tertukar dengan log request API (§3 S1) |
 | Audit | `auth_events.type` adalah `text` tanpa CHECK | Jenis event baru tidak butuh migrasi |
 
@@ -180,7 +180,7 @@ Batas yang diterima: `user_agent` bisa dipalsukan pengirim; label hanya petunjuk
 
 ### 6.4 Waktu
 
-Disimpan UTC (aturan proyek). Ditampilkan dalam zona waktu browser dengan `Intl.DateTimeFormat("id-ID", …)`. Server tidak tahu zona waktu pengguna, jadi format dilakukan di klien (hindari hydration mismatch, mis. render setelah mount).
+Database menyimpan instan waktu (aturan proyek). **Website selalu menampilkan WIB** (owner 2026-11-13) lewat `formatWib` di `src/lib/date-format.ts`; teksnya sama di server dan klien, jadi tidak perlu render setelah mount.
 
 ### 6.5 Audit
 

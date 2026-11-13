@@ -9,7 +9,8 @@ import { db } from "../db/client";
 import { apiKeys, gatewayRequests, users } from "../db/schema";
 import { AppError } from "../errors";
 import { apiKeyHashKey } from "./gateway-env";
-import { keySpentSql, monthStartUtc } from "./request-billing";
+import { wibMonthStart } from "@/lib/date-format";
+import { keySpentSql } from "./request-billing";
 
 // PRD gateway-api §5: "nbk_" + 32 random bytes; only the HMAC is stored. Every query is scoped to the session's user.
 
@@ -58,7 +59,7 @@ export async function listUserApiKeys(userId: string): Promise<UserApiKey[]> {
     .from(apiKeys)
     .leftJoin(
       gatewayRequests,
-      and(eq(gatewayRequests.apiKeyId, apiKeys.id), gte(gatewayRequests.createdAt, monthStartUtc(new Date()))),
+      and(eq(gatewayRequests.apiKeyId, apiKeys.id), gte(gatewayRequests.createdAt, wibMonthStart(new Date()))),
     )
     .where(and(eq(apiKeys.userId, userId), isNull(apiKeys.revokedAt)))
     .groupBy(apiKeys.id)

@@ -35,7 +35,7 @@ Tujuan: pengguna melihat key aslinya, membuat key yang benar-benar bisa dipakai 
 | Endpoint cabut | `DELETE /api/keys/{id}`: cek Origin, sesi, id harus uuid, lalu `revokeApiKey`. Key orang lain atau tidak ada → `404 not_found` | Sudah siap dipakai |
 | Kode error | `key_limit_reached` (409), `invalid_input` (400), `unauthorized` (401), `not_found` (404), `unavailable` (403 Origin salah / 503) lewat `authErrorResponse` | Client memetakan semuanya (§6) |
 | Daftar key di server | `src/lib/server/gateway/api-keys.ts` hanya punya `createApiKey`, `revokeApiKey`, `authenticateApiKey` | **Fungsi daftar belum ada** |
-| Pemakaian bulan ini | `request-billing.ts`: `keySpentThisMonth` = jumlah `coalesce(charge_micros, hold_micros)` dari `gateway_requests` sejak tanggal 1 pukul 00.00 **UTC**; fungsi ini privat | Angka di halaman harus memakai rumus yang sama dengan yang dipakai saat menolak request |
+| Pemakaian bulan ini | `request-billing.ts`: `keySpentThisMonth` = jumlah `coalesce(charge_micros, hold_micros)` dari `gateway_requests` sejak tanggal 1 pukul 00.00 **WIB** (owner 2026-11-13; sebelumnya UTC); fungsi ini privat | Angka di halaman harus memakai rumus yang sama dengan yang dipakai saat menolak request |
 | Batas bulanan | `holdForRequest` menolak dengan `402 key_budget_exceeded` bila pemakaian + tahanan > batas | Teks "Request ditolak setelah batas tercapai" benar |
 | `last_used_at` | Ditulis paling sering sekali per menit per key | Presisi "Terakhir dipakai" per menit |
 | Proteksi halaman | `/api-keys/:path*` sudah ada di matcher `src/proxy.ts` dan `DASHBOARD_PATHS` | Tidak perlu diubah |
@@ -55,7 +55,7 @@ Tujuan: pengguna melihat key aslinya, membuat key yang benar-benar bisa dipakai 
 | F3 | Cabut key | Konfirmasi di baris yang sama (sudah ada di UI). Tidak bisa dibatalkan setelah dikonfirmasi |
 | F4 | Batas 20 key aktif | Tampil "N dari 20 key". Pada 20 key, tombol "Buat key" nonaktif dengan alasan tertulis |
 | F5 | Status batas | Pemakaian ≥ 85% batas: kata "Hampir habis". Pemakaian ≥ batas: "Batas tercapai, request ditolak". Warna selalu disertai kata (dashboard-design §3) |
-| F6 | Waktu reset batas | Satu kalimat di bawah tabel: "Pemakaian dihitung sejak tanggal 1 pukul 00.00 UTC (07.00 WIB)." Sesuai `monthStartUtc` |
+| F6 | Waktu reset batas | Satu kalimat di bawah tabel: "Pemakaian dihitung sejak tanggal 1 pukul 00.00 WIB." Sesuai `wibMonthStart` |
 | F7 | Error yang jelas | Pesan per kasus (§6). Gagal tidak mengubah data di layar |
 
 ### 3.2 Rekomendasi tambahan (usulan, butuh keputusan §10)
@@ -166,7 +166,7 @@ Semua mengikuti `.claude/rules/dashboard-design.md`. Komponen dari `app-kit`, ta
 |---|---|---|---|
 | D1 | Bar pemakaian berisi warna accent (`bg-app-accent`), merah di ≥ 85% tanpa kata | Bar netral (`bg-app-text-3`) saat normal; `app-warning` + kata "Hampir habis" di ≥ 85%; `app-danger` + kata "Batas tercapai" di ≥ 100% | Aturan §3: accent hanya untuk aksi utama, seleksi, tautan; status warna selalu dengan kata |
 | D2 | Kartu key baru berbingkai `border-app-accent/50` | Bingkai `app-border` biasa, ikon peringatan `app-warning` | Kartu ini peringatan, bukan seleksi; accent tidak untuk dekorasi |
-| D3 | Tanggal dalam UTC tanpa jam | "Dibuat": tanggal saja. "Terakhir dipakai": tanggal + jam di zona waktu browser, dirender setelah mount | Sama dengan pendekatan Active Sessions §6.4; menghindari hydration mismatch |
+| D3 | Tanggal dalam UTC tanpa jam | "Dibuat": tanggal saja. "Terakhir dipakai": tanggal + jam WIB (`formatWib`, owner 2026-11-13) | Sama dengan pendekatan Active Sessions §6.4; menghindari hydration mismatch |
 | D4 | Tampilan key `nb-live-…4f2a` | `nbk_ab12…` | Format asli dari kontrak (§2) |
 | D5 | Deskripsi card "3 key" | "3 dari 20 key", dan pada 20 tombol nonaktif dengan teks alasan di bawah header | Pengguna tahu batasnya sebelum ditolak server |
 | D6 | Tidak ada penjelasan waktu reset | Satu kalimat kecil `text-app-small text-app-text-3` di bawah tabel (F6) | Tanpa ini pengguna tidak tahu kapan batas bulanan kembali nol |
@@ -229,7 +229,7 @@ Diputuskan 2026-11-12: semua usulan di kolom kanan diterima ("Setuju semua").
 ## 11. Pengujian dan kriteria penerimaan
 
 ### 11.1 Unit (`node:test`)
-- Rumus pemakaian bersama: hanya bulan berjalan UTC, `charge` dipakai bila ada, `hold` bila belum selesai.
+- Rumus pemakaian bersama: hanya bulan berjalan WIB, `charge` dipakai bila ada, `hold` bila belum selesai.
 - Status batas: < 85%, ≥ 85%, ≥ 100%, tanpa batas.
 - Validasi form: nama kosong, 41 karakter, batas `0`, `1000000.01`, `abc`.
 

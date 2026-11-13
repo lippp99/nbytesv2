@@ -56,7 +56,7 @@ Tujuan: pengguna melihat pemakaian dan biaya aslinya, dengan angka yang sama den
 | T3 | `src/components/app-kit/bar-chart.tsx` sudah ada (dipakai admin Overview, `overview-trends.tsx`): `niceMax` menangani 0 dan angka kecil, ada legenda dan tabel screen reader | Usage cukup memakai `BarChart` ini; `cost-chart.tsx` dihapus |
 | T4 | Kolom Model memakai logo provider dari katalog contoh. `model_prices` tidak menyimpan provider (sama dengan PRD Models M1) | Logo dihapus; nama dari `model_prices`, id tetap tampil. Model yang sudah dimatikan admin tetap tampil dengan id-nya |
 | T5 | Catatan error di `StatSummary` selalu merah (`tone: "danger"`), juga saat 0 error | Merah hanya bila error > 0 (D5) |
-| T6 | Admin memakai hari **UTC** (`fillDays`, `trend`), batas bulanan key juga UTC | Usulan: hari UTC, ditulis jelas di halaman (§10 U1) |
+| T6 | Admin memakai hari **WIB** (`fillDays`, `trend`), batas bulanan key juga WIB | Hari WIB, ditulis jelas di halaman (§10 U1) |
 | T7 | Pola query yang mirip sudah ada: `trend()` dan `topModels()` di `src/lib/server/admin-overview/trends.ts`, `percentile_disc(0.5)` di `figures.ts` | Query pengguna mengikuti pola yang sama, ditambah filter `user_id` |
 | T8 | Request Playground (PRD `dashboard-playground.md`) juga akan menulis ke `gateway_requests` dan memotong saldo | Ikut terhitung di Usage |
 
@@ -69,11 +69,11 @@ Tujuan: pengguna melihat pemakaian dan biaya aslinya, dengan angka yang sama den
 | # | Fitur | Isi |
 |---|---|---|
 | F1 | Ringkasan 30 hari | Biaya (jumlah `charge_micros`), Request (jumlah baris), Error (`state = failed`, jumlah + persen), Token (input + output), Durasi median (`latency_ms`, request berhasil saja) |
-| F2 | Biaya per hari | 30 hari UTC, hari kosong = 0, satu seri |
+| F2 | Biaya per hari | 30 hari WIB, hari kosong = 0, satu seri |
 | F3 | Per model | Model (nama + id), Request, Token, Biaya, Porsi biaya; urut biaya terbesar |
 | F4 | Request yang masih berjalan | Kalimat kecil bila ada: "N request masih berjalan, biayanya belum masuk." Tahanan tidak dihitung sebagai biaya |
 | F5 | Belum ada pemakaian | `EmptyState`: "Belum ada request. Buat API key lalu kirim request pertama, atau coba di Playground." dengan tautan ke `/api-keys` dan `/playground` |
-| F6 | Zona waktu | Satu kalimat: "Hari dihitung dalam UTC (07.00 WIB)." |
+| F6 | Zona waktu | Satu kalimat: "Hari dihitung dalam WIB." |
 
 ### 3.2 Rekomendasi tambahan (usulan, butuh keputusan §10)
 
@@ -114,7 +114,7 @@ Pola dashboard-design §6 "Lists and data".
 | Fungsi | Query |
 |---|---|
 | `usageSummary(userId, now)` | Satu baris: `sum(charge_micros)`, `count(*)`, `count(*) filter (where state='failed')`, `count(*) filter (where state='pending')`, `sum(coalesce(input_tokens,0)+coalesce(output_tokens,0))`, `percentile_disc(0.5) within group (order by latency_ms) filter (where state='succeeded')` |
-| `usageByDay(userId, now)` | `GROUP BY` hari UTC, lalu isi hari kosong (pola `fillDays`) |
+| `usageByDay(userId, now)` | `GROUP BY` hari WIB (`Asia/Jakarta`), lalu isi hari kosong (pola `fillDays`) |
 | `usageByModel(userId, now)` | `GROUP BY model_id`, `LEFT JOIN model_prices` untuk nama, urut biaya |
 
 Ketiganya dijalankan paralel (`Promise.all`). Tanpa cache: setiap muat ulang membaca database (sama dengan Billing).
@@ -154,7 +154,7 @@ Mengikuti `.claude/rules/dashboard-design.md`.
 | D3 | Bar "Porsi biaya" berwarna accent | Bar netral `app-text-3` | Accent sudah dipakai grafik di atasnya; bar porsi hanya mengulang kolom Biaya, jadi tidak perlu warna penekanan |
 | D4 | "Latensi p50" | "Durasi median", dengan keterangan kecil "dari kirim sampai jawaban selesai" | T1: angka ini bukan latensi token pertama |
 | D5 | Catatan error selalu merah, persen 3 desimal (`0,003%`) | Merah hanya bila error > 0; persen 1 desimal, "<0,1%" bila di bawahnya | T5; angka lebih mudah dibaca |
-| D6 | Judul ringkasan tanpa periode yang terlihat | Deskripsi card grafik: "30 hari terakhir (UTC), dalam USD" | F6 |
+| D6 | Judul ringkasan tanpa periode yang terlihat | Deskripsi card grafik: "30 hari terakhir (WIB), dalam USD" | F6 |
 | D7 | Tabel tanpa `minWidth` (default `min-w-2xl`) | Tetap | Kolom sudah sedikit |
 
 Kontras warna tidak berubah (token yang dipakai sudah diukur di `dashboard-design.md` §3).
@@ -196,7 +196,7 @@ Diputuskan 2026-11-12: semua usulan di kolom kanan diterima ("Setuju semua").
 
 | # | Pertanyaan | Keputusan |
 |---|---|---|
-| U1 | Hari dihitung UTC (sama dengan admin dan batas key) atau WIB? | UTC, ditulis di halaman |
+| U1 | Hari dihitung UTC (sama dengan admin dan batas key) atau WIB? | **WIB** (owner 2026-11-13), sama dengan admin dan batas key, ditulis di halaman |
 | U2 | Rekomendasi R1–R4 masuk v1? | R3 (per key) ya karena kecil; R1, R2, R4 fase berikutnya |
 | U3 | Penyetelan desain D1–D7? | Diterima semua |
 | U4 | Lokasi query: `lib/server/usage/` (folder baru) atau `lib/server/gateway/`? | `lib/server/usage/` |

@@ -3,6 +3,7 @@ import { type SQL, and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import {
   type UserFilter, type UserStatusBody, type UsersPage, USERS_PAGE_SIZE,
 } from "@/lib/admin-users/user-admin-contract";
+import { wibMonthStart } from "@/lib/date-format";
 import { logAdminEvent } from "../admin-auth/audit";
 import { db } from "../db/client";
 import { likeContains as contains } from "../db/like-pattern";
@@ -11,7 +12,6 @@ import { AppError } from "../errors";
 
 // Admin side of user accounts (PRD admin-users-audit §3). Callers check the admin session.
 
-const monthStartUtc = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 
 function whereOf(filter: UserFilter, search: string | null): SQL | undefined {
   const status = filter === "all" ? undefined : eq(users.status, filter);
@@ -27,7 +27,7 @@ export async function listUsers(filter: UserFilter, search: string | null, reque
   const [{ total }] = await db.select({ total: count() }).from(users).where(where);
   const pages = Math.max(1, Math.ceil(total / USERS_PAGE_SIZE));
   const page = Math.min(requestedPage, pages);
-  const monthStart = monthStartUtc(new Date());
+  const monthStart = wibMonthStart(new Date());
   const rows = await db
     .select({
       id: users.id, email: users.email, firstName: users.firstName, lastName: users.lastName, status: users.status,

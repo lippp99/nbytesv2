@@ -15,7 +15,7 @@ export type AdminUserRow = {
   status: UserStatus;
   balanceMicros: number;
   heldMicros: number;
-  /** Charged this calendar month (UTC), from gateway_requests. */
+  /** Charged this calendar month (WIB), from gateway_requests. */
   spentMonthMicros: number;
   activeKeys: number;
   lastLoginAt: string | null;

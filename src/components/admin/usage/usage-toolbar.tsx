@@ -12,7 +12,7 @@ const sortOptions = USAGE_SORTS.map((value) => ({ value, label: sortLabels[value
 type UsageToolbarProps = {
   query: UsageFilters;
   currentMonth: string;
-  /** UTC day the page was rendered. */
+  /** WIB day the page was rendered. */
   today: string;
   months: { value: string; label: string }[];
   years: string[];

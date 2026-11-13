@@ -8,7 +8,7 @@ import { periodCopy as copy, rangeErrorText } from "./period-copy";
 
 type PeriodRangeFormProps = {
   initial: { from: string; to: string };
-  /** UTC day the page was rendered; the last day a range may end on. */
+  /** WIB day the page was rendered; the last day a range may end on. */
   today: string;
   pending: boolean;
   onApply: (from: string, to: string) => void;

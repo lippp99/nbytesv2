@@ -7,8 +7,8 @@ import { EmptyState } from "@/components/app-kit/empty-state";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import type { SurplusBalance, UpstreamHealth } from "@/lib/admin-gateway/upstream-contract";
-import { formatUtc } from "@/lib/date-format";
-import { formatMicros } from "@/lib/price-format";
+import { formatWibStamp } from "@/lib/date-format";
+import { formatCents } from "@/lib/price-format";
 import { upstreamCopy as copy } from "./upstream-copy";
 
 const mono = "font-mono text-app-code";
@@ -26,7 +26,7 @@ function Balance({ balance }: { balance: SurplusBalance | null }) {
     );
   }
   const items = [
-    { label: c.credit, value: <span className={`${mono} text-app-section tabular-nums`}>{formatMicros(balance.creditMicros)}</span> },
+    { label: c.credit, value: <span className={`${mono} text-app-section tabular-nums`}>{formatCents(balance.creditMicros)}</span> },
     { label: c.autoTopup, value: balance.autoTopup === null ? c.unknown : balance.autoTopup ? c.on : c.off },
     { label: c.accountStatus, value: balance.accountStatus ?? c.unknown },
   ];
@@ -64,7 +64,7 @@ function Attention({ items, hours }: { items: UpstreamHealth["attention"]; hours
                 <Td><Badge tone="danger"><span className={mono}>{a.upstreamErrorCode ?? c.unknownCode}</span></Badge></Td>
                 <Td align="right">{a.statusCode ?? "—"}</Td>
                 <Td align="right">{a.count.toLocaleString("en-US")}</Td>
-                <Td className={`${mono} whitespace-nowrap text-app-text-2 tabular-nums`}>{formatUtc(a.lastAt)}</Td>
+                <Td className={`${mono} whitespace-nowrap text-app-text-2 tabular-nums`}>{formatWibStamp(a.lastAt)}</Td>
               </Tr>
             ))}
           </tbody>

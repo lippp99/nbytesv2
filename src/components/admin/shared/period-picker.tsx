@@ -12,7 +12,7 @@ const kindOptions = PERIOD_KINDS.map((value) => ({ value, label: periodLabels[va
 export type PeriodPickerProps = {
   period: UsagePeriod;
   currentMonth: string;
-  /** UTC day the page was rendered; the last day a range may end on. */
+  /** WIB day the page was rendered; the last day a range may end on. */
   today: string;
   months: { value: string; label: string }[];
   years: string[];

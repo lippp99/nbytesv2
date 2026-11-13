@@ -54,7 +54,7 @@ Setiap klaim tentang kode berasal dari berkas yang dibuka saat PRD ini ditulis (
 
 | Kolom | Sumber |
 |---|---|
-| Waktu (UTC) | `created_at` |
+| Waktu (WIB) | `created_at` |
 | Pengguna | `users.email` lewat `user_id` (akun terhapus → "akun dihapus") |
 | Key | `api_keys.name` + `key_prefix` lewat `api_key_id` (key terhapus → "—") |
 | Model | `model_id`, plus penanda "stream" bila `stream` |

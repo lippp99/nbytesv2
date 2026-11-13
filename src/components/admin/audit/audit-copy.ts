@@ -13,7 +13,7 @@ export const auditCopy = {
   copiedId: "Id tersalin",
   copyFailed: "Gagal menyalin. Pilih teksnya lalu salin manual.",
   count: (total: number) => `${total} kejadian`,
-  cols: { at: "Waktu (UTC)", actor: "Admin", action: "Kejadian", target: "Target", reason: "Alasan", ip: "IP" },
+  cols: { at: "Waktu (WIB)", actor: "Admin", action: "Kejadian", target: "Target", reason: "Alasan", ip: "IP" },
   noAdmin: "Tidak dikenal",
   removed: "sudah dihapus",
   ipNote: "IP disamarkan (dua angka terakhir tidak disimpan). Baris lama dan baris tanpa header IP tepercaya tampil sebagai —.",

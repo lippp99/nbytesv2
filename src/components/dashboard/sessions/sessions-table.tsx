@@ -1,20 +1,13 @@
-import { useSyncExternalStore } from "react";
 import { secondaryAction } from "@/components/app-kit/button";
 import { Badge } from "@/components/app-kit/badge";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import type { ActiveSession } from "@/lib/auth/auth-contract";
+import { formatWib } from "@/lib/date-format";
 import { sessionsCopy as copy } from "./sessions-copy";
 
-// Local time of the viewer: the server does not know the time zone, so dates render only after hydration.
-const timeLabel = new Intl.DateTimeFormat("id-ID", {
-  day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
-});
-const noop = () => () => {};
-const useIsClient = () => useSyncExternalStore(noop, () => true, () => false);
-
+// Always WIB (owner 2026-11-13): the same text on server and client, so it renders straight away.
 function When({ iso }: { iso: string }) {
-  const client = useIsClient();
-  return <time dateTime={iso} className="tabular-nums">{client ? timeLabel.format(new Date(iso)) : " "}</time>;
+  return <time dateTime={iso} className="tabular-nums">{formatWib(iso, true)}</time>;
 }
 
 // 3:2 flag with a hairline ring, so white bands (Indonesia, Japan) stay visible on the white card.

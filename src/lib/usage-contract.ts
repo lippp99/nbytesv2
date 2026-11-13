@@ -1,5 +1,6 @@
 // Usage page of the dashboard (PRD dashboard-usage §5.2). Client-safe: types and pure helpers only. Money is integer
-// micro-USD; days are UTC (U1). Upstream telemetry and nbytes' own cost never appear here.
+// micro-USD; days are WIB (U1). Upstream telemetry and nbytes' own cost never appear here.
+import { wibDay, wibDayStart } from "./date-format.ts";
 
 export const USAGE_DAYS = 30;
 /** A request the user stopped mid-stream: shown as "stopped", not counted as an error (U5). */
@@ -27,17 +28,17 @@ export type KeyUsage = {
 
 export type UsageData = { summary: UsageSummary; days: UsageDay[]; models: ModelUsage[]; keys: KeyUsage[] };
 
-/** First UTC day of the window that ends today (today included). */
-export function windowStartUtc(now: Date, days = USAGE_DAYS): Date {
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (days - 1)));
+/** 00.00 WIB of the first day of the window that ends today (today included). */
+export function windowStart(now: Date, days = USAGE_DAYS): Date {
+  return new Date(wibDayStart(wibDay(now)).getTime() - (days - 1) * 86_400_000);
 }
 
-/** Every UTC day of the window, oldest first, with 0 where nothing was charged. */
+/** Every WIB day of the window, oldest first, with 0 where nothing was charged. */
 export function fillUsageDays(rows: UsageDay[], now: Date, days = USAGE_DAYS): UsageDay[] {
   const byDate = new Map(rows.map((r) => [r.date, r.chargeMicros]));
-  const start = windowStartUtc(now, days).getTime();
+  const start = windowStart(now, days).getTime();
   return Array.from({ length: days }, (_, i) => {
-    const date = new Date(start + i * 86_400_000).toISOString().slice(0, 10);
+    const date = wibDay(new Date(start + i * 86_400_000));
     return { date, chargeMicros: byDate.get(date) ?? 0 };
   });
 }

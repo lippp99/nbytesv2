@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { errorRateLabel, fillUsageDays, formatDuration, windowStartUtc } from "./usage-contract.ts";
+import { errorRateLabel, fillUsageDays, formatDuration, windowStart } from "./usage-contract.ts";
 
 const now = new Date("2026-03-01T05:00:00Z");
 
-test("window: 30 UTC days ending today, across a month end", () => {
-  assert.equal(windowStartUtc(now).toISOString(), "2026-01-31T00:00:00.000Z");
+test("window: 30 WIB days ending today, across a month end", () => {
+  assert.equal(windowStart(now).toISOString(), "2026-01-30T17:00:00.000Z"); // 31 Jan 00.00 WIB
   const days = fillUsageDays([], now);
   assert.equal(days.length, 30);
   assert.equal(days[0].date, "2026-01-31");
@@ -36,4 +36,10 @@ test("duration: ms below a second, seconds with one decimal above", () => {
   assert.equal(formatDuration(1000), "1,0 dtk");
   assert.equal(formatDuration(2430), "2,4 dtk");
   assert.equal(formatDuration(61_960), "62,0 dtk");
+});
+
+test("window: after 17.00 UTC the last day is already the next WIB day", () => {
+  const days = fillUsageDays([], new Date("2026-02-28T18:00:00Z"));
+  assert.equal(days[29].date, "2026-03-01");
+  assert.equal(days[0].date, "2026-01-31");
 });

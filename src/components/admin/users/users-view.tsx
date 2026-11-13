@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/app-kit/page-header";
 import { Pagination } from "@/components/app-kit/pagination";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import { type AdminUserRow, type UserFilter, type UsersPage, usersHref } from "@/lib/admin-users/user-admin-contract";
-import { formatUtc } from "@/lib/date-format";
+import { formatWibStamp } from "@/lib/date-format";
 import { formatMicros, formatSignedMicros } from "@/lib/price-format";
 import { StatusDialog } from "./status-dialog";
 import { usersCopy as copy, userStatusBadge } from "./users-copy";
@@ -34,8 +34,8 @@ function Row({ user }: { user: AdminUserRow }) {
       </Td>
       <Td align="right">{formatMicros(user.spentMonthMicros)}</Td>
       <Td align="right">{user.activeKeys}</Td>
-      <Td className={mono}>{user.lastLoginAt ? formatUtc(user.lastLoginAt) : copy.never}</Td>
-      <Td className={mono}>{formatUtc(user.createdAt).slice(0, 10)}</Td>
+      <Td className={mono}>{user.lastLoginAt ? formatWibStamp(user.lastLoginAt) : copy.never}</Td>
+      <Td className={mono}>{formatWibStamp(user.createdAt).slice(0, 10)}</Td>
       <Td><StatusDialog userId={user.id} email={user.email} status={user.status} /></Td>
     </Tr>
   );

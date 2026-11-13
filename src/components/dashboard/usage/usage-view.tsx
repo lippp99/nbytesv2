@@ -37,7 +37,7 @@ function NoUsage() {
   );
 }
 
-/** The user's last 30 UTC days from gateway_requests, read on the server (page.tsx). */
+/** The user's last 30 WIB days from gateway_requests, read on the server (page.tsx). */
 export function UsageView({ data }: { data: UsageData }) {
   const { summary, days, models, keys } = data;
   return (

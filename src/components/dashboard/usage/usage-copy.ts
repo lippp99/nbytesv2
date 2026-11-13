@@ -11,7 +11,7 @@ export const usage = {
   noDuration: "—",
   pending: (n: number) => `${n} request masih berjalan, biayanya belum masuk.`,
   chartTitle: "Biaya per hari",
-  chartSub: "30 hari terakhir (UTC), dalam USD",
+  chartSub: "30 hari terakhir (WIB), dalam USD",
   chartTable: "Biaya per hari dalam tabel",
   chartSeries: "Biaya",
   date: "Tanggal",
@@ -22,7 +22,7 @@ export const usage = {
   playground: "Playground",
   revoked: "dicabut",
   cols: { model: "Model", key: "Key", requests: "Request", tokens: "Token", cost: "Biaya", share: "Porsi biaya" },
-  timezone: "Hari dihitung dalam UTC (07.00 WIB).",
+  timezone: "Hari dihitung dalam WIB.",
   empty: {
     title: "Belum ada request",
     body: "Buat API key lalu kirim request pertama, atau coba di Playground.",

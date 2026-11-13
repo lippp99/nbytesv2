@@ -77,7 +77,7 @@ export const docs = {
         "Sebelum request diteruskan, saldo ditahan sebesar perkiraan biaya maksimum. Setelah selesai, yang ditagih hanya pemakaian asli dan sisanya dilepas.",
         "Request yang ditolak atau gagal sebelum jawaban mulai dikirim tidak ditagih."
           + " Stream yang terputus di tengah jalan ditagih sesuai usage yang sudah tercatat, atau sebesar tahanan bila usage belum ada.",
-        "Batas bulanan per key (opsional, di API Keys) dihitung sejak tanggal 1 pukul 00.00 UTC. Bila tercapai, request dengan key itu ditolak 402.",
+        "Batas bulanan per key (opsional, di API Keys) dihitung sejak tanggal 1 pukul 00.00 WIB. Bila tercapai, request dengan key itu ditolak 402.",
       ],
     },
   },

@@ -1,6 +1,6 @@
 import type { PeriodKind, RangeProblem } from "@/lib/admin-gateway/usage-contract";
 
-// Text of the period picker shared by the admin Usage and Leaderboard pages.
+// Text of the period picker shared by the admin Usage, Leaderboard and Billing pages.
 export const periodCopy = {
   periodLabel: "Periode",
   monthLabel: "Bulan",
@@ -16,6 +16,6 @@ export const periodLabels: Record<PeriodKind, string> = { month: "Bulan", year: 
 export const rangeErrorText: Record<RangeProblem, string> = {
   invalid: "Isi kedua tanggal dengan lengkap.",
   order: "Tanggal mulai harus sebelum atau sama dengan tanggal akhir.",
-  future: "Tanggal akhir tidak boleh setelah hari ini (UTC).",
+  future: "Tanggal akhir tidak boleh setelah hari ini (WIB).",
   too_long: "Rentang paling panjang 366 hari. Untuk lebih lama, pilih Tahun.",
 };

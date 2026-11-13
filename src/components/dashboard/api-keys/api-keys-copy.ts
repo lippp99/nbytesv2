@@ -37,7 +37,7 @@ export const apiKeysCopy = {
   noLimit: "Tanpa batas",
   near: "Hampir habis",
   reached: "Batas tercapai, request ditolak",
-  resetNote: "Pemakaian dihitung sejak tanggal 1 pukul 00.00 UTC (07.00 WIB).",
+  resetNote: "Pemakaian dihitung sejak tanggal 1 pukul 00.00 WIB.",
   revoke: "Cabut",
   confirmRevoke: "Cabut key ini?",
   confirm: "Ya, cabut",

@@ -2,7 +2,7 @@ import { Exchange01Icon } from "@hugeicons/core-free-icons";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
-import { formatUtc } from "@/lib/date-format";
+import { formatWibStamp } from "@/lib/date-format";
 import type { ExchangeRateEntry } from "@/lib/payments/finance-contract";
 import { formatIdr } from "@/lib/price-format";
 import { billingCopy } from "./billing-copy";
@@ -20,7 +20,7 @@ export function ExchangeRateCard({ history }: { history: ExchangeRateEntry[] }) 
           <p className="text-app-small text-app-text-2">{copy.current}</p>
           <p className="mt-1 font-mono text-app-section text-app-text tabular-nums">{copy.value(formatIdr(current.idrPerUsd))}</p>
           <p className="mt-1 text-app-small text-app-text-3">
-            {copy.setBy(current.setBy ?? copy.deletedAdmin, formatUtc(current.setAt))}
+            {copy.setBy(current.setBy ?? copy.deletedAdmin, formatWibStamp(current.setAt))}
           </p>
         </div>
       ) : (
@@ -41,7 +41,7 @@ export function ExchangeRateCard({ history }: { history: ExchangeRateEntry[] }) 
             <tbody>
               {history.map((entry) => (
                 <Tr key={entry.setAt}>
-                  <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(entry.setAt)}</Td>
+                  <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatWibStamp(entry.setAt)}</Td>
                   <Td align="right">{formatIdr(entry.idrPerUsd)}</Td>
                   <Td className="max-w-56 truncate text-app-text-2">{entry.setBy ?? copy.deletedAdmin}</Td>
                 </Tr>

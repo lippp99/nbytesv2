@@ -17,7 +17,7 @@ export function buildErrorTexts(rate: string, maxBodyMb: number): Record<DocErro
     },
     invalid_api_key: { meaning: "API key tidak ada, salah, atau sudah dicabut.", action: "Periksa header dan status key di API Keys." },
     insufficient_balance: { meaning: "Saldo tidak cukup untuk menahan biaya request ini.", action: "Isi saldo di Billing." },
-    key_budget_exceeded: { meaning: "Batas bulanan key ini tercapai.", action: "Pakai key lain, atau tunggu tanggal 1 pukul 00.00 UTC." },
+    key_budget_exceeded: { meaning: "Batas bulanan key ini tercapai.", action: "Pakai key lain, atau tunggu tanggal 1 pukul 00.00 WIB." },
     account_suspended: { meaning: "Akun ditangguhkan.", action: "Hubungi admin nbytes." },
     model_not_found: { meaning: "Model tidak ada di katalog aktif. Alias juga ditolak.", action: "Pakai id persis dari GET /models." },
     request_too_large: { meaning: `Body lebih dari ${maxBodyMb} MB.`, action: "Perkecil percakapan atau lampiran." },

@@ -19,7 +19,7 @@ export const upstreamCopy = {
   attention: {
     title: "Perlu tindakan",
     description: (h: number) => `Request ${h} jam terakhir yang gagal karena key, kredit, atau batas belanja nbytes di Surplus, bukan salah pengguna.`,
-    cols: { code: "Kode Surplus", status: "HTTP", count: "Jumlah", last: "Terakhir (UTC)" },
+    cols: { code: "Kode Surplus", status: "HTTP", count: "Jumlah", last: "Terakhir (WIB)" },
     unknownCode: "tidak ada kode",
     none: "Tidak ada kejadian. Semua kegagalan dalam periode ini, bila ada, berasal dari request pengguna atau dari model.",
   },

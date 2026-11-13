@@ -5,16 +5,16 @@ export const count = (v: number) => v.toLocaleString("en-US");
 export const percent = (bp: number) => `${(bp / 100).toFixed(1)}%`;
 export const signedPercent = (bp: number) => `${bp > 0 ? "+" : ""}${percent(bp)}`;
 
-const monthFormat = new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric", timeZone: "UTC" });
+const monthFormat = new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric", timeZone: "Asia/Jakarta" });
 /** "2026-11" -> "November 2026". */
-export const monthName = (month: string) => monthFormat.format(new Date(`${month}-01T00:00:00Z`));
+export const monthName = (month: string) => monthFormat.format(new Date(`${month}-01T00:00:00+07:00`));
 
-const dayFormat = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-const shortMonthFormat = new Intl.DateTimeFormat("id-ID", { month: "short", year: "numeric", timeZone: "UTC" });
+const dayFormat = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
+const shortMonthFormat = new Intl.DateTimeFormat("id-ID", { month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
 /** "2026-11-01" -> "1 Nov 2026". */
-const dayName = (day: string) => dayFormat.format(new Date(`${day}T00:00:00Z`));
+const dayName = (day: string) => dayFormat.format(new Date(`${day}T00:00:00+07:00`));
 /** Chart label of a month bucket: "2026-11" -> "Nov 2026". */
-export const shortMonthName = (month: string) => shortMonthFormat.format(new Date(`${month}-01T00:00:00Z`));
+export const shortMonthName = (month: string) => shortMonthFormat.format(new Date(`${month}-01T00:00:00+07:00`));
 
 /** A period in words: "November 2026", "2026", or "1 Nov 2026 – 13 Nov 2026". */
 export function periodName(p: UsagePeriod): string {

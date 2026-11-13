@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/app-kit/page-header";
 import { Pagination } from "@/components/app-kit/pagination";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import { type AuditEntry, type AuditFilter, type AuditPage, auditHref } from "@/lib/admin-auth/audit-contract";
-import { formatUtc } from "@/lib/date-format";
+import { formatWibStamp } from "@/lib/date-format";
 import { formatIdr } from "@/lib/price-format";
 import { actionLabels, auditCopy as copy } from "./audit-copy";
 import { AuditFilterControl } from "./audit-filter";
@@ -41,7 +41,7 @@ function Target({ target }: { target: AuditEntry["target"] }) {
 function Row({ entry }: { entry: AuditEntry }) {
   return (
     <Tr>
-      <Td className={`${mono} whitespace-nowrap text-app-text-2 tabular-nums`}>{formatUtc(entry.at)}</Td>
+      <Td className={`${mono} whitespace-nowrap text-app-text-2 tabular-nums`}>{formatWibStamp(entry.at)}</Td>
       <Td className="max-w-56 truncate">{entry.adminEmail ?? <span className={quiet}>{copy.noAdmin}</span>}</Td>
       <Td>{actionLabels[entry.type] ?? <span className={mono}>{entry.type}</span>}</Td>
       <Td className="max-w-72 py-3 break-words"><Target target={entry.target} /></Td>

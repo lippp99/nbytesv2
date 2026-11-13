@@ -11,7 +11,7 @@ import { modelById } from "@/lib/model-catalog";
 const TICK_MS = 2400;
 const MAX_ROWS = 7;
 const cols = dashboard.history;
-const clock = (d: Date) => d.toLocaleTimeString("en-GB", { hour12: false });
+const clock = (d: Date) => d.toLocaleTimeString("en-GB", { hour12: false, timeZone: "Asia/Jakarta" });
 
 /** Request history that streams a new mock row every few seconds while it is on screen. */
 export function LiveLog() {
