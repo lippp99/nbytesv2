@@ -1,21 +1,10 @@
 // Admin overview (PRD admin-overview §3, K1–K5). Shapes shared by the server queries and the page, plus the pure rules
 // (margin, coverage, alerts, filling empty days) so they can be tested without a database.
 import type { SurplusBalance } from "./admin-gateway/upstream-contract";
+import { wibClock } from "./date-format.ts";
 
 const BP = 10_000;
 export const TREND_DAYS = 30;
-
-export type MonthFigures = {
-  /** Charged to users this month (all settled requests). */
-  chargeMicros: number;
-  /** Surplus cost and the charge of the same requests: only rows whose cost is known (billing §10). */
-  knownCostMicros: number;
-  knownCostChargeMicros: number;
-  costPending: number;
-  depositIdr: number;
-  depositCreditMicros: number;
-  depositCount: number;
-};
 
 export type DayFigures = { requests: number; failed: number; failedOurs: number; p50LatencyMs: number | null };
 export type UserFigures = { total: number; active30: number; newThisMonth: number; suspended: number };
@@ -25,20 +14,13 @@ export type MoneyHealth = {
   userBalanceMicros: number;
   userHeldMicros: number;
   negativeBalances: number;
+  /** null when no rate was ever set (alert noExchangeRate). */
   idrPerUsd: number | null;
-  rateSetAt: string | null;
   depositsPending: number;
   depositsStuck: number;
 };
 
 export type TrendDay = { date: string; chargeMicros: number; costMicros: number; requests: number; failed: number };
-export type TopModel = {
-  modelId: string; requests: number; inputTokens: number; outputTokens: number; chargeMicros: number; costMicros: number;
-  /** Charge of the requests whose Surplus cost is known: the margin compares only these with costMicros. */
-  knownCostChargeMicros: number;
-};
-export type TopUser = { email: string | null; requests: number; chargeMicros: number; balanceMicros: number };
-
 export type AlertFacts = {
   surplusUnreadable: boolean;
   /** K4: Surplus credit below what users could still spend. */
@@ -88,10 +70,11 @@ export function buildAlerts(facts: AlertFacts): OverviewAlert[] {
   });
 }
 
-/** Every UTC day of the window, oldest first, with zeros where nothing happened. */
+/** Every WIB day of the window up to today, oldest first, with zeros where nothing happened. */
 export function fillDays(rows: TrendDay[], today: Date, days = TREND_DAYS): TrendDay[] {
   const byDate = new Map(rows.map((r) => [r.date, r]));
-  const end = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const w = wibClock(today);
+  const end = Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()); // calendar math only
   return Array.from({ length: days }, (_, i) => {
     const date = new Date(end - (days - 1 - i) * 86_400_000).toISOString().slice(0, 10);
     return byDate.get(date) ?? { date, chargeMicros: 0, costMicros: 0, requests: 0, failed: 0 };

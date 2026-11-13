@@ -25,8 +25,6 @@ export type Leaderboard = {
   years: string[];
   /** Every token of the period, deleted accounts included, so shares add up against the whole. */
   totalTokens: number;
-  activeUsers: number;
-  usedModels: number;
   users: LeaderUser[];
   models: LeaderModel[];
 };

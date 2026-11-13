@@ -9,7 +9,7 @@ import { gatewayRequests as g, modelPrices, users } from "../db/schema";
 import { sqlNumber as num } from "../db/sql-number";
 import { inPeriod, periodLists, rowTokens } from "./period-sql";
 
-// Admin Leaderboard: the accounts and the models with the most tokens (input + output) in one UTC period.
+// Admin Leaderboard: the accounts and the models with the most tokens (input + output) in one WIB period.
 // Callers check the admin session. Rows with 0 tokens (only failed requests) are left out: they used nothing.
 // Deleted accounts count in the totals but never rank: their rows no longer say whose they were.
 
@@ -23,11 +23,7 @@ const notFailed = num(sql`count(*) filter (where ${g.state} <> 'failed')`);
 
 async function totals(period: UsagePeriod) {
   const [row] = await db
-    .select({
-      totalTokens: tokenSum,
-      activeUsers: num(sql`count(distinct ${g.userId})`),
-      usedModels: num(sql`count(distinct ${g.modelId})`),
-    })
+    .select({ totalTokens: tokenSum })
     .from(g)
     .where(inPeriod(period));
   return row;

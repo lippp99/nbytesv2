@@ -30,11 +30,17 @@ test("alerts: none when quiet; fixed order, most urgent first", () => {
   ]);
 });
 
-test("30 UTC days, oldest first, zeros where empty", () => {
+test("30 WIB days, oldest first, zeros where empty", () => {
   const today = new Date("2026-11-12T15:00:00Z");
   const days = fillDays([{ date: "2026-11-12", chargeMicros: 5, costMicros: 3, requests: 2, failed: 1 }], today);
   assert.equal(days.length, 30);
   assert.equal(days[0].date, "2026-10-14");
   assert.deepEqual(days[29], { date: "2026-11-12", chargeMicros: 5, costMicros: 3, requests: 2, failed: 1 });
   assert.deepEqual(days[28], { date: "2026-11-11", chargeMicros: 0, costMicros: 0, requests: 0, failed: 0 });
+});
+
+test("after 17.00 UTC the window already ends on the next WIB day", () => {
+  const days = fillDays([], new Date("2026-11-12T18:00:00Z"));
+  assert.equal(days[29].date, "2026-11-13");
+  assert.equal(days[0].date, "2026-10-15");
 });

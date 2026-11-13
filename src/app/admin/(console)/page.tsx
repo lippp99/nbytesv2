@@ -4,12 +4,12 @@ import { overviewCopy as copy } from "@/components/admin/overview/overview-copy"
 import { OverviewFigures } from "@/components/admin/overview/overview-figures";
 import { OverviewAlerts, OverviewMoney } from "@/components/admin/overview/overview-money";
 import { OverviewSkeleton } from "@/components/admin/overview/overview-skeleton";
-import { OverviewTop, OverviewTrends } from "@/components/admin/overview/overview-trends";
+import { OverviewTrends } from "@/components/admin/overview/overview-trends";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { getCurrentAdmin } from "@/lib/server/admin-auth/current-admin";
 import { overviewAlerts } from "@/lib/server/admin-overview/alerts";
-import { dayFigures, moneyHealth, monthFigures, userFigures } from "@/lib/server/admin-overview/figures";
-import { topModels, topUsers, trend } from "@/lib/server/admin-overview/trends";
+import { dayFigures, moneyHealth, userFigures } from "@/lib/server/admin-overview/figures";
+import { trend } from "@/lib/server/admin-overview/trends";
 
 export const metadata: Metadata = { title: "Overview · Admin" };
 
@@ -19,8 +19,8 @@ export const metadata: Metadata = { title: "Overview · Admin" };
 async function Figures() {
   await getCurrentAdmin();
   const now = new Date();
-  const [month, day, users] = await Promise.all([monthFigures(now), dayFigures(now), userFigures(now)]);
-  return <OverviewFigures month={month} day={day} users={users} />;
+  const [day, users] = await Promise.all([dayFigures(now), userFigures(now)]);
+  return <OverviewFigures day={day} users={users} />;
 }
 
 async function MoneyAndAlerts() {
@@ -39,13 +39,7 @@ async function MoneyAndAlerts() {
 async function Trends() {
   await getCurrentAdmin();
   const now = new Date();
-  const [days, models, users] = await Promise.all([trend(now), topModels(now), topUsers(now)]);
-  return (
-    <>
-      <OverviewTrends days={days} />
-      <OverviewTop models={models} users={users} />
-    </>
-  );
+  return <OverviewTrends days={await trend(now)} />;
 }
 
 export default function Page() {

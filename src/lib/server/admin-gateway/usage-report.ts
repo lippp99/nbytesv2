@@ -10,7 +10,7 @@ import { gatewayRequests, modelPrices, users } from "../db/schema";
 import { sqlNumber as num } from "../db/sql-number";
 import { inPeriod, periodLists, rowTokens } from "./period-sql";
 
-// Admin Usage page: tokens and money per model and per user for one UTC period (month, year or date range).
+// Admin Usage page: tokens and money per model and per user for one WIB period (month, year or date range).
 // Callers check the admin session.
 // Failed requests carry no tokens or charge (null), so sums count only what was used; requests count every row.
 
@@ -32,9 +32,10 @@ const orderBy: Record<UsageSort, SQL> = {
 async function totals(period: UsagePeriod): Promise<UsageTotals> {
   const [row] = await db
     .select({
-      ...sums,
+      requests: sums.requests,
+      inputTokens: sums.inputTokens,
+      outputTokens: sums.outputTokens,
       failed: num(sql`count(*) filter (where ${g.state} = 'failed')`),
-      costPending: num(sql`count(*) filter (where ${g.costStatus} = 'pending')`),
       users: num(sql`count(distinct ${g.userId})`),
       models: num(sql`count(distinct ${g.modelId})`),
     })
@@ -43,11 +44,11 @@ async function totals(period: UsagePeriod): Promise<UsageTotals> {
   return row;
 }
 
-/** Tokens per UTC day, or per UTC month for a year or a long range (the same keys fillBuckets makes). */
+/** Tokens per WIB day, or per WIB month for a year or a long range (the same keys fillBuckets makes). */
 async function buckets(period: UsagePeriod): Promise<UsageBucket[]> {
   // sql.raw only ever gets one of these two fixed strings, never request input.
   const shape = bucketOf(period) === "day" ? "YYYY-MM-DD" : "YYYY-MM";
-  const day = sql<string>`to_char(${g.createdAt} at time zone 'UTC', ${sql.raw(`'${shape}'`)})`;
+  const day = sql<string>`to_char(${g.createdAt} at time zone 'Asia/Jakarta', ${sql.raw(`'${shape}'`)})`;
   const rows = await db
     .select({ date: day, inputTokens: sums.inputTokens, outputTokens: sums.outputTokens })
     .from(g)

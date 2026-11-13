@@ -1,6 +1,7 @@
 import "server-only";
-import { and, count, desc, eq, gte, sql } from "drizzle-orm";
-import type { DayFigures, MonthFigures, MoneyHealth, UserFigures } from "@/lib/admin-overview-contract";
+import { count, desc, eq, gte, sql } from "drizzle-orm";
+import type { DayFigures, MoneyHealth, UserFigures } from "@/lib/admin-overview-contract";
+import { wibMonthStart } from "@/lib/date-format";
 import { db } from "../db/client";
 import { sqlNumber as num } from "../db/sql-number";
 import { deposits, exchangeRates, gatewayRequests, userBalances, users } from "../db/schema";
@@ -10,33 +11,6 @@ import { surplusBalance } from "../admin-gateway/upstream-health";
 
 const g = gatewayRequests;
 const DAY_MS = 86_400_000;
-
-export const monthStartUtc = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-
-/** K1: usage charged, Surplus cost of the known-cost requests, and paid deposits, each on its own. */
-export async function monthFigures(now: Date): Promise<MonthFigures> {
-  const since = monthStartUtc(now);
-  const [[usage], [paid]] = await Promise.all([
-    db
-      .select({
-        chargeMicros: num(sql`sum(${g.chargeMicros})`),
-        knownCostMicros: num(sql`sum(${g.surplusCostMicros})`),
-        knownCostChargeMicros: num(sql`sum(${g.chargeMicros}) filter (where ${g.surplusCostMicros} is not null)`),
-        costPending: num(sql`count(*) filter (where ${g.costStatus} = 'pending')`),
-      })
-      .from(g)
-      .where(gte(g.createdAt, since)),
-    db
-      .select({
-        depositIdr: num(sql`sum(${deposits.amountIdr} + ${deposits.feeIdr})`),
-        depositCreditMicros: num(sql`sum(${deposits.creditMicros})`),
-        depositCount: count(),
-      })
-      .from(deposits)
-      .where(and(eq(deposits.status, "paid"), gte(deposits.paidAt, since))),
-  ]);
-  return { ...usage, ...paid };
-}
 
 export async function dayFigures(now: Date): Promise<DayFigures> {
   const [row] = await db
@@ -58,7 +32,7 @@ export async function userFigures(now: Date): Promise<UserFigures> {
     db
       .select({
         total: count(),
-        newThisMonth: num(sql`count(*) filter (where ${users.createdAt} >= ${monthStartUtc(now)})`),
+        newThisMonth: num(sql`count(*) filter (where ${users.createdAt} >= ${wibMonthStart(now)})`),
         suspended: num(sql`count(*) filter (where ${users.status} = 'suspended')`),
       })
       .from(users),
@@ -81,7 +55,7 @@ export async function moneyHealth(now: Date): Promise<MoneyHealth> {
         negativeBalances: num(sql`count(*) filter (where ${userBalances.balanceMicros} < 0)`),
       })
       .from(userBalances),
-    db.select({ idrPerUsd: exchangeRates.idrPerUsd, setAt: exchangeRates.createdAt }).from(exchangeRates)
+    db.select({ idrPerUsd: exchangeRates.idrPerUsd }).from(exchangeRates)
       .orderBy(desc(exchangeRates.createdAt)).limit(1),
     db
       .select({
@@ -93,6 +67,6 @@ export async function moneyHealth(now: Date): Promise<MoneyHealth> {
   ]);
   return {
     surplus, ...balances, ...open,
-    idrPerUsd: rate?.idrPerUsd ?? null, rateSetAt: rate?.setAt.toISOString() ?? null,
+    idrPerUsd: rate?.idrPerUsd ?? null,
   };
 }

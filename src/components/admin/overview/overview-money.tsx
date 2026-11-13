@@ -3,8 +3,7 @@ import { AllClear } from "@/components/admin/shared/all-clear";
 import { Badge } from "@/components/app-kit/badge";
 import { Card } from "@/components/app-kit/card";
 import { type MoneyHealth, type OverviewAlert, coverageBp } from "@/lib/admin-overview-contract";
-import { formatUtc } from "@/lib/date-format";
-import { formatIdr, formatMicros, formatSignedMicros } from "@/lib/price-format";
+import { formatCents, formatSignedCents } from "@/lib/price-format";
 import { alertText, overviewCopy } from "./overview-copy";
 
 const mono = "font-mono tabular-nums";
@@ -40,23 +39,18 @@ function Item({ label, value, note, danger }: { label: string; value: ReactNode;
   );
 }
 
-/** §3.2: Surplus credit against what users can still spend (K4), the rate and open deposits. */
+/** §3.2: what users can still spend against Surplus credit (K4) and open deposits. Balance and rate: Upstream, Billing. */
 export function OverviewMoney({ money }: { money: MoneyHealth }) {
   const c = overviewCopy.money;
   const cover = coverageBp(money.surplus?.creditMicros ?? null, money.userBalanceMicros);
   return (
     <Card title={c.title} description={c.description}>
-      <dl className="grid gap-px bg-app-border sm:grid-cols-2 lg:grid-cols-3">
-        <Item label={c.surplus} danger={!money.surplus}
-          value={money.surplus ? <span className={mono}>{formatMicros(money.surplus.creditMicros)}</span> : c.surplusUnread} />
-        <Item label={c.users} value={<span className={mono}>{formatSignedMicros(money.userBalanceMicros)}</span>}
-          note={money.userHeldMicros > 0 ? c.usersHeld(formatMicros(money.userHeldMicros)) : undefined} />
+      <dl className="grid gap-px bg-app-border sm:grid-cols-2 lg:grid-cols-4">
+        <Item label={c.users} value={<span className={mono}>{formatSignedCents(money.userBalanceMicros)}</span>}
+          note={money.userHeldMicros > 0 ? c.usersHeld(formatCents(money.userHeldMicros)) : undefined} />
         <Item label={c.coverage} note={c.coverageNote} danger={cover !== null && cover < 10_000}
           value={cover === null ? c.coverageNone : <span className={mono}>{`${Math.floor(cover / 100)}%`}</span>} />
         <Item label={c.negative} danger={money.negativeBalances > 0} value={<span className={mono}>{money.negativeBalances}</span>} />
-        <Item label={c.rate} danger={money.idrPerUsd === null}
-          value={money.idrPerUsd === null ? c.rateNone : <span className={mono}>{formatIdr(money.idrPerUsd)} / USD</span>}
-          note={money.rateSetAt ? c.rateSet(formatUtc(money.rateSetAt)) : undefined} />
         <Item label={c.deposits} value={<span className={mono}>{money.depositsPending + money.depositsStuck}</span>}
           note={c.depositsNote(money.depositsPending, money.depositsStuck)} danger={money.depositsStuck > 0} />
       </dl>

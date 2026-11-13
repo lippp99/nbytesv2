@@ -3,19 +3,8 @@ import type { AlertKind } from "@/lib/admin-overview-contract";
 // Text of the admin overview (PRD admin-overview §3). Figures come from the database; nothing here is an example.
 export const overviewCopy = {
   title: "Overview",
-  sub: "Uang, pemakaian dan kesehatan gateway. Dihitung saat halaman dibuka; waktu dalam UTC.",
+  sub: "Peringatan, saldo pengguna, 24 jam terakhir dan tren 30 hari. Angka uang per periode ada di Billing. Waktu dalam WIB.",
   loading: "Memuat ringkasan",
-  month: {
-    label: "Angka bulan ini",
-    charge: "Pemakaian ditagih",
-    chargeNote: "dari request API bulan ini",
-    cost: "Biaya Surplus",
-    costNote: (pending: number) => (pending ? `${pending} request biayanya masih menunggu` : "semua biaya sudah diketahui"),
-    margin: "Margin kotor",
-    marginNote: (pct: string | null) => (pct ? `${pct} dari tagihan yang biayanya diketahui` : "belum ada tagihan dengan biaya diketahui"),
-    deposit: "Deposit masuk",
-    depositNote: (n: number, credit: string) => `${n} deposit, kredit ${credit}`,
-  },
   day: {
     label: "Angka 24 jam dan pengguna",
     requests: "Request 24 jam",
@@ -36,17 +25,12 @@ export const overviewCopy = {
   money: {
     title: "Kesehatan uang",
     description: "Kredit nbytes di Surplus dibanding saldo prabayar yang masih bisa dipakai pengguna.",
-    surplus: "Saldo nbytes di Surplus",
-    surplusUnread: "tidak bisa dibaca",
     users: "Total saldo pengguna",
     usersHeld: (held: string) => `${held} sedang ditahan`,
     coverage: "Cakupan",
     coverageNote: "saldo Surplus ÷ saldo pengguna; di bawah 100% kredit Surplus tidak cukup bila semua saldo dipakai",
     coverageNone: "tidak dihitung",
     negative: "Akun saldo negatif",
-    rate: "Kurs berlaku",
-    rateNone: "belum diisi; deposit ditolak",
-    rateSet: (at: string) => `diubah ${at} UTC`,
     deposits: "Deposit terbuka",
     depositsNote: (pending: number, stuck: number) => `${pending} menunggu bayar · ${stuck} macet lewat kedaluwarsa`,
   },
@@ -63,17 +47,6 @@ export const overviewCopy = {
     date: "Tanggal",
     empty: "Belum ada request dalam 30 hari terakhir",
     emptyBody: "Grafik terisi setelah pengguna memanggil API dengan key mereka.",
-  },
-  top: {
-    modelsTitle: "Model teratas bulan ini",
-    usersTitle: "Pengguna teratas bulan ini",
-    cols: {
-      model: "Model", user: "Pengguna", requests: "Request", input: "Token input", output: "Token output", charge: "Ditagih",
-      cost: "Biaya Surplus", margin: "Margin", balance: "Saldo sekarang",
-    },
-    deleted: "akun dihapus",
-    empty: "Belum ada request bulan ini",
-    emptyBody: "Daftar terisi setelah ada request yang ditagih bulan ini.",
   },
 };
 

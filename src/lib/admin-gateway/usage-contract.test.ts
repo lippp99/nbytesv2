@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  bucketOf, changeBp, fillBuckets, monthOptions, parsePeriod, parseUsageQuery, periodRange, previousPeriod, rangeError,
+  bucketOf, changeBp, dayOf, fillBuckets, monthOf, monthOptions, parsePeriod, parseUsageQuery, periodRange, previousPeriod, rangeError,
   shareBp, usageHref, USAGE_MONTHS_MAX, yearOptions,
 } from "./usage-contract.ts";
 
 const now = new Date("2026-11-13T08:00:00Z");
-const day = (s: string) => new Date(`${s}T00:00:00Z`);
+const day = (s: string) => new Date(`${s}T00:00:00+07:00`);
 
-test("period range is [start, end) in UTC; a date range includes its last day", () => {
+test("period range is [start, end) in WIB days; a date range includes its last day", () => {
   assert.deepEqual(periodRange({ kind: "month", month: "2026-12" }), { start: day("2026-12-01"), end: day("2027-01-01") });
   assert.deepEqual(periodRange({ kind: "year", year: "2026" }), { start: day("2026-01-01"), end: day("2027-01-01") });
   assert.deepEqual(periodRange({ kind: "range", from: "2026-11-01", to: "2026-11-07" }),
@@ -88,4 +88,12 @@ test("share and change in basis points; null when the base is zero", () => {
   assert.equal(shareBp(5, 0), null);
   assert.equal(changeBp(150, 100), 5000);
   assert.equal(changeBp(10, 0), null);
+});
+
+test("WIB clock: 17.00 UTC is already the next day and, at month end, the next month", () => {
+  assert.equal(dayOf(new Date("2026-11-12T16:59:00Z")), "2026-11-12");
+  assert.equal(dayOf(new Date("2026-11-12T17:00:00Z")), "2026-11-13");
+  assert.equal(monthOf(new Date("2026-11-30T17:30:00Z")), "2026-12");
+  assert.deepEqual(parsePeriod({}, new Date("2026-12-31T18:00:00Z")), { kind: "month", month: "2027-01" });
+  assert.deepEqual(yearOptions(null, new Date("2026-12-31T18:00:00Z")), ["2027"]);
 });

@@ -34,7 +34,7 @@ Halaman ini **mockup penuh**: `src/app/admin/(console)/page.tsx` merender `Overv
 |---|---|---|
 | `gateway_requests` | Request, gagal, latensi, token, tagihan ke pengguna, biaya Surplus (boleh kosong), margin, per model/per pengguna/per hari | `schema/gateway.ts` |
 | `user_balances` | Total saldo pengguna (kewajiban prabayar nbytes) dan total ditahan; saldo negatif (B7) | `schema/billing.ts` |
-| `deposits` | Deposit masuk (rupiah, biaya Sumopod, kredit USD), deposit menunggu dan macet (B9) | `schema/billing.ts`, `payments/finance-report.ts` (`depositSummary` sudah menghitung sebagian) |
+| `deposits` | Deposit masuk (rupiah, biaya Sumopod, kredit USD), deposit menunggu dan macet (B9) | `schema/billing.ts`, `payments/finance-report.ts` (`profitSummary` sudah menghitung sebagian) |
 | `payment_webhook_events` | Webhook yang tidak cocok (`mismatch`, `unknown_order`) | `schema/billing.ts`, `apply-webhook.ts` |
 | `exchange_rates` | Kurs berlaku dan kapan diubah; tanpa baris = deposit ditolak | `payments/exchange-rate.ts` |
 | `users`, `api_keys`, `sessions` | Total akun, akun baru, ditangguhkan, key aktif | `schema/auth.ts`, `schema/gateway.ts` |
@@ -49,9 +49,14 @@ pernah diisi, jadi deposit ditolak), `users` 1, `user_balances` 0. Semua bagian 
 
 Urutan dari atas. Tidak ada tombol atau tautan ke halaman lain; setiap angka bisa dibaca di tempat.
 
+**Diubah 2026-11-13 (owner, audit tumpang tindih `tasks/admin-audit-2026-11-13.md`):** angka uang bulan ini (§3.1
+baris pertama), "Saldo nbytes di Surplus" dan "Kurs berlaku" (§3.2), dan tabel teratas (§3.4) dihapus dari Overview
+karena sama dengan Billing, Upstream, Usage dan Users. Isi yang tersisa: peringatan, kesehatan uang (4 angka), angka
+24 jam dan pengguna, tren 30 hari.
+
 ### 3.1 Angka utama (dua baris `StatSummary`)
 
-**Bulan ini (UTC, sejak tanggal 1):**
+**Bulan ini (dihapus 2026-11-13, kini di Billing):**
 
 | Angka | Rumus |
 |---|---|
@@ -75,14 +80,14 @@ Tidak ada pembanding "+12% dari bulan lalu" sampai owner memintanya (bulan perta
 
 | Baris | Isi |
 |---|---|
-| Saldo nbytes di Surplus | dari Surplus (sama dengan halaman Upstream); gagal dibaca → "tidak bisa dibaca" |
+| ~~Saldo nbytes di Surplus~~ | dihapus 2026-11-13 (ada di Upstream); tetap dibaca untuk Cakupan dan peringatan |
 | Total saldo pengguna | `sum(balance_micros)` (uang prabayar yang wajib bisa dipakai pengguna) dan total ditahan |
 | Cakupan | saldo Surplus ÷ total saldo pengguna. Di bawah 100% berarti kalau semua pengguna memakai saldonya, kredit Surplus tidak cukup (K4) |
 | Saldo negatif | jumlah akun dengan saldo < 0 (B7) |
-| Kurs berlaku | Rp per USD dan kapan diubah; kosong → peringatan |
+| ~~Kurs berlaku~~ | dihapus 2026-11-13 (ada di Billing); kosong tetap memicu peringatan |
 | Deposit | menunggu, macet (lewat kedaluwarsa, B9) |
 
-### 3.3 Tren 30 hari (dua grafik batang, per hari UTC)
+### 3.3 Tren 30 hari (dua grafik batang, per hari WIB)
 
 1. Pemakaian ditagih vs biaya Surplus per hari (dua seri, legenda, tabel yang sama untuk pembaca layar).
 2. Request per hari dengan bagian gagal.
@@ -91,7 +96,7 @@ Grafik dibuat sesuai skill `dataviz` dan token dashboard. Pola batang sudah ada 
 (CSS, tanpa library), tetapi berada di area dashboard pengguna dan tidak boleh diimpor dari admin (`architecture.md` §3);
 komponen grafik baru di `app-kit` (usulan). Tidak menambah dependensi.
 
-### 3.4 Teratas bulan ini (dua tabel, 5 baris)
+### 3.4 Teratas bulan ini (dihapus 2026-11-13: sama dengan Usage dan Users)
 
 - **Model:** request, token input/output, tagihan, biaya Surplus, margin.
 - **Pengguna:** email, request, tagihan, saldo sekarang.

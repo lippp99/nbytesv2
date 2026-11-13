@@ -1,6 +1,8 @@
-// Admin Usage page: tokens and money per model and per user for one period (a month, a year or a date range, UTC).
+// Admin Usage page: tokens and money per model and per user for one period (a month, a year or a date range, WIB).
 // Shared by the server queries, the toolbar and the page, plus the pure rules (period parsing and checks, previous
-// period, chart buckets, shares, change) so they can be tested without a database.
+// period, chart buckets, shares, change) so they can be tested without a database. Days and months are WIB (UTC+7),
+// the admin's own clock; the database keeps UTC instants.
+import { wibClock, wibDay, wibDayStart, wibMonth } from "../date-format.ts";
 
 export const USAGE_SORTS = ["tokens", "charge", "requests"] as const;
 export type UsageSort = (typeof USAGE_SORTS)[number];
@@ -39,11 +41,6 @@ export type UsageTotals = {
   failed: number;
   inputTokens: number;
   outputTokens: number;
-  chargeMicros: number;
-  /** Surplus cost of the requests whose cost is known, and the charge of those same requests (billing §10). */
-  costMicros: number;
-  knownCostChargeMicros: number;
-  costPending: number;
   users: number;
   models: number;
 };
@@ -76,19 +73,18 @@ export type UsageReport = {
   users: Paged<UserUsage>;
 };
 
-export const dayOf = (date: Date) => date.toISOString().slice(0, 10);
-export const monthOf = (date: Date) => date.toISOString().slice(0, 7);
-const utcDay = (day: string) => new Date(`${day}T00:00:00Z`);
+export const dayOf = wibDay;
+export const monthOf = wibMonth;
 const shiftMonth = (month: string, by: number) => {
   const [y, m] = month.split("-").map(Number);
-  return monthOf(new Date(Date.UTC(y, m - 1 + by, 1)));
+  return new Date(Date.UTC(y, m - 1 + by, 1)).toISOString().slice(0, 7); // calendar math only
 };
 
-/** [start, end) of a period in UTC. */
+/** [start, end) of a period: from 00.00 WIB of its first day to 00.00 WIB after its last. */
 export function periodRange(p: UsagePeriod): { start: Date; end: Date } {
-  if (p.kind === "month") return { start: utcDay(`${p.month}-01`), end: utcDay(`${shiftMonth(p.month, 1)}-01`) };
-  if (p.kind === "year") return { start: utcDay(`${p.year}-01-01`), end: utcDay(`${Number(p.year) + 1}-01-01`) };
-  return { start: utcDay(p.from), end: new Date(utcDay(p.to).getTime() + DAY_MS) };
+  if (p.kind === "month") return { start: wibDayStart(`${p.month}-01`), end: wibDayStart(`${shiftMonth(p.month, 1)}-01`) };
+  if (p.kind === "year") return { start: wibDayStart(`${p.year}-01-01`), end: wibDayStart(`${Number(p.year) + 1}-01-01`) };
+  return { start: wibDayStart(p.from), end: new Date(wibDayStart(p.to).getTime() + DAY_MS) };
 }
 
 const daysIn = (p: UsagePeriod) => {
@@ -107,19 +103,24 @@ export function previousPeriod(p: UsagePeriod): UsagePeriod {
 export const bucketOf = (p: UsagePeriod): "day" | "month" =>
   p.kind === "year" || (p.kind === "range" && daysIn(p) > DAILY_MAX_DAYS) ? "month" : "day";
 
-/** Every bucket of the period, oldest first, with zeros where nothing happened. */
-export function fillBuckets(p: UsagePeriod, rows: UsageBucket[]): UsageBucket[] {
-  const byDate = new Map(rows.map((r) => [r.date, r]));
+/** The chart keys of a period, oldest first: WIB days ("2026-11-13") or months ("2026-11"), as bucketOf decides. */
+export function bucketKeys(p: UsagePeriod): string[] {
   const { start, end } = periodRange(p);
   const keys: string[] = [];
   if (bucketOf(p) === "day") for (let t = start.getTime(); t < end.getTime(); t += DAY_MS) keys.push(dayOf(new Date(t)));
   else for (let m = monthOf(start), last = monthOf(new Date(end.getTime() - 1)); m <= last; m = shiftMonth(m, 1)) keys.push(m);
-  return keys.map((date) => byDate.get(date) ?? { date, inputTokens: 0, outputTokens: 0 });
+  return keys;
 }
 
-const isRealDay = (day: string) => DAY.test(day) && dayOf(utcDay(day)) === day;
+/** Every bucket of the period, oldest first, with zeros where nothing happened. */
+export function fillBuckets(p: UsagePeriod, rows: UsageBucket[]): UsageBucket[] {
+  const byDate = new Map(rows.map((r) => [r.date, r]));
+  return bucketKeys(p).map((date) => byDate.get(date) ?? { date, inputTokens: 0, outputTokens: 0 });
+}
 
-/** Why a date range cannot be shown, or null when it can. `today` is the UTC day the page was opened. */
+const isRealDay = (day: string) => DAY.test(day) && dayOf(wibDayStart(day)) === day;
+
+/** Why a date range cannot be shown, or null when it can. `today` is the WIB day the page was opened. */
 export function rangeError(from: string, to: string, today: string): RangeProblem | null {
   if (!isRealDay(from) || !isRealDay(to)) return "invalid";
   if (from > to) return "order";
@@ -133,7 +134,7 @@ const one = (value: string | string[] | undefined) => (typeof value === "string"
 export function parsePeriod(params: Record<string, string | string[] | undefined>, now: Date): UsagePeriod {
   const current: UsagePeriod = { kind: "month", month: monthOf(now) };
   const [period, month, year, from, to] = ["period", "month", "year", "from", "to"].map((k) => one(params[k]));
-  if (period === "year") return YEAR.test(year) && year <= String(now.getUTCFullYear()) ? { kind: "year", year } : current;
+  if (period === "year") return YEAR.test(year) && year <= String(wibClock(now).getUTCFullYear()) ? { kind: "year", year } : current;
   if (period === "range") return rangeError(from, to, dayOf(now)) ? current : { kind: "range", from, to };
   return MONTH.test(month) && month <= current.month ? { kind: "month", month } : current;
 }
@@ -179,9 +180,10 @@ export function monthOptions(first: Date | null, now: Date): string[] {
 
 /** Years (newest first) from the first request's year, or this year, to now; at most USAGE_YEARS_MAX. */
 export function yearOptions(first: Date | null, now: Date): string[] {
-  const oldest = (first && first < now ? first : now).getUTCFullYear();
-  const count = Math.min(USAGE_YEARS_MAX, now.getUTCFullYear() - oldest + 1);
-  return Array.from({ length: count }, (_, i) => String(now.getUTCFullYear() - i));
+  const oldest = wibClock(first && first < now ? first : now).getUTCFullYear();
+  const year = wibClock(now).getUTCFullYear();
+  const count = Math.min(USAGE_YEARS_MAX, year - oldest + 1);
+  return Array.from({ length: count }, (_, i) => String(year - i));
 }
 
 /** Part of a whole in basis points; null when the whole is zero. */
