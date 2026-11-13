@@ -9,10 +9,8 @@ export const modelsCopy = {
   curated: {
     title: "Model di nbytes",
     count: (on: number, total: number) => `${on} aktif dari ${total} model. Hanya model aktif yang bisa dipanggil pengguna.`,
-    cols: {
-      model: "Model", list: "Harga list / 1M token", sell: "Harga jual / 1M token", input: "Input", output: "Output", markup: "Markup",
-      status: "Status",
-    },
+    cols: { model: "Model", markup: "Markup", input: "Input / 1M", output: "Output / 1M", status: "Status", action: "Aksi" },
+    listPrice: (list: string) => `list Surplus ${list}`,
     markupLabel: (model: string) => `Markup ${model} dalam persen`,
     invalid: "Isi persen 0 sampai 300, contoh 10 atau 12,5.",
     on: "Aktif",
@@ -22,7 +20,7 @@ export const modelsCopy = {
     listChanged: "Harga list berubah",
     listChangedHint: (now: string) => `Harga list Surplus sekarang ${now}. Simpan markup lagi untuk memakai harga baru.`,
     gone: "Tidak ada di katalog",
-    goneHint: "Model ini tidak ada lagi di katalog Surplus. Pengguna akan mendapat error sampai model dinonaktifkan.",
+    goneHint: (n: number) => `${n} model aktif tidak ada lagi di katalog Surplus. Pengguna mendapat error saat memanggilnya sampai model dinonaktifkan.`,
     empty: {
       title: "Belum ada model yang dijual",
       body: "Tambahkan model dari katalog Surplus di bawah. Pengguna hanya bisa memanggil model yang ada di sini.",
@@ -30,13 +28,14 @@ export const modelsCopy = {
   },
   surplus: {
     title: "Katalog Surplus",
-    count: (shown: number, total: number) => `${shown} dari ${total} model teks, dibaca langsung dari Surplus.`,
+    source: "Dibaca langsung dari Surplus setiap halaman dibuka.",
+    count: (shown: number, total: number) => `${shown} dari ${total} model teks`,
     search: "Cari model",
     searchPlaceholder: "Nama, id, atau penyedia",
     filterLabel: "Tampilkan",
     filters: { all: "Semua", open: "Belum dipilih" },
     cols: {
-      model: "Model", provider: "Penyedia", input: "Input / 1M token", output: "Output / 1M token", context: "Konteks", images: "Gambar", action: "Aksi",
+      model: "Model", provider: "Penyedia", input: "Input / 1M", output: "Output / 1M", context: "Konteks", images: "Gambar", action: "Aksi",
     },
     yes: "Ya",
     add: "Tambah",
@@ -55,6 +54,7 @@ export const modelsCopy = {
     },
     note: "Hanya model teks yang ditampilkan: endpoint gambar, audio, video dan embeddings belum dibangun.",
   },
+  clearSearch: "Hapus pencarian",
   saving: "Menyimpan…",
   saved: {
     markup: "markup disimpan; harga jual di tabel sudah diperbarui.",

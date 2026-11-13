@@ -5,7 +5,7 @@ import { Search01Icon } from "@hugeicons/core-free-icons";
 import { Badge } from "@/components/app-kit/badge";
 import { ghostAction, secondaryAction } from "@/components/app-kit/button";
 import { EmptyState } from "@/components/app-kit/empty-state";
-import { TextInput } from "@/components/app-kit/field";
+import { SearchInput } from "@/components/app-kit/field";
 import { Segmented } from "@/components/app-kit/segmented";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import { type SurplusTextModel, hasZeroListPrice } from "@/lib/gateway/catalog-contract";
@@ -53,13 +53,17 @@ export function CatalogTable({ models, curatedIds }: { models: CatalogModel[]; c
 
   return (
     <>
+      {/* search, its result count and the filter in one inset row, right above the table head */}
       <div className="flex flex-col gap-3 border-b border-app-border bg-app-inset px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <TextInput type="search" aria-label={copy.search} placeholder={copy.searchPlaceholder} value={query} className="sm:max-w-xs"
-          onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }} />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <SearchInput aria-label={copy.search} placeholder={copy.searchPlaceholder} value={query} wrapperClassName="sm:w-72"
+            clearLabel={modelsCopy.clearSearch} onClear={() => { setQuery(""); setLimit(PAGE); }}
+            onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }} />
+          <p className="text-app-small text-app-text-2" aria-live="polite">{copy.count(found.length, models.length)}</p>
+        </div>
         <Segmented label={copy.filterLabel} options={filterOptions} value={filter}
           onChange={(next) => { setFilter(next); setLimit(PAGE); }} />
       </div>
-      <p className="px-6 pt-3 text-app-small text-app-text-2" aria-live="polite">{copy.count(found.length, models.length)}</p>
       {shown.length === 0 ? (
         <EmptyState icon={Search01Icon} title={copy.none} body={copy.noneBody} className="py-8" action={
           <button type="button" className={secondaryAction()} onClick={() => { setQuery(""); setFilter("all"); setLimit(PAGE); }}>
@@ -107,7 +111,7 @@ export function CatalogTable({ models, curatedIds }: { models: CatalogModel[]; c
       )}
       <SaveNoticeLine notice={notice} />
       <p className="border-t border-app-border bg-app-inset px-6 py-3 text-app-small text-app-text-2">
-        {copy.zeroHint} {copy.note}
+        {models.some(hasZeroListPrice) && `${copy.zeroHint} `}{copy.note}
       </p>
     </>
   );

@@ -40,7 +40,7 @@ export function ModelsView({ curated, surplus }: ModelsViewProps) {
             <EmptyState icon={AiChat02Icon} title={copy.curated.empty.title} body={copy.curated.empty.body} />
           )}
         </Card>
-        <Card title={copy.surplus.title} description={copy.perM}>
+        <Card title={copy.surplus.title} description={`${copy.surplus.source} ${copy.perM}`}>
           {catalog ? (
             <CatalogTable models={catalog} curatedIds={curated.map((m) => m.modelId)} />
           ) : (
