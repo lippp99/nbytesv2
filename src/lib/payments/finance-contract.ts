@@ -1,5 +1,6 @@
 // Admin Finance page data (PRD gateway-pricing-billing §5, §6, §11, B9): what the server sends, and the ?status= filter.
-// Money stays integer: rupiah and micro-USD. Times are ISO strings in UTC.
+// Money stays integer: rupiah and micro-USD. Times travel as ISO strings; pages show them in WIB.
+import { type UsagePeriod, periodParams } from "../admin-gateway/usage-contract.ts";
 
 export const DEPOSITS_PAGE_SIZE = 25;
 
@@ -22,16 +23,6 @@ export type AdminDeposit = {
 
 export type DepositsPage = { deposits: AdminDeposit[]; page: number; pages: number; total: number };
 
-/** This UTC month's paid deposits, and the stuck ones of any month. */
-export type DepositSummary = {
-  paidCount: number;
-  receivedIdr: number;
-  providerFeeIdr: number;
-  netIdr: number;
-  creditMicros: number;
-  stuckCount: number;
-};
-
 export type ExchangeRateEntry = { idrPerUsd: number; setAt: string; setBy: string | null };
 
 /** "?status=stuck" -> "stuck"; anything else (missing, unknown, array) -> "all". */
@@ -42,4 +33,20 @@ export function parseDepositFilter(value: unknown): DepositFilter {
 /** pending past its expiry shows as stuck; every other status is shown as stored. */
 export function depositState(status: "pending" | "paid" | "failed" | "expired", expiresAt: Date, now: Date): DepositState {
   return status === "pending" && expiresAt.getTime() < now.getTime() ? "stuck" : status;
+}
+
+/** Currency of the profit summary (?currency=idr); USD is the default. */
+export type Currency = "usd" | "idr";
+export const parseCurrency = (value: unknown): Currency => (value === "idr" ? "idr" : "usd");
+
+/** The Billing URL: profit period (Usage's URL form) and currency, deposit filter and page; defaults left out. */
+export function billingHref(
+  period: UsagePeriod, currentMonth: string, filter: DepositFilter, page = 1, currency: Currency = "usd",
+): string {
+  const params = periodParams(period, currentMonth);
+  if (currency !== "usd") params.set("currency", currency);
+  if (filter !== "all") params.set("status", filter);
+  if (page > 1) params.set("page", String(page));
+  const text = params.toString();
+  return text ? `/admin/billing?${text}` : "/admin/billing";
 }

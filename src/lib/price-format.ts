@@ -34,6 +34,9 @@ export function formatIdr(rupiah: number): string {
   return `Rp ${String(rupiah).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
 }
 
+/** Rupiah that may be negative (a loss): -35000 -> "−Rp 35.000". */
+export const formatSignedIdr = (rupiah: number) => (rupiah < 0 ? `−${formatIdr(-rupiah)}` : formatIdr(rupiah));
+
 const DOLLAR_INPUT = /^(\d{1,7})(?:[.,](\d{1,2}))?$/;
 
 /** "40" / "40.5" / "40,50" -> integer micro-dollars; null for anything else (string math, no floats). */

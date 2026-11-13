@@ -5,8 +5,9 @@ import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
 import { Pagination } from "@/components/app-kit/pagination";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
-import { formatUtc } from "@/lib/date-format";
-import type { DepositFilter, DepositsPage } from "@/lib/payments/finance-contract";
+import { formatWibStamp } from "@/lib/date-format";
+import type { UsagePeriod } from "@/lib/admin-gateway/usage-contract";
+import { type Currency, type DepositFilter, type DepositsPage, billingHref } from "@/lib/payments/finance-contract";
 import { formatIdr, formatMicros } from "@/lib/price-format";
 import { cn } from "@/lib/utils";
 import { billingCopy, stateBadge } from "./billing-copy";
@@ -15,19 +16,16 @@ import { DepositFilterControl } from "./deposit-filter";
 const copy = billingCopy.deposits;
 const cols = copy.cols;
 
-function href(filter: DepositFilter, page: number) {
-  const params = new URLSearchParams();
-  if (filter !== "all") params.set("status", filter);
-  if (page > 1) params.set("page", String(page));
-  const query = params.toString();
-  return query ? `/admin/billing?${query}` : "/admin/billing";
-}
+type DepositsTableProps = {
+  data: DepositsPage; filter: DepositFilter; period: UsagePeriod; currency: Currency; currentMonth: string;
+};
 
-/** Every deposit with what was paid, the locked rate and the credit; stuck ones are flagged for B9. */
-export function DepositsTable({ data, filter }: { data: DepositsPage; filter: DepositFilter }) {
+/** Every deposit with what was paid, the locked rate and the credit; stuck ones are flagged for B9. Links keep the period. */
+export function DepositsTable({ data, filter, period, currency, currentMonth }: DepositsTableProps) {
   const empty = data.deposits.length === 0;
+  const filterControl = <DepositFilterControl value={filter} period={period} currency={currency} currentMonth={currentMonth} />;
   return (
-    <Card title={copy.title} description={copy.description} action={<DepositFilterControl value={filter} />}>
+    <Card title={copy.title} description={copy.description} action={filterControl}>
       {empty ? (
         filter === "all"
           ? <EmptyState icon={Invoice01Icon} title={copy.emptyTitle} body={copy.emptyBody} />
@@ -49,7 +47,7 @@ export function DepositsTable({ data, filter }: { data: DepositsPage; filter: De
               const badge = stateBadge[d.state];
               return (
                 <Tr key={d.id}>
-                  <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(d.createdAt)}</Td>
+                  <Td className="font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatWibStamp(d.createdAt)}</Td>
                   {/* Sumopod lists deposits by this order id: 8 characters to read, the copy button carries the full one. */}
                   <Td className="font-mono text-app-code text-app-text-2">
                     <span className="flex items-center">
@@ -70,7 +68,7 @@ export function DepositsTable({ data, filter }: { data: DepositsPage; filter: De
           </tbody>
         </Table>
       )}
-      <Pagination page={data.page} pages={data.pages} href={(page) => href(filter, page)}
+      <Pagination page={data.page} pages={data.pages} href={(page) => billingHref(period, currentMonth, filter, page, currency)}
         labels={{ nav: copy.pagination, pageOf: copy.pageOf, previous: copy.previous, next: copy.next }} />
     </Card>
   );

@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BillingSkeleton } from "@/components/admin/billing/billing-skeleton";
 import { BillingView } from "@/components/admin/billing/billing-view";
+import { dayOf, monthOf, parsePeriod } from "@/lib/admin-gateway/usage-contract";
 import { parsePageParam } from "@/lib/auth/auth-contract";
-import { parseDepositFilter } from "@/lib/payments/finance-contract";
+import { parseCurrency, parseDepositFilter } from "@/lib/payments/finance-contract";
 import { getCurrentAdmin } from "@/lib/server/admin-auth/current-admin";
 import { currentDepositRules } from "@/lib/server/payments/deposit-rules";
-import { depositSummary, exchangeRateHistory, listDeposits } from "@/lib/server/payments/finance-report";
+import { exchangeRateHistory, listDeposits, profitSummary } from "@/lib/server/payments/finance-report";
 
 export const metadata: Metadata = { title: "Billing · Admin" };
 
@@ -16,14 +17,19 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 async function Billing({ searchParams }: { searchParams: SearchParams }) {
   await getCurrentAdmin();
   const params = await searchParams;
+  const now = new Date();
   const filter = parseDepositFilter(params.status);
-  const [summary, deposits, rates, rules] = await Promise.all([
-    depositSummary(),
+  const currency = parseCurrency(params.currency);
+  const [profit, deposits, rates, rules] = await Promise.all([
+    profitSummary(parsePeriod(params, now), now),
     listDeposits(filter, parsePageParam(params.page)),
     exchangeRateHistory(),
     currentDepositRules(),
   ]);
-  return <BillingView summary={summary} deposits={deposits} filter={filter} rates={rates} rules={rules} />;
+  return (
+    <BillingView profit={profit} deposits={deposits} filter={filter} currency={currency} rates={rates} rules={rules}
+      currentMonth={monthOf(now)} today={dayOf(now)} />
+  );
 }
 
 export default function Page({ searchParams }: { searchParams: SearchParams }) {

@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 // surface gap between neighbours, recessive grid, one y-axis, a hover tooltip per day, a legend (>= 2 series, never
 // colour alone) and the same numbers as a table for screen readers. Series colours come from validated tokens only.
 
-export type BarSeries = { name: string; className: string };
+/** negativeClassName: fill of a value below zero (grouped mode only); defaults to className. */
+export type BarSeries = { name: string; className: string; negativeClassName?: string };
 export type BarDay = { date: string; values: number[] };
 type BarChartProps = {
   series: BarSeries[];
@@ -19,8 +20,8 @@ type BarChartProps = {
   dateLabel?: (date: string) => string;
 };
 
-const dayLabel = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" });
-const dayOf = (date: string) => dayLabel.format(new Date(`${date}T00:00:00Z`));
+const dayLabel = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "Asia/Jakarta" });
+const dayOf = (date: string) => dayLabel.format(new Date(`${date}T00:00:00+07:00`));
 const tooltip =
   "pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-app-inner " +
   "bg-app-text px-2 py-1 text-app-small text-app-surface shadow-app-raised group-hover:block";
@@ -47,7 +48,10 @@ function Legend({ series }: { series: BarSeries[] }) {
   );
 }
 
-function Bars({ day, series, mode, top }: { day: BarDay; series: BarSeries[]; mode: BarChartProps["mode"]; top: number }) {
+type BarsProps = { day: BarDay; series: BarSeries[]; mode: BarChartProps["mode"]; top: number; bottom: number };
+
+/** Above zero bars grow up from the zero line; below zero (grouped only) they hang down from it. */
+function Bars({ day, series, mode, top, bottom }: BarsProps) {
   const height = (v: number) => `${(v / top) * 100}%`;
   if (mode === "stacked") {
     return (
@@ -58,11 +62,23 @@ function Bars({ day, series, mode, top }: { day: BarDay; series: BarSeries[]; mo
       </span>
     );
   }
-  return (
-    <span className="flex h-full w-full items-end gap-0.5">
+  const up = (
+    <span className="flex w-full items-end gap-0.5" style={{ height: `${(top / (top + bottom)) * 100}%` }}>
       {series.map((s, i) => (
-        <span key={s.name} className={cn("flex-1 rounded-t-bar", s.className)} style={{ height: height(day.values[i]) }} />
+        <span key={s.name} className={cn("flex-1 rounded-t-bar", s.className)} style={{ height: height(Math.max(0, day.values[i])) }} />
       ))}
+    </span>
+  );
+  if (!bottom) return <span className="flex h-full w-full flex-col justify-end">{up}</span>;
+  return (
+    <span className="flex h-full w-full flex-col">
+      {up}
+      <span className="flex w-full flex-1 items-start gap-0.5">
+        {series.map((s, i) => (
+          <span key={s.name} className={cn("flex-1 rounded-b-bar", s.negativeClassName ?? s.className)}
+            style={{ height: `${(Math.max(0, -day.values[i]) / bottom) * 100}%` }} />
+        ))}
+      </span>
     </span>
   );
 }
@@ -70,23 +86,33 @@ function Bars({ day, series, mode, top }: { day: BarDay; series: BarSeries[]; mo
 export function BarChart({ series, days, mode, format, tableCaption, dateHeader, dateLabel: label = dayOf }: BarChartProps) {
   const totals = days.map((d) => (mode === "stacked" ? d.values.reduce((a, b) => a + b, 0) : Math.max(...d.values)));
   const top = niceMax(Math.max(0, ...totals));
-  const ticks = [top, top / 2, 0];
+  // Values below zero (grouped mode) get their own scale under the zero line, so a small loss is not squashed flat.
+  const lowest = mode === "grouped" ? Math.min(0, ...days.flatMap((d) => d.values)) : 0;
+  const bottom = lowest < 0 ? niceMax(-lowest) : 0;
+  const ticks = bottom ? [top, 0, -bottom] : [top, top / 2, 0];
+  const at = (t: number) => ({ top: `${((top - t) / (top + bottom)) * 100}%` });
+  const widest = ticks.map(format).reduce((a, b) => (b.length > a.length ? b : a));
   const labelAt = new Set([0, Math.floor(days.length / 2), days.length - 1]);
   return (
     <div className="px-6 pt-5 pb-5">
       <Legend series={series} />
       <div className="flex gap-3">
-        <div aria-hidden className="flex h-52 flex-col justify-between text-right font-mono text-app-small text-app-text-3 tabular-nums">
-          {ticks.map((t) => <span key={t} className="-translate-y-1/2 last:translate-y-1/2">{format(t)}</span>)}
+        <div aria-hidden className="relative h-52 text-right font-mono text-app-small text-app-text-3 tabular-nums">
+          {/* the widest label, invisible, gives the axis its width; the real labels sit on their grid lines */}
+          <span className="invisible block h-0 overflow-hidden">{widest}</span>
+          {ticks.map((t) => <span key={t} className="absolute right-0 -translate-y-1/2" style={at(t)}>{format(t)}</span>)}
         </div>
         <div className="relative min-w-0 flex-1">
-          <div aria-hidden className="absolute inset-0 flex flex-col justify-between">
-            {ticks.map((t) => <span key={t} className="border-t border-app-border" />)}
+          <div aria-hidden className="absolute inset-0">
+            {ticks.map((t) => (
+              <span key={t} className={cn("absolute inset-x-0 -translate-y-1/2 border-t",
+                t === 0 && bottom ? "border-app-border-strong" : "border-app-border")} style={at(t)} />
+            ))}
           </div>
           <ul aria-hidden className="relative flex h-52 items-end gap-0.5">
             {days.map((d) => (
               <li key={d.date} className="group relative flex h-full flex-1 items-end hover:opacity-80">
-                <Bars day={d} series={series} mode={mode} top={top} />
+                <Bars day={d} series={series} mode={mode} top={top} bottom={bottom} />
                 <span className={tooltip}>
                   {label(d.date)} · {series.map((s, i) => `${s.name} ${format(d.values[i])}`).join(" · ")}
                 </span>
@@ -100,18 +126,22 @@ export function BarChart({ series, days, mode, format, tableCaption, dateHeader,
           </div>
         </div>
       </div>
-      <table className="sr-only">
-        <caption>{tableCaption}</caption>
-        <thead><tr><th scope="col">{dateHeader}</th>{series.map((s) => <th key={s.name} scope="col">{s.name}</th>)}</tr></thead>
-        <tbody>
-          {days.map((d) => (
-            <tr key={d.date}>
-              <th scope="row">{label(d.date)}</th>
-              {d.values.map((v, i) => <td key={series[i].name}>{format(v)}</td>)}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* sr-only on the div, not the table: a table ignores height 1px and overflow, so its full-height box made the
+          page scroll past the footer */}
+      <div className="sr-only">
+        <table>
+          <caption>{tableCaption}</caption>
+          <thead><tr><th scope="col">{dateHeader}</th>{series.map((s) => <th key={s.name} scope="col">{s.name}</th>)}</tr></thead>
+          <tbody>
+            {days.map((d) => (
+              <tr key={d.date}>
+                <th scope="row">{label(d.date)}</th>
+                {d.values.map((v, i) => <td key={series[i].name}>{format(v)}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
