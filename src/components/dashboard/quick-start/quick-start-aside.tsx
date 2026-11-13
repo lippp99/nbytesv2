@@ -3,7 +3,7 @@ import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { appFocus, ghostAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
-import { StatisticsIcon } from "@/components/dashboard/shared/icons/statistics";
+import { StatisticsIcon } from "@/components/icons/content/statistics";
 import { TerminalIcon } from "@/components/dashboard/shared/icons/terminal";
 import { BookIcon } from "@/components/icons/content/book";
 import type { CatalogModel } from "@/lib/gateway/catalog-contract";

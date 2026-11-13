@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { StatisticsIcon } from "@/components/dashboard/shared/icons/statistics";
+import { StatisticsIcon } from "@/components/icons/content/statistics";
 import { BarChart, type BarSeries } from "@/components/app-kit/bar-chart";
 import { primaryAction, secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
