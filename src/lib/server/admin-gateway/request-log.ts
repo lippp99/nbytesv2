@@ -39,7 +39,7 @@ export async function listRequests(query: RequestQuery): Promise<RequestsPage> {
       modelId: g.modelId, stream: g.stream, state: g.state, statusCode: g.statusCode, errorCode: g.errorCode,
       upstreamErrorCode: g.upstreamErrorCode, upstreamFamily: g.upstreamFamily, truncated: g.truncated,
       latencyMs: g.latencyMs, inputTokens: g.inputTokens, outputTokens: g.outputTokens, holdMicros: g.holdMicros,
-      chargeMicros: g.chargeMicros, surplusCostMicros: g.surplusCostMicros, surplusRequestId: g.surplusRequestId,
+      chargeMicros: g.chargeMicros, surplusCostMicros: g.surplusCostMicros, costStatus: g.costStatus, surplusRequestId: g.surplusRequestId,
     })
     .from(g)
     .leftJoin(users, eq(users.id, g.userId))

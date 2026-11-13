@@ -9,6 +9,7 @@ export const requestsCopy = {
   search: "Cari request",
   searchPlaceholder: "Email, id model, atau id request",
   searchSubmit: "Cari",
+  clearSearch: "Hapus pencarian",
   searching: "Mencari…",
   loadingResults: "Memuat hasil…",
   copyId: "Salin id request lengkap",
@@ -18,7 +19,7 @@ export const requestsCopy = {
   costPending: "Hanya biaya menunggu",
   count: (total: number) => `${total} request`,
   cols: {
-    at: "Waktu (UTC)", user: "Pengguna", model: "Model", status: "Status", latency: "Latensi", input: "Token input",
+    at: "Waktu (WIB)", user: "Pengguna", model: "Model", status: "Status", latency: "Latensi", input: "Token input",
     output: "Token output", charge: "Tagihan", cost: "Biaya Surplus", margin: "Margin",
   },
   stream: "stream",
@@ -33,7 +34,9 @@ export const requestsCopy = {
     body: "Ubah pencarian atau saringan. Id request harus lengkap (salin dari kolom Waktu).",
     reset: "Hapus pencarian dan saringan",
   },
-  costNote: "Biaya Surplus kosong berarti belum diketahui (tampil \"menunggu\"), bukan nol. Margin hanya dihitung bila biayanya diketahui.",
+  costNote:
+    "\"Menunggu\" berarti biaya Surplus belum diketahui, bukan nol. \"—\" berarti request gagal sebelum sampai Surplus, jadi " +
+    "tidak ada biaya. Margin hanya dihitung bila biayanya diketahui.",
   pagination: { nav: "Halaman request log", pageOf: (p: number, n: number) => `Halaman ${p} dari ${n}`, previous: "Sebelumnya", next: "Berikutnya" },
 };
 

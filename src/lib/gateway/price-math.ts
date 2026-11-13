@@ -1,4 +1,4 @@
-// Gateway price math (PRD gateway-pricing-billing §7, §9). Integer only: micro-USD (1 USD = 1_000_000), prices per
+// Gateway price math (PRD gateway-pricing-billing §7, §9, §10). Integer only: micro-USD (1 USD = 1_000_000), prices per
 // 1M tokens, markup in basis points (100 = 1%). Sums use BigInt so tokens × price never loses precision.
 
 const BP = 10_000;
@@ -45,4 +45,15 @@ export function outputCap(requested: number | null, modelMax: number | null): nu
 /** §9.1: what is held before calling Surplus. */
 export function holdMicros(bodyBytes: number, maxOutputTokens: number, price: TokenPrice): number {
   return chargeMicros(Math.ceil(bodyBytes / BYTES_PER_INPUT_TOKEN), maxOutputTokens, price);
+}
+
+/**
+ * §10: whether a settled request's Surplus cost still has to be looked up. Known cost -> "known". A failed request that
+ * Surplus never gave an id has nothing to look up -> null. Anything else without a cost -> "pending" (reconcile).
+ */
+export function costStatusOf(
+  state: "succeeded" | "failed", costMicros: number | null, surplusRequestId: string | null,
+): "known" | "pending" | null {
+  if (costMicros !== null) return "known";
+  return state === "failed" && !surplusRequestId ? null : "pending";
 }

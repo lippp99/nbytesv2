@@ -1,4 +1,6 @@
 import "server-only";
+import { wibMonthStart } from "@/lib/date-format";
+import { costStatusOf } from "@/lib/gateway/price-math";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "../db/client";
 import { balanceLedger, gatewayRequests, userBalances } from "../db/schema";
@@ -21,7 +23,7 @@ export type Settlement = {
   inputTokens: number | null;
   outputTokens: number | null;
   surplusRequestId: string | null;
-  /** null = unknown, never read as 0 (§10.1); the row is then marked for reconciliation. */
+  /** null = unknown, never read as 0 (§10.1); see costStatusOf for when the row is marked for reconciliation. */
   surplusCostMicros: number | null;
   statusCode: number;
   errorCode: string | null;
@@ -32,8 +34,6 @@ export type Settlement = {
   truncated?: boolean | null;
 };
 
-export const monthStartUtc = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-
 /**
  * A key's spend over the gateway_requests rows in scope: settled charges, plus holds of requests still running. The
  * budget check below and the API Keys page both use it, so the page shows the number requests are refused on.
@@ -41,12 +41,12 @@ export const monthStartUtc = (now: Date) => new Date(Date.UTC(now.getUTCFullYear
 export const keySpentSql = () =>
   sql<number>`coalesce(sum(coalesce(${gatewayRequests.chargeMicros}, ${gatewayRequests.holdMicros})), 0)`.mapWith(Number);
 
-/** Spent by this key this month (UTC). */
+/** Spent by this key this month (from the 1st, 00.00 WIB). */
 async function keySpentThisMonth(tx: Tx, keyId: string): Promise<number> {
   const [row] = await tx
     .select({ spent: keySpentSql() })
     .from(gatewayRequests)
-    .where(and(eq(gatewayRequests.apiKeyId, keyId), gte(gatewayRequests.createdAt, monthStartUtc(new Date()))));
+    .where(and(eq(gatewayRequests.apiKeyId, keyId), gte(gatewayRequests.createdAt, wibMonthStart(new Date()))));
   return row.spent;
 }
 
@@ -103,7 +103,7 @@ export async function settleRequest(requestId: string, outcome: Settlement): Pro
       .where(eq(userBalances.userId, userId));
     await tx
       .update(gatewayRequests)
-      .set({ ...outcome, costStatus: outcome.surplusCostMicros === null ? "pending" : "known" })
+      .set({ ...outcome, costStatus: costStatusOf(outcome.state, outcome.surplusCostMicros, outcome.surplusRequestId) })
       .where(eq(gatewayRequests.id, requestId));
   });
 }

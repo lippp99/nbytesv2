@@ -27,8 +27,9 @@ export type AdminRequestRow = {
   outputTokens: number | null;
   holdMicros: number;
   chargeMicros: number | null;
-  /** null = not known yet (cost_status pending); never read as 0 (billing §10). */
+  /** null = no cost known; never read as 0 (billing §10). costStatus says if it is still to be looked up. */
   surplusCostMicros: number | null;
+  costStatus: "known" | "pending" | null;
   surplusRequestId: string | null;
 };
 

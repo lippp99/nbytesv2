@@ -11,7 +11,7 @@ import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import {
   type AdminRequestRow, type RequestQuery, type RequestsPage, marginMicros, requestsHref,
 } from "@/lib/admin-gateway/request-log-contract";
-import { formatUtc } from "@/lib/date-format";
+import { formatWibStamp } from "@/lib/date-format";
 import { formatMicros, formatSignedMicros } from "@/lib/price-format";
 import { requestsCopy as copy, stateBadge } from "./requests-copy";
 import { RequestsToolbar } from "./requests-toolbar";
@@ -38,7 +38,7 @@ function Row({ row }: { row: AdminRequestRow }) {
   return (
     <Tr>
       <Td className="py-2">
-        <span className="block font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatUtc(row.at)}</span>
+        <span className="block font-mono text-app-code whitespace-nowrap text-app-text-2 tabular-nums">{formatWibStamp(row.at)}</span>
         {/* short id to read; the copy button carries the full one, which is what the search matches */}
         <span className={`${small} flex items-center font-mono`}>
           {copy.idLabel} {row.id.slice(0, 8)}
@@ -59,7 +59,10 @@ function Row({ row }: { row: AdminRequestRow }) {
       <Td align="right">{count(row.inputTokens)}</Td>
       <Td align="right">{count(row.outputTokens)}</Td>
       <Td align="right">{money(row.chargeMicros)}</Td>
-      <Td align="right">{row.surplusCostMicros === null ? <span className="text-app-text-3">{copy.costWaiting}</span> : formatMicros(row.surplusCostMicros)}</Td>
+      <Td align="right">
+        {row.surplusCostMicros !== null ? formatMicros(row.surplusCostMicros)
+          : row.costStatus === "pending" ? <span className="text-app-text-3">{copy.costWaiting}</span> : dash}
+      </Td>
       <Td align="right" className={margin !== null && margin < 0 ? "text-app-danger" : undefined}>
         {margin === null ? dash : formatSignedMicros(margin)}
       </Td>

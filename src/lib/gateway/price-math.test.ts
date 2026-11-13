@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  applyMarkupMicros, chargeMicros, holdMicros, outputCap, usdPerTokenToMicrosPerM,
+  applyMarkupMicros, chargeMicros, costStatusOf, holdMicros, outputCap, usdPerTokenToMicrosPerM,
 } from "./price-math.ts";
 
 test("catalog price string -> micro-USD per 1M tokens (claude-opus-4.6, catalog 2026-11-12)", () => {
@@ -35,4 +35,13 @@ test("hold: body bytes ÷ 4 as input, output capped by the model", () => {
   assert.equal(outputCap(200, 128_000), 200);
   const price = { inputMicros: 5_000_000, outputMicros: 25_000_000 };
   assert.equal(holdMicros(401, 4096, price), chargeMicros(101, 4096, price));
+});
+
+test("cost status: known cost, failed before Surplus (nothing to look up), otherwise pending", () => {
+  assert.equal(costStatusOf("succeeded", 12, "sr_1"), "known");
+  assert.equal(costStatusOf("failed", 0, "sr_1"), "known");
+  assert.equal(costStatusOf("failed", null, null), null);
+  assert.equal(costStatusOf("failed", null, "sr_1"), "pending");
+  assert.equal(costStatusOf("succeeded", null, null), "pending");
+  assert.equal(costStatusOf("succeeded", null, "sr_1"), "pending");
 });
