@@ -2,7 +2,7 @@ import type { AlertKind } from "@/lib/admin-overview-contract";
 
 // Text of the admin overview (PRD admin-overview §3). Figures come from the database; nothing here is an example.
 export const overviewCopy = {
-  title: "Ringkasan",
+  title: "Overview",
   sub: "Uang, pemakaian dan kesehatan gateway. Dihitung saat halaman dibuka; waktu dalam UTC.",
   loading: "Memuat ringkasan",
   month: {

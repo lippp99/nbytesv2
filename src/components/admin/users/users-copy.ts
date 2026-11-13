@@ -4,7 +4,7 @@ import type { UserStatusError } from "@/lib/admin-users/user-admin-client";
 
 // Text of the admin Users page (PRD admin-users-audit §3).
 export const usersCopy = {
-  title: "Pengguna",
+  title: "Users",
   sub: "Semua akun, saldo, pemakaian bulan ini dan status. Akun yang ditangguhkan tidak bisa masuk dan key API-nya ditolak.",
   loading: "Memuat pengguna",
   search: "Cari pengguna",

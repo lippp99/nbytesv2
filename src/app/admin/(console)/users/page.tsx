@@ -8,7 +8,7 @@ import { parsePageParam } from "@/lib/auth/auth-contract";
 import { listUsers } from "@/lib/server/account/user-admin";
 import { getCurrentAdmin } from "@/lib/server/admin-auth/current-admin";
 
-export const metadata: Metadata = { title: "Pengguna · Admin" };
+export const metadata: Metadata = { title: "Users · Admin" };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 

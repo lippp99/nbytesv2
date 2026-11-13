@@ -2,7 +2,7 @@ import type { ContactChannel } from "@/lib/support/contact-contract";
 
 // Text of the admin Contact page (owner, 2026-11-12): what users see on their "Kontak admin" page.
 export const contactCopy = {
-  title: "Kontak",
+  title: "Contact",
   sub: "Kontak yang tampil di halaman Kontak admin milik pengguna. Setiap perubahan tercatat di audit log.",
   loading: "Memuat kontak",
   cardTitle: "Kanal kontak",

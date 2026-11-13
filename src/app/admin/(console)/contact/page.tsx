@@ -4,7 +4,7 @@ import { ContactSkeleton, ContactView } from "@/components/admin/contact/contact
 import { getCurrentAdmin } from "@/lib/server/admin-auth/current-admin";
 import { contactSettings } from "@/lib/server/support/contacts";
 
-export const metadata: Metadata = { title: "Kontak · Admin" };
+export const metadata: Metadata = { title: "Contact · Admin" };
 
 /** Checks the admin session next to the data (the layout gate does not keep a page's output out of the response). */
 async function Contact() {

@@ -11,7 +11,7 @@ import { overviewAlerts } from "@/lib/server/admin-overview/alerts";
 import { dayFigures, moneyHealth, monthFigures, userFigures } from "@/lib/server/admin-overview/figures";
 import { topModels, topUsers, trend } from "@/lib/server/admin-overview/trends";
 
-export const metadata: Metadata = { title: "Ringkasan · Admin" };
+export const metadata: Metadata = { title: "Overview · Admin" };
 
 // PRD admin-overview: each section streams on its own, so a slow Surplus answer never holds back database figures.
 // Every section checks the admin session next to its data (the layout gate does not keep output out of the response).

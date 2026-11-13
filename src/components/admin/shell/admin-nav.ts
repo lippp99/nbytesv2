@@ -17,27 +17,27 @@ export type AdminNavGroup = { label: string; items: AdminNavItem[] };
 // Icons: the owner's two-tone set (admin/shared/icons/, shared ones in components/icons/).
 export const adminNav: AdminNavGroup[] = [
   {
-    label: "Pantau",
+    label: "Monitor",
     items: [
-      { href: "/admin", label: "Ringkasan", icon: AppsIcon },
+      { href: "/admin", label: "Overview", icon: AppsIcon },
       { href: "/admin/requests", label: "Request log", icon: LineChartIcon },
       { href: "/admin/upstream", label: "Upstream", icon: ServerIcon },
     ],
   },
   {
-    label: "Kelola",
+    label: "Manage",
     items: [
-      { href: "/admin/users", label: "Pengguna", icon: UserGroupIcon },
-      { href: "/admin/models", label: "Model & harga", icon: CubeIcon },
-      { href: "/admin/billing", label: "Keuangan", icon: CardCheckIcon },
-      { href: "/admin/contact", label: "Kontak", icon: ProfileIcon },
+      { href: "/admin/users", label: "Users", icon: UserGroupIcon },
+      { href: "/admin/models", label: "Models & pricing", icon: CubeIcon },
+      { href: "/admin/billing", label: "Billing", icon: CardCheckIcon },
+      { href: "/admin/contact", label: "Contact", icon: ProfileIcon },
     ],
   },
   {
-    label: "Keamanan",
+    label: "Security",
     items: [
       { href: "/admin/audit", label: "Audit log", icon: DocumentFoldedIcon },
-      { href: "/admin/settings", label: "Pengaturan", icon: SettingsIcon },
+      { href: "/admin/settings", label: "Settings", icon: SettingsIcon },
     ],
   },
 ];

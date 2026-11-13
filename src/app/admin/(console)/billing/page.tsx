@@ -8,7 +8,7 @@ import { getCurrentAdmin } from "@/lib/server/admin-auth/current-admin";
 import { currentDepositRules } from "@/lib/server/payments/deposit-rules";
 import { depositSummary, exchangeRateHistory, listDeposits } from "@/lib/server/payments/finance-report";
 
-export const metadata: Metadata = { title: "Keuangan · Admin" };
+export const metadata: Metadata = { title: "Billing · Admin" };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 

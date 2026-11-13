@@ -4,7 +4,7 @@ import type { RateError } from "@/lib/payments/finance-settings-client";
 
 // Text of the admin Finance page: deposits (Sumopod QRIS) and the manual exchange rate (PRD gateway-pricing-billing).
 export const billingCopy = {
-  title: "Keuangan",
+  title: "Billing",
   sub: "Deposit rupiah lewat Sumopod dan kurs yang dipakai untuk mengubahnya menjadi saldo USD.",
   loading: "Memuat data keuangan",
   summary: "Ringkasan deposit bulan ini",

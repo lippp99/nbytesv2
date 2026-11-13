@@ -1,7 +1,7 @@
 // Text of the admin frame: sidebar, header and drawer.
 export const shellCopy = {
   admin: "Admin",
-  home: "nbytes Admin, ke ringkasan",
+  home: "nbytes Admin, ke Overview",
   navLabel: "Menu admin",
   openMenu: "Buka menu",
   closeMenu: "Tutup menu",
@@ -14,7 +14,7 @@ export const shellCopy = {
     title: "Halaman ini belum bisa dimuat",
     body: "Ada gangguan saat mengambil data. Coba lagi; kalau tetap gagal, cocokkan kode kejadian di log server.",
     retry: "Coba lagi",
-    home: "Ke Ringkasan",
+    home: "Ke Overview",
     ref: (digest: string) => `Kode kejadian: ${digest}`,
   },
   footer: {
@@ -22,7 +22,7 @@ export const shellCopy = {
     label: "Tautan footer admin",
     links: [
       { href: "/admin/audit", label: "Audit log" },
-      { href: "/admin/settings", label: "Pengaturan" },
+      { href: "/admin/settings", label: "Settings" },
     ],
   },
 };

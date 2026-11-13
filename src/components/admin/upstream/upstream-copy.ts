@@ -32,7 +32,7 @@ export const upstreamCopy = {
     },
     inactive: "nonaktif",
     emptyTitle: "Belum ada data",
-    emptyBody: "Tambahkan model di Model & harga. Setelah pengguna memanggilnya, kesehatannya muncul di sini.",
+    emptyBody: "Tambahkan model di Models & pricing. Setelah pengguna memanggilnya, kesehatannya muncul di sini.",
     note: "Tidak tersedia = Surplus tidak menemukan penjual, lantai diskon 25% tidak terpenuhi, atau tidak ada penjual sehat.",
   },
 };

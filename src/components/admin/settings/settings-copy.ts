@@ -2,7 +2,7 @@ import type { SettingsFieldError } from "@/lib/platform/platform-settings-contra
 
 // Text of the admin platform settings page (owner decisions 2026-11-12). Every hint says what the switch really does.
 export const settingsCopy = {
-  title: "Pengaturan",
+  title: "Settings",
   sub: "Aturan yang berlaku untuk semua pengguna. Setiap simpan tercatat di audit log.",
   loading: "Memuat pengaturan",
   access: { title: "Akses", body: "Siapa yang boleh mendaftar, dan kapan API ditutup sementara." },

@@ -8,7 +8,7 @@ export const auditCopy = {
   filterLabel: "Jenis kejadian",
   loadingResults: "Memuat…",
   depositRules: (min: string, max: string, fee: string) => `Min ${min} · Maks ${max} · Biaya ${fee}%`,
-  pages: { contact: "Halaman Kontak admin", settings: "Halaman Pengaturan" },
+  pages: { contact: "Halaman Contact admin", settings: "Halaman Settings" },
   copyId: "Salin id akun",
   copiedId: "Id tersalin",
   copyFailed: "Gagal menyalin. Pilih teksnya lalu salin manual.",

@@ -2,7 +2,7 @@
 import type { ModelPriceError } from "@/lib/model-price-client";
 
 export const modelsCopy = {
-  title: "Model & harga",
+  title: "Models & pricing",
   sub: "Pilih model dari katalog Surplus untuk dijual di nbytes. Harga jual = harga list × (1 + markup), dibulatkan ke atas.",
   loading: "Memuat model dan katalog Surplus",
   perM: "Harga dalam USD per 1 juta token.",
