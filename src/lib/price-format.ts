@@ -10,6 +10,19 @@ export function formatMicros(micros: number): string {
   return `$${dollars.toLocaleString("en-US")}.${fraction}`;
 }
 
+/**
+ * Rounded to whole cents (half up), for totals compared at a glance: 5_177_871 -> "$5.18", 1e9 -> "$1,000.00".
+ * Always two decimals, so a thousand ("$1,000.00") never reads like "$1.000". Above zero but under half a cent -> "<$0.01".
+ */
+export function formatCents(micros: number): string {
+  if (!Number.isSafeInteger(micros) || micros < 0) throw new RangeError(`micros must be a non-negative integer, got ${micros}`);
+  const cents = Math.floor((micros + 5_000) / 10_000);
+  if (cents === 0 && micros > 0) return "<$0.01";
+  return `$${Math.floor(cents / 100).toLocaleString("en-US")}.${String(cents % 100).padStart(2, "0")}`;
+}
+
+export const formatSignedCents = (micros: number) => (micros < 0 ? `−${formatCents(-micros)}` : formatCents(micros));
+
 /** A balance, which may be slightly negative (billing B7): -120000 -> "−$0.12". */
 export function formatSignedMicros(micros: number): string {
   return micros < 0 ? `−${formatMicros(-micros)}` : formatMicros(micros);

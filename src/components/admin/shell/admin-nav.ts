@@ -6,8 +6,10 @@ import { CubeIcon } from "@/components/icons/content/cube";
 import { DocumentFoldedIcon } from "@/components/admin/shared/icons/document-folded";
 import { LineChartIcon } from "@/components/icons/content/line-chart";
 import { ProfileIcon } from "@/components/icons/content/profile";
+import { PodiumIcon } from "@/components/admin/shared/icons/podium";
 import { ServerIcon } from "@/components/admin/shared/icons/server";
 import { SettingsIcon } from "@/components/icons/content/settings";
+import { StatisticsIcon } from "@/components/icons/content/statistics";
 import { UserGroupIcon } from "@/components/admin/shared/icons/user-group";
 
 export type AdminNavItem = { href: string; label: string; icon: ComponentType<IconProps> };
@@ -20,6 +22,8 @@ export const adminNav: AdminNavGroup[] = [
     label: "Monitor",
     items: [
       { href: "/admin", label: "Overview", icon: AppsIcon },
+      { href: "/admin/usage", label: "Usage", icon: StatisticsIcon },
+      { href: "/admin/leaderboard", label: "Leaderboard", icon: PodiumIcon },
       { href: "/admin/requests", label: "Request log", icon: LineChartIcon },
       { href: "/admin/upstream", label: "Upstream", icon: ServerIcon },
     ],

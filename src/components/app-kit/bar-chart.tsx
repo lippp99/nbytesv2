@@ -15,10 +15,12 @@ type BarChartProps = {
   tableCaption: string;
   /** Header of the date column in the screen-reader table. */
   dateHeader: string;
+  /** Label of one bar's date; a day ("13 Nov") by default. */
+  dateLabel?: (date: string) => string;
 };
 
 const dayLabel = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" });
-const label = (date: string) => dayLabel.format(new Date(`${date}T00:00:00Z`));
+const dayOf = (date: string) => dayLabel.format(new Date(`${date}T00:00:00Z`));
 const tooltip =
   "pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-app-inner " +
   "bg-app-text px-2 py-1 text-app-small text-app-surface shadow-app-raised group-hover:block";
@@ -65,7 +67,7 @@ function Bars({ day, series, mode, top }: { day: BarDay; series: BarSeries[]; mo
   );
 }
 
-export function BarChart({ series, days, mode, format, tableCaption, dateHeader }: BarChartProps) {
+export function BarChart({ series, days, mode, format, tableCaption, dateHeader, dateLabel: label = dayOf }: BarChartProps) {
   const totals = days.map((d) => (mode === "stacked" ? d.values.reduce((a, b) => a + b, 0) : Math.max(...d.values)));
   const top = niceMax(Math.max(0, ...totals));
   const ticks = [top, top / 2, 0];

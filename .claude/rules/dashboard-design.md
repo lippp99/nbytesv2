@@ -43,10 +43,12 @@ Visual contract for everything under `src/app/(dashboard)/`, `src/components/das
 | `app-scrim` | dim behind the mobile drawer (with 10px blur) | `0.2 0.005 100 / 0.18` | `0 0 0 / 0.35` |
 | `app-success` / `app-warning` / `app-danger` | status text and dots | `0.52 0.12 150` / `0.55 0.12 70` / `0.55 0.2 27` | `0.72 0.13 150` / `0.8 0.13 80` / `0.68 0.18 27` |
 | `app-chart-2` | second chart series next to `app-accent` (never status) | `#2a78d6` | `#3987e5` |
+| `app-medal-gold` / `-silver` / `-bronze` | admin Leaderboard rank 1-3 icons only, always with the rank as text | `0.62 0.13 80` / `0.56 0.015 250` / `0.56 0.11 50` | `0.82 0.14 88` / `0.78 0.015 250` / `0.72 0.11 55` |
 
 Measured contrast (script, 2026-11-08): every text token >= 4.5:1 on page, surface and inset in both themes
 (lowest: `app-text-3` on inset, light, 4.83; `app-accent-text` on inset, light, 4.75). White on `app-accent` 5.18.
 Input outlines `app-border-strong` vs surface 3.11 light, 3.02 dark. Status colors >= 4.98. Text on `app-hover` >= 4.54.
+Medal icons (2026-11-13, non-text, need 3:1): lowest light gold on hover 3.25, dark bronze on hover 6.34.
 Re-measure after any change.
 
 Utilities: `bg-app-surface`, `text-app-text-2`, `border-app-border`, ... ; type `text-app-title` ... `text-app-code`;

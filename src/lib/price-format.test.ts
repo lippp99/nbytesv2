@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { formatIdr, formatMicros, formatSignedMicros, parseDollarsToMicros } from "./price-format.ts";
+import { formatCents, formatIdr, formatMicros, formatSignedCents, formatSignedMicros, parseDollarsToMicros } from "./price-format.ts";
+
+test("formatCents rounds to two decimals with comma thousands", () => {
+  assert.equal(formatCents(5_177_871), "$5.18");
+  assert.equal(formatCents(1_111_461), "$1.11");
+  assert.equal(formatCents(1_000_000_000), "$1,000.00");
+  assert.equal(formatCents(1_234_567_890_000), "$1,234,567.89");
+  assert.equal(formatCents(4_999), "<$0.01");
+  assert.equal(formatCents(5_000), "$0.01");
+  assert.equal(formatCents(0), "$0.00");
+  assert.equal(formatSignedCents(-2_500_000), "−$2.50");
+  assert.throws(() => formatCents(-1), RangeError);
+});
 
 test("formatMicros keeps two decimals for whole cents", () => {
   assert.equal(formatMicros(0), "$0.00");
