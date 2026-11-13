@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUp01Icon, ArrowUpDownIcon, CubeIcon, Search01Icon } from "@hugeicons/core-free-icons";
+import { ArrowUp01Icon, ArrowUpDownIcon, CubeIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { CopyButton } from "@/components/copy-button";
 import { common } from "@/components/dashboard/shared/common-copy";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/app-kit/badge";
 import { appFocus, secondaryAction } from "@/components/app-kit/button";
 import { Card } from "@/components/app-kit/card";
 import { EmptyState } from "@/components/app-kit/empty-state";
-import { TextInput } from "@/components/app-kit/field";
+import { SearchInput } from "@/components/app-kit/field";
 import { PageHeader } from "@/components/app-kit/page-header";
 import { THead, Table, Td, Th, Tr } from "@/components/app-kit/table";
 import type { CatalogModel } from "@/lib/gateway/catalog-contract";
@@ -79,12 +79,8 @@ export function ModelsView({ models }: { models: CatalogModel[] }) {
       <PageHeader title={copy.title} sub={copy.sub} />
       <Card>
         <div className="flex flex-wrap items-center gap-3 border-b border-app-border bg-app-inset px-6 py-4">
-          <div className="relative w-full sm:w-72">
-            <HugeiconsIcon icon={Search01Icon} aria-hidden
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-app-text-3" />
-            <TextInput type="search" aria-label={copy.search} value={query} placeholder={copy.searchPlaceholder}
-              onChange={(e) => setQuery(e.target.value)} className="pl-9" />
-          </div>
+          <SearchInput aria-label={copy.search} value={query} placeholder={copy.searchPlaceholder} wrapperClassName="w-full sm:w-72"
+            clearLabel={copy.clearSearch} onClear={() => setQuery("")} onChange={(e) => setQuery(e.target.value)} />
           <p aria-live="polite" className="text-app-small text-app-text-3 sm:ml-auto">{copy.count(rows.length, models.length)}</p>
         </div>
         {rows.length > 0 ? (

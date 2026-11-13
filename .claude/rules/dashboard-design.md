@@ -113,7 +113,7 @@ Prose measure 65-75ch.
 
 Button (primary, secondary, ghost), Card, Field (input, select, textarea), Segmented control, Table, Badge,
 CodeBlock (theme-following, wraps or uses the wide area), EmptyState, PageHeader. Files: `button.ts` (`primaryAction`,
-`secondaryAction`, `ghostAction`, `dangerAction`, `iconAction`, `appFocus`), `card.tsx`, `field.tsx` (`Field`, `TextInput`,
+`secondaryAction`, `ghostAction`, `dangerAction`, `iconAction`, `appFocus`), `card.tsx`, `field.tsx` (`Field`, `TextInput`, `SearchInput`,
 `TextArea`, `Select`, `controlStyles`), `segmented.tsx`, `table.tsx`, `badge.tsx`, `code-block.tsx`,
 `bar-chart.tsx`, `empty-state.tsx` (`tone="danger"` when something failed), `list-skeleton.tsx`, `notice-line.tsx` (result of an action: icon + words, no toast), `page-error.tsx` (fallback of every `error.tsx`), `page-header.tsx`, `pagination.tsx`, `stat-summary.tsx`, `theme-switch.tsx`. Pages use these, not raw classes for the same job. Add a
 Tabs wrapper over `ui/tabs` only when a page needs real tabbed sections (Segmented covers in-place switches). Every interactive one has

@@ -1,7 +1,9 @@
 import type { ComponentProps, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
-import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import { ArrowDown01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { CloseIcon } from "@/components/icons/ui/close";
 import { cn } from "@/lib/utils";
+import { iconAction } from "./button";
 
 /** Native control look: 40px, 10px radius, 3:1 outline, accent focus, danger when aria-invalid, inset when disabled. */
 export const controlStyles =
@@ -38,6 +40,35 @@ export function Field({ id, label, hint, error, aside, children }: FieldProps) {
 
 export function TextInput({ className, ...props }: ComponentProps<"input">) {
   return <input {...props} className={cn(controlStyles, "h-10", className)} />;
+}
+
+type SearchInputProps = Omit<ComponentProps<"input">, "type" | "value"> & {
+  value: string;
+  /** Empties the field (and, for a submitted search, shows everything again). */
+  onClear: () => void;
+  clearLabel: string;
+  wrapperClassName?: string;
+};
+
+/**
+ * Search field with the magnifier on the left and the owner's close icon to clear it. The browser's own clear "x" of
+ * type=search is hidden, so every search looks the same in every browser.
+ */
+export function SearchInput({ value, onClear, clearLabel, wrapperClassName, className, ...props }: SearchInputProps) {
+  return (
+    <div className={cn("relative", wrapperClassName)}>
+      <HugeiconsIcon icon={Search01Icon} aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-app-text-3" />
+      <TextInput {...props} type="search" value={value}
+        className={cn("pl-9 pr-10 [&::-webkit-search-cancel-button]:appearance-none", className)} />
+      {value && (
+        <button type="button" aria-label={clearLabel} onClick={onClear}
+          className={iconAction("absolute top-1/2 right-1 size-8 -translate-y-1/2")}>
+          <CloseIcon className="size-4" />
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function TextArea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {

@@ -9,6 +9,7 @@ export const usersCopy = {
   loading: "Memuat pengguna",
   search: "Cari pengguna",
   searchPlaceholder: "Cari nama atau email",
+  clearSearch: "Hapus pencarian",
   searchSubmit: "Cari",
   filterLabel: "Status akun",
   count: (total: number) => `${total} akun`,

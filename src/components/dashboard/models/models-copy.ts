@@ -5,6 +5,7 @@ export const modelsCopy = {
   loading: "Memuat model",
   search: "Cari model",
   searchPlaceholder: "Cari nama atau id model",
+  clearSearch: "Hapus pencarian",
   count: (shown: number, total: number) => (shown === total ? `${total} model` : `${shown} dari ${total} model`),
   cols: { model: "Model", context: "Konteks", maxOutput: "Maks output", input: "Input / 1M", output: "Output / 1M", features: "Fitur" },
   sortBy: (column: string) => `Urutkan ${column} dari yang termurah`,
